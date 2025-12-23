@@ -1,0 +1,43 @@
+name: Loci CI Build
+
+on:
+    pull_request:
+        branches: ["**"]
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y just wget
+                  wget https://github.com/NoMore201/tricore-gcc-toolchain/releases/download/13.4-20250801/tricore-gcc-13.4-20250801-linux.tar.gz
+                  sudo mkdir /opt/tricore-gcc
+                  sudo tar -xvzf tricore-gcc-13.4-20250801-linux.tar.gz -C /opt/tricore-gcc
+
+            - name: Configure and build project
+              run: |
+                  export PATH=/opt/tricore-gcc/bin:$PATH
+                  just configure
+                  just build
+                  cp build/blinky/Blinky_LED.elf .
+
+            - name: Upload build artifacts
+              uses: auroralabs-loci/loci-action@v1
+              env:
+                  LOCI_BACKEND_URL: "${{ vars.LOCI_DEV_BACKEND_URL }}"
+                  LOCI_API_KEY: "${{ secrets.LOCI_DEV_AGENTIC_API_KEY }}"
+              with:
+                  mode: upload
+                  binaries: |
+                    Blinky_LED.elf
+                  project: Blinky_LED
