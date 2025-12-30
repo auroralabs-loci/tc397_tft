@@ -41,3 +41,4 @@ jobs:
                   binaries: |
                     Blinky_LED.elf
                   project: Blinky_LED
+
