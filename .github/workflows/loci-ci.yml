@@ -42,7 +42,6 @@ jobs:
                     Blinky_LED.elf
                   project: Blinky_LED
             
-
             - name: LOCI summary
               uses: auroralabs-loci/loci-dev-action@main
               env:
@@ -52,5 +51,4 @@ jobs:
                   mode: summary
                   project: Blinky_LED
 
-            
-
+        
