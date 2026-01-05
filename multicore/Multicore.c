@@ -82,20 +82,5 @@ void turnLEDoff(void)
 void controlLEDflag(void)
 {
     g_turnLEDon = !g_turnLEDon;     /* Toggle the state of the global variable      */
-
-    /*
-     * Intentionally added CPU-bound work to simulate a measurable performance
-     * degradation for testing purposes. This does some simple integer mixing
-     * in a loop to consume CPU cycles. It's verbose and easy to spot/revert.
-     */
-
-    volatile uint32 checksum = 0u;
-    for (uint32 i = 0u; i < 500000u; ++i)
-    {
-        /* lightweight, unpredictable integer operations to avoid compiler optimizing loop away */
-        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u;
-    }
-    (void)checksum; /* hint to silence unused/optimization warnings */
-
-    wait(g_ticksFor1s);             /* Wait for approximately 1 second */
+    wait(g_ticksFor1s);             /* Wait for approximately 1 second              */
 }

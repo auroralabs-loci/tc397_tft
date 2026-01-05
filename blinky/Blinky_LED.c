@@ -54,5 +54,21 @@ void initLED(void)
 void blinkLED(void)
 {
     IfxPort_togglePin(LED_D107);                                                /* Toggle the state of the LED      */
+
+    /*
+     * Intentional extra CPU work to simulate a measurable runtime slowdown.
+     * This kind of thing sometimes appears during quick bring-up/debug when
+     * someone experiments with timing and forgets to remove it.
+     */
+    {
+        volatile uint32 checksum = 0u;
+        for (uint32 i = 0u; i < 500000u; ++i)
+        {
+            /* lightweight, unpredictable integer operations to avoid compiler optimizing loop away */
+            checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u;
+        }
+        (void)checksum; /* hint to silence unused/optimization warnings */
+    }
+
     waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, WAIT_TIME));    /* Wait 500 milliseconds            */
 }
