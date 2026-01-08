@@ -50,5 +50,3 @@ jobs:
               with:
                   mode: summary
                   project: Blinky_LED
-
-        
