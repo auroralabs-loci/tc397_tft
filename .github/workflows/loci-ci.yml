@@ -32,7 +32,7 @@ jobs:
                   cp build/blinky/Blinky_LED.elf .
 
             - name: Upload build artifacts
-              uses: auroralabs-loci/loci-dev-action@v1
+              uses: auroralabs-loci/loci-dev-action@main
               env:
                   LOCI_BACKEND_URL: "${{ vars.LOCI_DEV_BACKEND_URL }}"
                   LOCI_API_KEY: "${{ secrets.LOCI_DEV_API_KEY}}"
@@ -44,7 +44,7 @@ jobs:
             
 
             - name: LOCI summary
-              uses: auroralabs-loci/loci-dev-action@v1
+              uses: auroralabs-loci/loci-dev-action@main
               env:
                   LOCI_BACKEND_URL: "${{ vars.LOCI_DEV_BACKEND_URL }}"
                   LOCI_API_KEY: "${{ secrets.LOCI_DEV_API_KEY}}"
