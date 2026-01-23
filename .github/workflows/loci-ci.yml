@@ -41,17 +41,6 @@ jobs:
                   binaries: |
                     Blinky_LED.elf
                   project: Blinky_LED
-            
-
-            - name: LOCI summary
-              uses: auroralabs-loci/loci-action@v1
-              env:
-                  LOCI_BACKEND_URL: "${{ vars.LOCI_PROD_BACKEND_URL }}"
-                  LOCI_API_KEY: "${{ secrets.LOCI_PROD_API_KEY}}"
-                  LOCI_GITHUB_TOKEN: ${{ secrets.LOCI_GITHUB_TOKEN }}
-              with:
-                  mode: summary
-                  project: Blinky_LED
 
             
 
