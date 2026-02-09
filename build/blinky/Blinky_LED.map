@@ -887,7 +887,7 @@ Discarded input sections
 
 Linker version: GNU ld version (GNU Binutils) 2.40.50.20230607 using BFD version (GNU Binutils) 2.40.50.20230607
 Name of linker executable: /home/melisa/tricore-gcc/bin/../lib/gcc/tricore-elf/13.4.0/../../../../tricore-elf/bin/ld
-Date of link run: Mon Feb  9 09:03:37 2026
+Date of link run: Mon Feb  9 11:15:40 2026
 Name of linker map file: /home/melisa/tc397_tft/build/blinky/Blinky_LED.map
 
 >>> Symbols (global (S = g) and static (S = l); sorted by address)

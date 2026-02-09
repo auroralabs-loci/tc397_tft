@@ -282,6 +282,9 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj: /home/melisa/tc397_tft/blinky/
   /home/melisa/tricore-gcc/tricore-elf/include/machine/cint.h \
   /home/melisa/tricore-gcc/tricore-elf/include/machine/intrinsics.h
 
+blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj: /home/melisa/tc397_tft/blinky/LargeFunction.c \
+  /home/melisa/tc397_tft/blinky/Blinky_LED.h
+
 
 /home/melisa/tc397_tft/blinky/Cpu5_Main.c:
 
@@ -342,6 +345,8 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj: /home/melisa/tc397_tft/blinky/
 /home/melisa/tc397_tft/blinky/Cpu2_Main.c:
 
 /home/melisa/tc397_tft/Libraries/Infra/Sfr/TC39B/_Reg/IfxScu_regdef.h:
+
+/home/melisa/tc397_tft/blinky/LargeFunction.c:
 
 /home/melisa/tc397_tft/Libraries/Infra/Sfr/TC39B/_Reg/IfxDmu_regdef.h:
 
