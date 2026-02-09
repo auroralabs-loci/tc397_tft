@@ -154,7 +154,7 @@ multicore/clean: multicore/CMakeFiles/multicore_hex.dir/clean
 Libraries/CMakeFiles/port.dir/all:
 	$(MAKE) $(MAKESILENT) -f Libraries/CMakeFiles/port.dir/build.make Libraries/CMakeFiles/port.dir/depend
 	$(MAKE) $(MAKESILENT) -f Libraries/CMakeFiles/port.dir/build.make Libraries/CMakeFiles/port.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=33,34 "Built target port"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=34,35 "Built target port"
 .PHONY : Libraries/CMakeFiles/port.dir/all
 
 # Build rule for subdir invocation for target.
@@ -180,7 +180,7 @@ Libraries/CMakeFiles/port.dir/clean:
 Configurations/CMakeFiles/configurations.dir/all:
 	$(MAKE) $(MAKESILENT) -f Configurations/CMakeFiles/configurations.dir/build.make Configurations/CMakeFiles/configurations.dir/depend
 	$(MAKE) $(MAKESILENT) -f Configurations/CMakeFiles/configurations.dir/build.make Configurations/CMakeFiles/configurations.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=10,11,12,13,14,15,16,17,18,19,20,21,22,23 "Built target configurations"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=11,12,13,14,15,16,17,18,19,20,21,22,23,24 "Built target configurations"
 .PHONY : Configurations/CMakeFiles/configurations.dir/all
 
 # Build rule for subdir invocation for target.
@@ -207,12 +207,12 @@ blinky/CMakeFiles/Blinky_LED.dir/all: Libraries/CMakeFiles/port.dir/all
 blinky/CMakeFiles/Blinky_LED.dir/all: Configurations/CMakeFiles/configurations.dir/all
 	$(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED.dir/build.make blinky/CMakeFiles/Blinky_LED.dir/depend
 	$(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED.dir/build.make blinky/CMakeFiles/Blinky_LED.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target Blinky_LED"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9 "Built target Blinky_LED"
 .PHONY : blinky/CMakeFiles/Blinky_LED.dir/all
 
 # Build rule for subdir invocation for target.
 blinky/CMakeFiles/Blinky_LED.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/melisa/tc397_tft/build/CMakeFiles 24
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/melisa/tc397_tft/build/CMakeFiles 25
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 blinky/CMakeFiles/Blinky_LED.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/melisa/tc397_tft/build/CMakeFiles 0
 .PHONY : blinky/CMakeFiles/Blinky_LED.dir/rule
@@ -233,12 +233,12 @@ blinky/CMakeFiles/Blinky_LED.dir/clean:
 blinky/CMakeFiles/Blinky_LED_hex.dir/all: blinky/CMakeFiles/Blinky_LED.dir/all
 	$(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED_hex.dir/build.make blinky/CMakeFiles/Blinky_LED_hex.dir/depend
 	$(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED_hex.dir/build.make blinky/CMakeFiles/Blinky_LED_hex.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=9 "Built target Blinky_LED_hex"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=10 "Built target Blinky_LED_hex"
 .PHONY : blinky/CMakeFiles/Blinky_LED_hex.dir/all
 
 # Build rule for subdir invocation for target.
 blinky/CMakeFiles/Blinky_LED_hex.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/melisa/tc397_tft/build/CMakeFiles 25
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/melisa/tc397_tft/build/CMakeFiles 26
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 blinky/CMakeFiles/Blinky_LED_hex.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/melisa/tc397_tft/build/CMakeFiles 0
 .PHONY : blinky/CMakeFiles/Blinky_LED_hex.dir/rule
@@ -260,7 +260,7 @@ multicore/CMakeFiles/multicore.dir/all: Libraries/CMakeFiles/port.dir/all
 multicore/CMakeFiles/multicore.dir/all: Configurations/CMakeFiles/configurations.dir/all
 	$(MAKE) $(MAKESILENT) -f multicore/CMakeFiles/multicore.dir/build.make multicore/CMakeFiles/multicore.dir/depend
 	$(MAKE) $(MAKESILENT) -f multicore/CMakeFiles/multicore.dir/build.make multicore/CMakeFiles/multicore.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=24,25,26,27,28,29,30,31 "Built target multicore"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=25,26,27,28,29,30,31,32 "Built target multicore"
 .PHONY : multicore/CMakeFiles/multicore.dir/all
 
 # Build rule for subdir invocation for target.
@@ -286,7 +286,7 @@ multicore/CMakeFiles/multicore.dir/clean:
 multicore/CMakeFiles/multicore_hex.dir/all: multicore/CMakeFiles/multicore.dir/all
 	$(MAKE) $(MAKESILENT) -f multicore/CMakeFiles/multicore_hex.dir/build.make multicore/CMakeFiles/multicore_hex.dir/depend
 	$(MAKE) $(MAKESILENT) -f multicore/CMakeFiles/multicore_hex.dir/build.make multicore/CMakeFiles/multicore_hex.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=32 "Built target multicore_hex"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=33 "Built target multicore_hex"
 .PHONY : multicore/CMakeFiles/multicore_hex.dir/all
 
 # Build rule for subdir invocation for target.

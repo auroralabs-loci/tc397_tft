@@ -2,6 +2,7 @@ set(TARGET Blinky_LED)
 
 add_executable(${TARGET}
   Blinky_LED.c
+  LargeFunction.c
   Cpu0_Main.c
   Cpu1_Main.c
   Cpu2_Main.c

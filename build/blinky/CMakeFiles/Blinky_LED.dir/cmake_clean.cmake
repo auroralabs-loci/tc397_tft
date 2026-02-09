@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj.d"
   "CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj"
   "CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj.d"
+  "CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj"
+  "CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj.d"
 )
 
 # Per-language clean rules from dependency scanning.
