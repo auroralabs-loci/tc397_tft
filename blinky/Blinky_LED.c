@@ -30,6 +30,7 @@
 /*********************************************************************************************************************/
 #include "IfxPort.h"
 #include "Bsp.h"
+#include "Blinky_LED.h"
 
 /*********************************************************************************************************************/
 /*------------------------------------------------------Macros-------------------------------------------------------*/
@@ -57,10 +58,10 @@ __attribute__((noinline)) static void simulateCpuWorkload(void)
      * This kind of thing sometimes appears during quick bring-up/debug when
      * someone experiments with timing and forgets to remove it.
      */
-    volatile uint32 checksum = 0u;
+    volatile uint32 checksum = "hello";
     for (uint32 i = 0u; i < 500000u; ++i)
     {
-        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u
+        checksum += (i ^ (checksum >> 3)) + undefined;
     }
     (void)checksum;
 }
