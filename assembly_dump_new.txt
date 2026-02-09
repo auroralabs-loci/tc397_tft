@@ -1,0 +1,5496 @@
+
+build/blinky/Blinky_LED.elf:     file format elf32-tricore
+
+
+Disassembly of section .start_tc0:
+
+<_START>:
+	movh.a %a2,32768
+	lea %a2,[%a2]1412 <<__StartUpSoftware>>
+	ji %a2
+	ret 
+
+Disassembly of section .start_tc1:
+
+<_START1>:
+	movh.a %a2,32816
+	lea %a2,[%a2]268 <<__Core1_start>>
+	ji %a2
+	ret 
+
+Disassembly of section .start_tc2:
+
+<_START2>:
+	movh.a %a2,32864
+	lea %a2,[%a2]268 <<__Core2_start>>
+	ji %a2
+	ret 
+
+Disassembly of section .start_tc3:
+
+<_START3>:
+	movh.a %a2,32912
+	lea %a2,[%a2]268 <<__Core3_start>>
+	ji %a2
+	ret 
+
+Disassembly of section .start_tc4:
+
+<_START4>:
+	movh.a %a2,32960
+	lea %a2,[%a2]268 <<__Core4_start>>
+	ji %a2
+	ret 
+
+Disassembly of section .start_tc5:
+
+<_START5>:
+	movh.a %a2,33008
+	lea %a2,[%a2]268 <<__Core5_start>>
+	ji %a2
+	ret 
+
+Disassembly of section .CPU0.text:
+
+<hardware_init_hook>:
+	ret 
+
+<software_init_hook>:
+	ret 
+
+<__StartUpSoftware>:
+	movh.a %a1,32769
+	lea %a1,[%a1]-32768 <<_SMALL_DATA2_>>
+	mov %d2,2432
+	mtcr $psw,%d2
+	movh.a %a2,61443
+	ld.w %d2,[%a2]24656 <<bmhd_3_copy+0x40c34a50>>
+	movh %d3,5005
+	and %d3,%d2
+	lea %a2,[%a2]24656 <<bmhd_3_copy+0x40c34a50>>
+	jne %d3,0,<__StartUpSoftware+0x4e>
+	mov %d3,2043
+	and %d3,%d2
+	jeq %d3,0,<__StartUpSoftware+0x5a>
+	movh.a %a2,61443
+	clz %d2,%d3
+	rsub %d2,%d2,31
+	ld.w %d3,[%a2]24664 <<bmhd_3_copy+0x40c34a58>>
+	sh %d2,1
+	extr.u %d2,%d3,%d2,2
+	lea %a2,[%a2]24664 <<bmhd_3_copy+0x40c34a58>>
+	jeq %d2,2,<__StartUpSoftware+0x5e>
+	movh.a %a2,32768
+	lea %a2,[%a2]1542 <<__StartUpSoftware_Phase2>>
+	ji %a2
+	ret 
+	jz.t %d2,20,<__StartUpSoftware+0x6a>
+	movh.a %a2,32768
+	lea %a2,[%a2]1786 <<__StartUpSoftware_Phase3ApplicationResetPath>>
+	ji %a2
+	ret 
+	movh.a %a2,63617
+	ld.w %d2,[%a2]-12288 <<bmhd_3_copy+0x4940ba00>>
+	lea %a2,[%a2]-12288 <<bmhd_3_copy+0x4940ba00>>
+	extr.u %d2,%d2,1,2
+	jeq %d2,0,<__StartUpSoftware+0x4e>
+	j <__StartUpSoftware+0x5e>
+
+<__StartUpSoftware_Phase2>:
+	movh.a %a2,32768
+	lea %a2,[%a2]2894 <<Ifx_Ssw_Pms_Init>>
+	jli %a2
+	movh.a %a2,32768
+	lea %a2,[%a2]3188 <<Ifx_Ssw_Pms_InitCheck>>
+	jli %a2
+	movh.a %a2,32768
+	lea %a2,[%a2]1578 <<__StartUpSoftware_Phase3PowerOnResetPath>>
+	ji %a2
+	ret 
+
+<__StartUpSoftware_Phase3PowerOnResetPath>:
+	movh.a %sp,28676
+	lea %sp,[%sp]-27136 <<__USTACK0>>
+	dsync 
+	movh.a %a3,28676
+	mov.d %d2,%a3
+	movh.a %a2,28676
+	addi %d1,%d2,-25600
+	mov.d %d2,%a2
+	addi %d2,%d2,-17408
+	sub %d2,%d1
+	sh %d5,%d2,-6
+	jeq %d5,0,<__StartUpSoftware_Phase3PowerOnResetPath+0xc8>
+	extr.u %d2,%d1,6,16
+	sh %d3,%d1,-12
+	movh %d4,15
+	and %d3,%d4
+	addi %d7,%d5,-3
+	or %d2,%d3
+	mtcr $fcx,%d2
+	mov %d3,0
+	mov.a %a2,%d1
+	jeq %d7,0,<__StartUpSoftware_Phase3PowerOnResetPath+0xa8>
+	mov.d %d2,%a2
+	add %d3,1
+	movh %d0,15
+	addi %d2,%d2,64
+	jeq %d5,%d3,<__StartUpSoftware_Phase3PowerOnResetPath+0x7a>
+	extr.u %d4,%d2,6,16
+	sh %d6,%d2,-12
+	and %d6,%d0
+	or %d4,%d6
+	st.w [%a2],%d4
+	jeq %d3,%d7,<__StartUpSoftware_Phase3PowerOnResetPath+0x9e>
+	mov.a %a2,%d2
+	mov.d %d2,%a2
+	add %d3,1
+	addi %d2,%d2,64
+	jne %d5,%d3,<__StartUpSoftware_Phase3PowerOnResetPath+0x5a>
+	mov.a %a2,%d1
+	addi %d2,%d5,-1
+	sh %d2,6
+	addsc.a %a2,%a2,%d2,0
+	mov %d2,0
+	st.w [%a2],%d2
+	dsync 
+	isync 
+	movh.a %a2,32768
+	lea %a2,[%a2]1994 <<__StartUpSoftware_Phase4>>
+	ji %a2
+	ret 
+	mtcr $lcx,%d4
+	mov.a %a2,%d2
+	j <__StartUpSoftware_Phase3PowerOnResetPath+0x6e>
+	mtcr $lcx,%d2
+	addi %d2,%d1,64
+	extr.u %d6,%d2,6,16
+	sh %d3,%d2,-12
+	and %d3,%d4
+	or %d6,%d3
+	mov.a %a2,%d2
+	mov %d3,1
+	st.w [%a3]-25600,%d6
+	j <__StartUpSoftware_Phase3PowerOnResetPath+0x4a>
+	st.w <__TRICORE_DERIVATE_MEMORY_MAP__-0x390>,%d5
+	call <abort>
+
+<__StartUpSoftware_Phase3ApplicationResetPath>:
+	movh.a %sp,28676
+	lea %sp,[%sp]-27136 <<__USTACK0>>
+	dsync 
+	movh.a %a3,28676
+	mov.d %d2,%a3
+	movh.a %a2,28676
+	addi %d1,%d2,-25600
+	mov.d %d2,%a2
+	addi %d2,%d2,-17408
+	sub %d2,%d1
+	sh %d5,%d2,-6
+	jeq %d5,0,<__StartUpSoftware_Phase3ApplicationResetPath+0xc8>
+	extr.u %d2,%d1,6,16
+	sh %d3,%d1,-12
+	movh %d4,15
+	and %d3,%d4
+	addi %d7,%d5,-3
+	or %d2,%d3
+	mtcr $fcx,%d2
+	mov %d3,0
+	mov.a %a2,%d1
+	jeq %d7,0,<__StartUpSoftware_Phase3ApplicationResetPath+0xa8>
+	mov.d %d2,%a2
+	add %d3,1
+	movh %d0,15
+	addi %d2,%d2,64
+	jeq %d5,%d3,<__StartUpSoftware_Phase3ApplicationResetPath+0x7a>
+	extr.u %d4,%d2,6,16
+	sh %d6,%d2,-12
+	and %d6,%d0
+	or %d4,%d6
+	st.w [%a2],%d4
+	jeq %d3,%d7,<__StartUpSoftware_Phase3ApplicationResetPath+0x9e>
+	mov.a %a2,%d2
+	mov.d %d2,%a2
+	add %d3,1
+	addi %d2,%d2,64
+	jne %d5,%d3,<__StartUpSoftware_Phase3ApplicationResetPath+0x5a>
+	mov.a %a2,%d1
+	addi %d2,%d5,-1
+	sh %d2,6
+	addsc.a %a2,%a2,%d2,0
+	mov %d2,0
+	st.w [%a2],%d2
+	dsync 
+	isync 
+	movh.a %a2,32768
+	lea %a2,[%a2]2072 <<__StartUpSoftware_Phase5>>
+	ji %a2
+	ret 
+	mtcr $lcx,%d4
+	mov.a %a2,%d2
+	j <__StartUpSoftware_Phase3ApplicationResetPath+0x6e>
+	mtcr $lcx,%d2
+	addi %d2,%d1,64
+	extr.u %d6,%d2,6,16
+	sh %d3,%d2,-12
+	and %d3,%d4
+	or %d6,%d3
+	mov.a %a2,%d2
+	mov %d3,1
+	st.w [%a3]-25600,%d6
+	j <__StartUpSoftware_Phase3ApplicationResetPath+0x4a>
+	st.w <__TRICORE_DERIVATE_MEMORY_MAP__-0x390>,%d5
+	call <abort>
+
+<__StartUpSoftware_Phase4>:
+	movh.a %a4,61443
+	ld.w %d4,[%a4]25164 <<bmhd_3_copy+0x40c34c4c>>
+	movh.a %a2,61443
+	ld.w %d8,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	extr.u %d4,%d4,2,14
+	lea %a4,[%a4]25164 <<bmhd_3_copy+0x40c34c4c>>
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	xor %d4,%d4,63
+	extr.u %d8,%d8,2,14
+	call <Ifx_Ssw_serviceCpuWatchdog>
+	xor %d4,%d8,63
+	call <Ifx_Ssw_serviceSafetyWatchdog>
+	movh.a %a4,32768
+	lea %a4,[%a4]688 <<IfxScuCcu_defaultClockConfig>>
+	call <IfxScuCcu_init>
+	jne %d2,1,<__StartUpSoftware_Phase4+0x42>
+	debug 
+	movh.a %a2,32768
+	lea %a2,[%a2]2072 <<__StartUpSoftware_Phase5>>
+	ji %a2
+	ret 
+
+<__StartUpSoftware_Phase5>:
+	movh.a %a2,32768
+	lea %a2,[%a2]2084 <<__StartUpSoftware_Phase6>>
+	ji %a2
+	ret 
+
+<__StartUpSoftware_Phase6>:
+	movh.a %a2,41008
+	mov.d %d2,%a2
+	addi %d4,%d2,256
+	movh.a %a4,63618
+	call <Ifx_Ssw_startCore>
+	movh.a %a2,32768
+	lea %a2,[%a2]2114 <<__Core0_start>>
+	ji %a2
+	ret 
+
+<__Core0_start>:
+	movh.a %a2,61443
+	movh.a %a3,61443
+	ld.w %d3,[%a2]25164 <<bmhd_3_copy+0x40c34c4c>>
+	ld.w %d2,[%a3]25256 <<bmhd_3_copy+0x40c34ca8>>
+	extr.u %d3,%d3,2,14
+	extr.u %d2,%d2,2,14
+	ld.w %d4,[%a2]25164 <<bmhd_3_copy+0x40c34c4c>>
+	xor %d8,%d3,63
+	lea %a2,[%a2]25164 <<bmhd_3_copy+0x40c34c4c>>
+	lea %a3,[%a3]25256 <<bmhd_3_copy+0x40c34ca8>>
+	xor %d9,%d2,63
+	sh %d2,%d8,2
+	jz.t %d4,1,<__Core0_start+0x46>
+	ld.w %d3,[%a2]
+	sh %d2,%d8,2
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	movh.a %a2,61443
+	ld.w %d4,[%a2]25164 <<bmhd_3_copy+0x40c34c4c>>
+	lea %a2,[%a2]25164 <<bmhd_3_copy+0x40c34c4c>>
+	insert %d4,%d4,0,0,16
+	mov %d3,0
+	or %d4,%d2
+	or %d4,%d4,2
+	st.w [%a2],%d4
+	ld.w %d4,[%a2]
+	mtcr $pcon0,%d3
+	isync 
+	mtcr $dcon0,%d3
+	isync 
+	movh.a %a0,28673
+	lea %a0,[%a0]-32768 <<_SMALL_DATA_>>
+	movh.a %a8,32769
+	lea %a8,[%a8]-32768 <<_SMALL_DATA2_>>
+	movh.a %a9,36865
+	lea %a9,[%a9]-32768 <<_SMALL_DATA4_>>
+	movh.a %a3,32768
+	mov.d %d3,%a3
+	addi %d3,%d3,256
+	mtcr $btv,%d3
+	movh.a %a3,32816
+	mov.d %d3,%a3
+	addi %d3,%d3,-8192
+	mtcr $biv,%d3
+	movh.a %a3,28676
+	mov.d %d3,%a3
+	addi %d3,%d3,-25856
+	mtcr $isp,%d3
+	ld.w %d3,[%a2]
+	jz.t %d3,1,<__Core0_start+0xc8>
+	ld.w %d3,[%a2]
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	movh.a %a12,61443
+	ld.w %d3,[%a12]25164 <<bmhd_3_copy+0x40c34c4c>>
+	lea %a12,[%a12]25164 <<bmhd_3_copy+0x40c34c4c>>
+	insert %d3,%d3,0,0,16
+	mov.aa %a4,%a12
+	or %d2,%d3
+	or %d2,%d2,3
+	mov %d4,%d8
+	st.w [%a12],%d2
+	ld.w %d2,[%a12]
+	call <Ifx_Ssw_disableCpuWatchdog>
+	mov %d4,%d9
+	call <Ifx_Ssw_disableSafetyWatchdog>
+	call <hardware_init_hook>
+	call <Ifx_Ssw_doCppInit>
+	call <software_init_hook>
+	mov %d4,%d9
+	call <Ifx_Ssw_enableSafetyWatchdog>
+	mov %d4,%d8
+	mov.aa %a4,%a12
+	call <Ifx_Ssw_enableCpuWatchdog>
+	movh.a %a2,32768
+	lea %a2,[%a2]2402 <<core0_main>>
+	ji %a2
+
+<x>:
+	loopu <x>
+	ret 
+
+<_init>:
+	mov.aa %a14,%sp
+	nop 
+	ret 
+
+<core0_main>:
+	mov.aa %a14,%sp
+	enable 
+	nop 
+	call <IfxScuWdt_getCpuWatchdogPassword>
+	mov %d4,%d2
+	call <IfxScuWdt_disableCpuWatchdog>
+	call <IfxScuWdt_getSafetyWatchdogPassword>
+	mov %d4,%d2
+	call <IfxScuWdt_disableSafetyWatchdog>
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_emitEvent>
+	mov %d4,1
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_waitEvent>
+	call <initLED>
+	call <blinkLED>
+	j <core0_main+0x3a>
+
+Disassembly of section .CPU1.text:
+
+<__Core1_start>:
+	movh.a %a2,61443
+	lea %a2,[%a2]25176 <<bmhd_3_copy+0x40c34c58>>
+	ld.w %d8,<bmhd_3_copy+0x40bffa10>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	xor %d2,%d2,63
+	movh.a %sp,24580
+	lea %sp,[%sp]-27136 <<__USTACK1>>
+	dsync 
+	mov %d3,2432
+	mtcr $psw,%d3
+	ld.w %d3,[%a2]
+	jnz.t %d3,1,<x+0x10>
+	sh %d2,2
+	movh.a %a2,61443
+	ld.w %d4,[%a2]25176 <<bmhd_3_copy+0x40c34c58>>
+	lea %a2,[%a2]25176 <<bmhd_3_copy+0x40c34c58>>
+	insert %d4,%d4,0,0,16
+	mov %d3,0
+	or %d4,%d2
+	or %d4,%d4,2
+	st.w [%a2],%d4
+	ld.w %d4,[%a2]
+	mtcr $pcon0,%d3
+	isync 
+	mtcr $dcon0,%d3
+	isync 
+	movh.a %a3,32816
+	mov.d %d3,%a3
+	addi %d3,%d3,0
+	mtcr $btv,%d3
+	movh.a %a3,32864
+	mov.d %d3,%a3
+	addi %d3,%d3,-8192
+	mtcr $biv,%d3
+	movh.a %a3,24580
+	mov.d %d3,%a3
+	addi %d3,%d3,-25856
+	mtcr $isp,%d3
+	ld.w %d3,[%a2]
+	jz.t %d3,1,<__Core1_start+0x9c>
+	ld.w %d3,[%a2]
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	movh.a %a2,61443
+	ld.w %d3,[%a2]25176 <<bmhd_3_copy+0x40c34c58>>
+	lea %a2,[%a2]25176 <<bmhd_3_copy+0x40c34c58>>
+	insert %d3,%d3,0,0,16
+	or %d2,%d3
+	or %d2,%d2,3
+	st.w [%a2],%d2
+	ld.w %d2,[%a2]
+	movh.a %a0,28673
+	lea %a0,[%a0]-32768 <<_SMALL_DATA_>>
+	movh.a %a1,32769
+	lea %a1,[%a1]-32768 <<_SMALL_DATA2_>>
+	movh.a %a8,32769
+	lea %a8,[%a8]-32768 <<_SMALL_DATA2_>>
+	movh.a %a9,36865
+	lea %a9,[%a9]-32768 <<_SMALL_DATA4_>>
+	movh.a %a3,24580
+	mov.d %d2,%a3
+	movh.a %a2,24580
+	addi %d1,%d2,-25600
+	mov.d %d2,%a2
+	addi %d2,%d2,-17408
+	sub %d2,%d1
+	sh %d5,%d2,-6
+	jeq %d5,0,<x+0x44>
+	extr.u %d2,%d1,6,16
+	sh %d3,%d1,-12
+	movh %d4,15
+	and %d3,%d4
+	addi %d7,%d5,-3
+	or %d2,%d3
+	mtcr $fcx,%d2
+	mov %d3,0
+	mov.a %a2,%d1
+	jeq %d7,0,<x+0x24>
+	mov.d %d2,%a2
+	add %d3,1
+	movh %d0,15
+	addi %d2,%d2,64
+	jeq %d5,%d3,<__Core1_start+0x144>
+	extr.u %d6,%d2,6,16
+	sh %d4,%d2,-12
+	and %d4,%d0
+	or %d4,%d6
+	st.w [%a2],%d4
+	jeq %d3,%d7,<x+0x6>
+	mov.a %a2,%d2
+	mov.d %d2,%a2
+	add %d3,1
+	addi %d2,%d2,64
+	jne %d5,%d3,<__Core1_start+0x124>
+	mov.a %a2,%d1
+	addi %d2,%d5,-1
+	sh %d2,6
+	addsc.a %a2,%a2,%d2,0
+	mov %d2,0
+	st.w [%a2],%d2
+	dsync 
+	isync 
+	call <Ifx_Ssw_getStmFrequency>
+	mov %d4,%d2
+	call <__extendsfdf2>
+	mov %e4,%d3,%d2
+	movh %d6,60188
+	movh %d7,16154
+	addi %d6,%d6,17197
+	addi %d7,%d7,14050
+	call <__muldf3>
+	mov %e4,%d3,%d2
+	call <__fixunsdfsi>
+	ld.w %d3,<bmhd_3_copy+0x40bffa10>
+	sub %d3,%d8
+	jlt.u %d3,%d2,<__Core1_start+0x186>
+	movh.a %a2,41056
+	mov.d %d2,%a2
+	addi %d4,%d2,256
+	movh.a %a4,63620
+	call <Ifx_Ssw_startCore>
+	movh.a %a2,32816
+	lea %a2,[%a2]772 <<core1_main>>
+	ji %a2
+
+<x>:
+	loopu <x>
+	ret 
+	mtcr $lcx,%d4
+	mov.a %a2,%d2
+	j <__Core1_start+0x138>
+	ld.w %d3,[%a2]
+	sh %d2,2
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	j <__Core1_start+0x32>
+	mtcr $lcx,%d2
+	addi %d2,%d1,64
+	extr.u %d6,%d2,6,16
+	sh %d3,%d2,-12
+	and %d3,%d4
+	or %d6,%d3
+	mov.a %a2,%d2
+	mov %d3,1
+	st.w [%a3]-25600,%d6
+	j <__Core1_start+0x114>
+	st.w <__TRICORE_DERIVATE_MEMORY_MAP__-0x390>,%d5
+	call <abort>
+
+<core1_main>:
+	mov.aa %a14,%sp
+	enable 
+	nop 
+	call <IfxScuWdt_getCpuWatchdogPassword>
+	mov %d4,%d2
+	call <IfxScuWdt_disableCpuWatchdog>
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_emitEvent>
+	mov %d4,1
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_waitEvent>
+	nop 
+	j <core1_main+0x2c>
+
+Disassembly of section .CPU2.text:
+
+<__Core2_start>:
+	movh.a %a2,61443
+	lea %a2,[%a2]25188 <<bmhd_3_copy+0x40c34c64>>
+	ld.w %d8,<bmhd_3_copy+0x40bffa10>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	xor %d2,%d2,63
+	movh.a %sp,20481
+	lea %sp,[%sp]22016 <<__USTACK2>>
+	dsync 
+	mov %d3,2432
+	mtcr $psw,%d3
+	ld.w %d3,[%a2]
+	jnz.t %d3,1,<x+0x10>
+	sh %d2,2
+	movh.a %a2,61443
+	ld.w %d4,[%a2]25188 <<bmhd_3_copy+0x40c34c64>>
+	lea %a2,[%a2]25188 <<bmhd_3_copy+0x40c34c64>>
+	insert %d4,%d4,0,0,16
+	mov %d3,0
+	or %d4,%d2
+	or %d4,%d4,2
+	st.w [%a2],%d4
+	ld.w %d4,[%a2]
+	mtcr $pcon0,%d3
+	isync 
+	mtcr $dcon0,%d3
+	isync 
+	movh.a %a3,32864
+	mov.d %d3,%a3
+	addi %d3,%d3,0
+	mtcr $btv,%d3
+	movh.a %a3,32912
+	mov.d %d3,%a3
+	addi %d3,%d3,-8192
+	mtcr $biv,%d3
+	movh.a %a3,20481
+	mov.d %d3,%a3
+	addi %d3,%d3,23296
+	mtcr $isp,%d3
+	ld.w %d3,[%a2]
+	jz.t %d3,1,<__Core2_start+0x9c>
+	ld.w %d3,[%a2]
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	movh.a %a2,61443
+	ld.w %d3,[%a2]25188 <<bmhd_3_copy+0x40c34c64>>
+	lea %a2,[%a2]25188 <<bmhd_3_copy+0x40c34c64>>
+	insert %d3,%d3,0,0,16
+	or %d2,%d3
+	or %d2,%d2,3
+	st.w [%a2],%d2
+	ld.w %d2,[%a2]
+	movh.a %a0,28673
+	lea %a0,[%a0]-32768 <<_SMALL_DATA_>>
+	movh.a %a1,32769
+	lea %a1,[%a1]-32768 <<_SMALL_DATA2_>>
+	movh.a %a8,32769
+	lea %a8,[%a8]-32768 <<_SMALL_DATA2_>>
+	movh.a %a9,36865
+	lea %a9,[%a9]-32768 <<_SMALL_DATA4_>>
+	movh.a %a3,20481
+	mov.d %d2,%a3
+	movh.a %a2,20481
+	addi %d1,%d2,23552
+	mov.d %d2,%a2
+	addi %d2,%d2,31744
+	sub %d2,%d1
+	sh %d5,%d2,-6
+	jeq %d5,0,<x+0x44>
+	extr.u %d2,%d1,6,16
+	sh %d3,%d1,-12
+	movh %d4,15
+	and %d3,%d4
+	addi %d7,%d5,-3
+	or %d2,%d3
+	mtcr $fcx,%d2
+	mov %d3,0
+	mov.a %a2,%d1
+	jeq %d7,0,<x+0x24>
+	mov.d %d2,%a2
+	add %d3,1
+	movh %d0,15
+	addi %d2,%d2,64
+	jeq %d5,%d3,<__Core2_start+0x144>
+	extr.u %d6,%d2,6,16
+	sh %d4,%d2,-12
+	and %d4,%d0
+	or %d4,%d6
+	st.w [%a2],%d4
+	jeq %d3,%d7,<x+0x6>
+	mov.a %a2,%d2
+	mov.d %d2,%a2
+	add %d3,1
+	addi %d2,%d2,64
+	jne %d5,%d3,<__Core2_start+0x124>
+	mov.a %a2,%d1
+	addi %d2,%d5,-1
+	sh %d2,6
+	addsc.a %a2,%a2,%d2,0
+	mov %d2,0
+	st.w [%a2],%d2
+	dsync 
+	isync 
+	call <Ifx_Ssw_getStmFrequency>
+	mov %d4,%d2
+	call <__extendsfdf2>
+	mov %e4,%d3,%d2
+	movh %d6,60188
+	movh %d7,16154
+	addi %d6,%d6,17197
+	addi %d7,%d7,14050
+	call <__muldf3>
+	mov %e4,%d3,%d2
+	call <__fixunsdfsi>
+	ld.w %d3,<bmhd_3_copy+0x40bffa10>
+	sub %d3,%d8
+	jlt.u %d3,%d2,<__Core2_start+0x186>
+	movh.a %a2,41104
+	mov.d %d2,%a2
+	addi %d4,%d2,256
+	movh.a %a4,63622
+	call <Ifx_Ssw_startCore>
+	movh.a %a2,32864
+	lea %a2,[%a2]772 <<core2_main>>
+	ji %a2
+
+<x>:
+	loopu <x>
+	ret 
+	mtcr $lcx,%d4
+	mov.a %a2,%d2
+	j <__Core2_start+0x138>
+	ld.w %d3,[%a2]
+	sh %d2,2
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	j <__Core2_start+0x32>
+	mtcr $lcx,%d2
+	addi %d2,%d1,64
+	extr.u %d6,%d2,6,16
+	sh %d3,%d2,-12
+	and %d3,%d4
+	or %d6,%d3
+	mov.a %a2,%d2
+	mov %d3,1
+	st.w [%a3]23552,%d6
+	j <__Core2_start+0x114>
+	st.w <__TRICORE_DERIVATE_MEMORY_MAP__-0x390>,%d5
+	call <abort>
+
+<core2_main>:
+	mov.aa %a14,%sp
+	enable 
+	nop 
+	call <IfxScuWdt_getCpuWatchdogPassword>
+	mov %d4,%d2
+	call <IfxScuWdt_disableCpuWatchdog>
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_emitEvent>
+	mov %d4,1
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_waitEvent>
+	nop 
+	j <core2_main+0x2c>
+
+Disassembly of section .CPU3.text:
+
+<__Core3_start>:
+	movh.a %a2,61443
+	lea %a2,[%a2]25200 <<bmhd_3_copy+0x40c34c70>>
+	ld.w %d8,<bmhd_3_copy+0x40bffa10>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	xor %d2,%d2,63
+	movh.a %sp,16385
+	lea %sp,[%sp]22016 <<__USTACK3>>
+	dsync 
+	mov %d3,2432
+	mtcr $psw,%d3
+	ld.w %d3,[%a2]
+	jnz.t %d3,1,<__Core3_start+0x1b8>
+	sh %d2,2
+	movh.a %a2,61443
+	ld.w %d4,[%a2]25200 <<bmhd_3_copy+0x40c34c70>>
+	lea %a2,[%a2]25200 <<bmhd_3_copy+0x40c34c70>>
+	insert %d4,%d4,0,0,16
+	mov %d3,0
+	or %d4,%d2
+	or %d4,%d4,2
+	st.w [%a2],%d4
+	ld.w %d4,[%a2]
+	mtcr $pcon0,%d3
+	isync 
+	mtcr $dcon0,%d3
+	isync 
+	movh.a %a3,32912
+	mov.d %d3,%a3
+	addi %d3,%d3,0
+	mtcr $btv,%d3
+	movh.a %a3,32960
+	mov.d %d3,%a3
+	addi %d3,%d3,-8192
+	mtcr $biv,%d3
+	movh.a %a3,16385
+	mov.d %d3,%a3
+	addi %d3,%d3,23296
+	mtcr $isp,%d3
+	ld.w %d3,[%a2]
+	jz.t %d3,1,<__Core3_start+0x9c>
+	ld.w %d3,[%a2]
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	movh.a %a2,61443
+	ld.w %d3,[%a2]25200 <<bmhd_3_copy+0x40c34c70>>
+	lea %a2,[%a2]25200 <<bmhd_3_copy+0x40c34c70>>
+	insert %d3,%d3,0,0,16
+	or %d2,%d3
+	or %d2,%d2,3
+	st.w [%a2],%d2
+	ld.w %d2,[%a2]
+	movh.a %a0,28673
+	lea %a0,[%a0]-32768 <<_SMALL_DATA_>>
+	movh.a %a1,32769
+	lea %a1,[%a1]-32768 <<_SMALL_DATA2_>>
+	movh.a %a8,32769
+	lea %a8,[%a8]-32768 <<_SMALL_DATA2_>>
+	movh.a %a9,36865
+	lea %a9,[%a9]-32768 <<_SMALL_DATA4_>>
+	movh.a %a3,16385
+	mov.d %d2,%a3
+	movh.a %a2,16385
+	addi %d1,%d2,23552
+	mov.d %d2,%a2
+	addi %d2,%d2,31744
+	sub %d2,%d1
+	sh %d5,%d2,-6
+	jeq %d5,0,<__Core3_start+0x1ec>
+	extr.u %d2,%d1,6,16
+	sh %d3,%d1,-12
+	movh %d4,15
+	and %d3,%d4
+	addi %d7,%d5,-3
+	or %d2,%d3
+	mtcr $fcx,%d2
+	mov %d3,0
+	mov.a %a2,%d1
+	jeq %d7,0,<__Core3_start+0x1cc>
+	mov.d %d2,%a2
+	add %d3,1
+	movh %d0,15
+	addi %d2,%d2,64
+	jeq %d5,%d3,<__Core3_start+0x144>
+	extr.u %d6,%d2,6,16
+	sh %d4,%d2,-12
+	and %d4,%d0
+	or %d4,%d6
+	st.w [%a2],%d4
+	jeq %d3,%d7,<__Core3_start+0x1ae>
+	mov.a %a2,%d2
+	mov.d %d2,%a2
+	add %d3,1
+	addi %d2,%d2,64
+	jne %d5,%d3,<__Core3_start+0x124>
+	mov.a %a2,%d1
+	addi %d2,%d5,-1
+	sh %d2,6
+	addsc.a %a2,%a2,%d2,0
+	mov %d2,0
+	st.w [%a2],%d2
+	dsync 
+	isync 
+	call <Ifx_Ssw_getStmFrequency>
+	mov %d4,%d2
+	call <__extendsfdf2>
+	mov %e4,%d3,%d2
+	movh %d6,60188
+	movh %d7,16154
+	addi %d6,%d6,17197
+	addi %d7,%d7,14050
+	call <__muldf3>
+	mov %e4,%d3,%d2
+	call <__fixunsdfsi>
+	ld.w %d3,<bmhd_3_copy+0x40bffa10>
+	sub %d3,%d8
+	jlt.u %d3,%d2,<__Core3_start+0x186>
+	movh.a %a2,41152
+	mov.d %d2,%a2
+	addi %d4,%d2,256
+	movh.a %a4,63624
+	call <Ifx_Ssw_startCore>
+	movh.a %a2,32912
+	lea %a2,[%a2]768 <<core3_main>>
+	ji %a2
+	ret 
+	mtcr $lcx,%d4
+	mov.a %a2,%d2
+	j <__Core3_start+0x138>
+	ld.w %d3,[%a2]
+	sh %d2,2
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	j <__Core3_start+0x32>
+	mtcr $lcx,%d2
+	addi %d2,%d1,64
+	extr.u %d6,%d2,6,16
+	sh %d3,%d2,-12
+	and %d3,%d4
+	or %d6,%d3
+	mov.a %a2,%d2
+	mov %d3,1
+	st.w [%a3]23552,%d6
+	j <__Core3_start+0x114>
+	st.w <__TRICORE_DERIVATE_MEMORY_MAP__-0x390>,%d5
+	call <abort>
+
+<core3_main>:
+	mov.aa %a14,%sp
+	enable 
+	nop 
+	call <IfxScuWdt_getCpuWatchdogPassword>
+	mov %d4,%d2
+	call <IfxScuWdt_disableCpuWatchdog>
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_emitEvent>
+	mov %d4,1
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_waitEvent>
+	nop 
+	j <core3_main+0x2c>
+
+Disassembly of section .CPU4.text:
+
+<__Core4_start>:
+	movh.a %a2,61443
+	lea %a2,[%a2]25212 <<bmhd_3_copy+0x40c34c7c>>
+	ld.w %d8,<bmhd_3_copy+0x40bffa10>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	xor %d2,%d2,63
+	movh.a %sp,12289
+	lea %sp,[%sp]22016 <<__USTACK4>>
+	dsync 
+	mov %d3,2432
+	mtcr $psw,%d3
+	ld.w %d3,[%a2]
+	jnz.t %d3,1,<__Core4_start+0x1b8>
+	sh %d2,2
+	movh.a %a2,61443
+	ld.w %d4,[%a2]25212 <<bmhd_3_copy+0x40c34c7c>>
+	lea %a2,[%a2]25212 <<bmhd_3_copy+0x40c34c7c>>
+	insert %d4,%d4,0,0,16
+	mov %d3,0
+	or %d4,%d2
+	or %d4,%d4,2
+	st.w [%a2],%d4
+	ld.w %d4,[%a2]
+	mtcr $pcon0,%d3
+	isync 
+	mtcr $dcon0,%d3
+	isync 
+	movh.a %a3,32960
+	mov.d %d3,%a3
+	addi %d3,%d3,0
+	mtcr $btv,%d3
+	movh.a %a3,33008
+	mov.d %d3,%a3
+	addi %d3,%d3,-8192
+	mtcr $biv,%d3
+	movh.a %a3,12289
+	mov.d %d3,%a3
+	addi %d3,%d3,23296
+	mtcr $isp,%d3
+	ld.w %d3,[%a2]
+	jz.t %d3,1,<__Core4_start+0x9c>
+	ld.w %d3,[%a2]
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	movh.a %a2,61443
+	ld.w %d3,[%a2]25212 <<bmhd_3_copy+0x40c34c7c>>
+	lea %a2,[%a2]25212 <<bmhd_3_copy+0x40c34c7c>>
+	insert %d3,%d3,0,0,16
+	or %d2,%d3
+	or %d2,%d2,3
+	st.w [%a2],%d2
+	ld.w %d2,[%a2]
+	movh.a %a0,28673
+	lea %a0,[%a0]-32768 <<_SMALL_DATA_>>
+	movh.a %a1,32769
+	lea %a1,[%a1]-32768 <<_SMALL_DATA2_>>
+	movh.a %a8,32769
+	lea %a8,[%a8]-32768 <<_SMALL_DATA2_>>
+	movh.a %a9,36865
+	lea %a9,[%a9]-32768 <<_SMALL_DATA4_>>
+	movh.a %a3,12289
+	mov.d %d2,%a3
+	movh.a %a2,12289
+	addi %d1,%d2,23552
+	mov.d %d2,%a2
+	addi %d2,%d2,31744
+	sub %d2,%d1
+	sh %d5,%d2,-6
+	jeq %d5,0,<__Core4_start+0x1ec>
+	extr.u %d2,%d1,6,16
+	sh %d3,%d1,-12
+	movh %d4,15
+	and %d3,%d4
+	addi %d7,%d5,-3
+	or %d2,%d3
+	mtcr $fcx,%d2
+	mov %d3,0
+	mov.a %a2,%d1
+	jeq %d7,0,<__Core4_start+0x1cc>
+	mov.d %d2,%a2
+	add %d3,1
+	movh %d0,15
+	addi %d2,%d2,64
+	jeq %d5,%d3,<__Core4_start+0x144>
+	extr.u %d6,%d2,6,16
+	sh %d4,%d2,-12
+	and %d4,%d0
+	or %d4,%d6
+	st.w [%a2],%d4
+	jeq %d3,%d7,<__Core4_start+0x1ae>
+	mov.a %a2,%d2
+	mov.d %d2,%a2
+	add %d3,1
+	addi %d2,%d2,64
+	jne %d5,%d3,<__Core4_start+0x124>
+	mov.a %a2,%d1
+	addi %d2,%d5,-1
+	sh %d2,6
+	addsc.a %a2,%a2,%d2,0
+	mov %d2,0
+	st.w [%a2],%d2
+	dsync 
+	isync 
+	call <Ifx_Ssw_getStmFrequency>
+	mov %d4,%d2
+	call <__extendsfdf2>
+	mov %e4,%d3,%d2
+	movh %d6,60188
+	movh %d7,16154
+	addi %d6,%d6,17197
+	addi %d7,%d7,14050
+	call <__muldf3>
+	mov %e4,%d3,%d2
+	call <__fixunsdfsi>
+	ld.w %d3,<bmhd_3_copy+0x40bffa10>
+	sub %d3,%d8
+	jlt.u %d3,%d2,<__Core4_start+0x186>
+	movh.a %a2,41200
+	mov.d %d2,%a2
+	addi %d4,%d2,256
+	movh.a %a4,63628
+	call <Ifx_Ssw_startCore>
+	movh.a %a2,32960
+	lea %a2,[%a2]768 <<core4_main>>
+	ji %a2
+	ret 
+	mtcr $lcx,%d4
+	mov.a %a2,%d2
+	j <__Core4_start+0x138>
+	ld.w %d3,[%a2]
+	sh %d2,2
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	j <__Core4_start+0x32>
+	mtcr $lcx,%d2
+	addi %d2,%d1,64
+	extr.u %d6,%d2,6,16
+	sh %d3,%d2,-12
+	and %d3,%d4
+	or %d6,%d3
+	mov.a %a2,%d2
+	mov %d3,1
+	st.w [%a3]23552,%d6
+	j <__Core4_start+0x114>
+	st.w <__TRICORE_DERIVATE_MEMORY_MAP__-0x390>,%d5
+	call <abort>
+
+<core4_main>:
+	mov.aa %a14,%sp
+	enable 
+	nop 
+	call <IfxScuWdt_getCpuWatchdogPassword>
+	mov %d4,%d2
+	call <IfxScuWdt_disableCpuWatchdog>
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_emitEvent>
+	mov %d4,1
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_waitEvent>
+	nop 
+	j <core4_main+0x2c>
+
+Disassembly of section .CPU5.text:
+
+<__Core5_start>:
+	movh.a %a2,61443
+	lea %a2,[%a2]25224 <<bmhd_3_copy+0x40c34c88>>
+	ld.w %d8,<bmhd_3_copy+0x40bffa10>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	xor %d2,%d2,63
+	movh.a %sp,4097
+	lea %sp,[%sp]22016 <<__USTACK5>>
+	dsync 
+	mov %d3,2432
+	mtcr $psw,%d3
+	ld.w %d3,[%a2]
+	jnz.t %d3,1,<__Core5_start+0x1a6>
+	sh %d2,2
+	movh.a %a2,61443
+	ld.w %d4,[%a2]25224 <<bmhd_3_copy+0x40c34c88>>
+	lea %a2,[%a2]25224 <<bmhd_3_copy+0x40c34c88>>
+	insert %d4,%d4,0,0,16
+	mov %d3,0
+	or %d4,%d2
+	or %d4,%d4,2
+	st.w [%a2],%d4
+	ld.w %d4,[%a2]
+	mtcr $pcon0,%d3
+	isync 
+	mtcr $dcon0,%d3
+	isync 
+	movh.a %a3,33008
+	mov.d %d3,%a3
+	addi %d3,%d3,0
+	mtcr $btv,%d3
+	movh.a %a3,33024
+	mov.d %d3,%a3
+	addi %d3,%d3,-8192
+	mtcr $biv,%d3
+	movh.a %a3,4097
+	mov.d %d3,%a3
+	addi %d3,%d3,23296
+	mtcr $isp,%d3
+	ld.w %d3,[%a2]
+	jz.t %d3,1,<__Core5_start+0x9c>
+	ld.w %d3,[%a2]
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	movh.a %a2,61443
+	ld.w %d3,[%a2]25224 <<bmhd_3_copy+0x40c34c88>>
+	lea %a2,[%a2]25224 <<bmhd_3_copy+0x40c34c88>>
+	insert %d3,%d3,0,0,16
+	or %d2,%d3
+	or %d2,%d2,3
+	st.w [%a2],%d2
+	ld.w %d2,[%a2]
+	movh.a %a0,28673
+	lea %a0,[%a0]-32768 <<_SMALL_DATA_>>
+	movh.a %a1,32769
+	lea %a1,[%a1]-32768 <<_SMALL_DATA2_>>
+	movh.a %a8,32769
+	lea %a8,[%a8]-32768 <<_SMALL_DATA2_>>
+	movh.a %a9,36865
+	lea %a9,[%a9]-32768 <<_SMALL_DATA4_>>
+	movh.a %a3,4097
+	mov.d %d2,%a3
+	movh.a %a2,4097
+	addi %d1,%d2,23552
+	mov.d %d2,%a2
+	addi %d2,%d2,31744
+	sub %d2,%d1
+	sh %d5,%d2,-6
+	jeq %d5,0,<__Core5_start+0x1da>
+	extr.u %d2,%d1,6,16
+	sh %d3,%d1,-12
+	movh %d4,15
+	and %d3,%d4
+	addi %d7,%d5,-3
+	or %d2,%d3
+	mtcr $fcx,%d2
+	mov %d3,0
+	mov.a %a2,%d1
+	jeq %d7,0,<__Core5_start+0x1ba>
+	mov.d %d2,%a2
+	add %d3,1
+	movh %d0,15
+	addi %d2,%d2,64
+	jeq %d5,%d3,<__Core5_start+0x144>
+	extr.u %d6,%d2,6,16
+	sh %d4,%d2,-12
+	and %d4,%d0
+	or %d4,%d6
+	st.w [%a2],%d4
+	jeq %d3,%d7,<__Core5_start+0x19c>
+	mov.a %a2,%d2
+	mov.d %d2,%a2
+	add %d3,1
+	addi %d2,%d2,64
+	jne %d5,%d3,<__Core5_start+0x124>
+	mov.a %a2,%d1
+	addi %d2,%d5,-1
+	sh %d2,6
+	addsc.a %a2,%a2,%d2,0
+	mov %d2,0
+	st.w [%a2],%d2
+	dsync 
+	isync 
+	call <Ifx_Ssw_getStmFrequency>
+	mov %d4,%d2
+	call <__extendsfdf2>
+	mov %e4,%d3,%d2
+	movh %d6,60188
+	movh %d7,16154
+	addi %d6,%d6,17197
+	addi %d7,%d7,14050
+	call <__muldf3>
+	mov %e4,%d3,%d2
+	call <__fixunsdfsi>
+	ld.w %d3,<bmhd_3_copy+0x40bffa10>
+	sub %d3,%d8
+	jlt.u %d3,%d2,<__Core5_start+0x186>
+	movh.a %a2,33008
+	lea %a2,[%a2]750 <<core5_main>>
+	ji %a2
+	ret 
+	mtcr $lcx,%d4
+	mov.a %a2,%d2
+	j <__Core5_start+0x138>
+	ld.w %d3,[%a2]
+	sh %d2,2
+	insert %d3,%d3,0,0,16
+	or %d3,%d2
+	or %d3,%d3,1
+	st.w [%a2],%d3
+	j <__Core5_start+0x32>
+	mtcr $lcx,%d2
+	addi %d2,%d1,64
+	extr.u %d6,%d2,6,16
+	sh %d3,%d2,-12
+	and %d3,%d4
+	or %d6,%d3
+	mov.a %a2,%d2
+	mov %d3,1
+	st.w [%a3]23552,%d6
+	j <__Core5_start+0x114>
+	st.w <__TRICORE_DERIVATE_MEMORY_MAP__-0x390>,%d5
+	call <abort>
+
+<core5_main>:
+	mov.aa %a14,%sp
+	enable 
+	nop 
+	call <IfxScuWdt_getCpuWatchdogPassword>
+	mov %d4,%d2
+	call <IfxScuWdt_disableCpuWatchdog>
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_emitEvent>
+	mov %d4,1
+	movh.a %a2,28672
+	lea %a4,[%a2]0 <<g_cpuSyncEvent>>
+	call <IfxCpu_waitEvent>
+	nop 
+	j <core5_main+0x2c>
+
+Disassembly of section .text:
+
+<initLED>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	movh %d2,61444
+	addi %d2,%d2,-21248
+	st.w [%a14]-24,%d2
+	mov %d2,0
+	st.b [%a14]-25,%d2
+	mov %d2,128
+	st.w [%a14]-32,%d2
+	mov %d2,128
+	st.w [%a14]-36,%d2
+	ld.bu %d3,[%a14]-25
+	ld.w %d4,[%a14]-32
+	ld.w %d2,[%a14]-36
+	or %d2,%d4
+	mov %d5,%d2
+	mov %d4,%d3
+	ld.a %a4,[%a14]-24
+	call <IfxPort_setPinMode>
+	nop 
+	movh %d2,61444
+	addi %d2,%d2,-21248
+	st.w [%a14]-4,%d2
+	mov %d2,0
+	st.b [%a14]-5,%d2
+	ld.bu %d2,[%a14]-5
+	ld.w %d3,[%a14]-4
+	st.w [%a14]-12,%d3
+	st.b [%a14]-13,%d2
+	mov %d2,1
+	st.w [%a14]-20,%d2
+	ld.bu %d2,[%a14]-13
+	ld.w %d3,[%a14]-20
+	sh %d2,%d3,%d2
+	ld.a %a2,[%a14]-12
+	add.a %a2,4
+	st.w [%a2],%d2
+	nop 
+	nop 
+	nop 
+	ret 
+
+<simulateCpuWorkload>:
+	mov.aa %a14,%sp
+	sub.a %sp,8
+	mov %d2,0
+	st.w [%a14]-8,%d2
+	mov %d2,0
+	st.w [%a14]-4,%d2
+	j <simulateCpuWorkload+0x3c>
+	ld.w %d2,[%a14]-8
+	sh %d2,-3
+	ld.w %d3,[%a14]-4
+	xor %d2,%d3
+	addi %d2,%d2,31161
+	addih %d2,%d2,40503
+	ld.w %d3,[%a14]-8
+	add %d2,%d3
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-4
+	add %d2,1
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	movh %d3,8
+	addi %d3,%d3,-24288
+	jlt.u %d2,%d3,<simulateCpuWorkload+0x14>
+	ld.w %d2,[%a14]-8
+	nop 
+	ret 
+
+<blinkLED>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	movh %d2,61444
+	addi %d2,%d2,-21248
+	st.w [%a14]-24,%d2
+	mov %d2,0
+	st.b [%a14]-25,%d2
+	ld.bu %d2,[%a14]-25
+	ld.w %d3,[%a14]-24
+	st.w [%a14]-32,%d3
+	st.b [%a14]-33,%d2
+	movh %d2,1
+	add %d2,1
+	st.w [%a14]-40,%d2
+	ld.bu %d2,[%a14]-33
+	ld.w %d3,[%a14]-40
+	sh %d2,%d3,%d2
+	ld.a %a2,[%a14]-32
+	add.a %a2,4
+	st.w [%a2],%d2
+	nop 
+	nop 
+	call <simulateCpuWorkload>
+	movh %d2,61440
+	addi %d2,%d2,4096
+	st.w [%a14]-4,%d2
+	mov %d2,500
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-4
+	st.w [%a14]-12,%d2
+	mov %d4,0
+	call <IfxScuCcu_getSourceFrequency>
+	mov %d3,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,4
+	and %d2,%d2,255
+	itof %d2,%d2
+	div.f %d2,%d3,%d2
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	ftoiz %d2,%d2
+	st.w [%a14]-20,%d2
+	ld.w %d4,[%a14]-20
+	movh %d2,4194
+	addi %d2,%d2,19923
+	mul %e2,%d4,%d2
+	sha %d3,-6
+	sha %d2,%d4,-31
+	sub %d2,%d3,%d2
+	mov %d3,%d2
+	ld.w %d2,[%a14]-8
+	mul %d2,%d3
+	mov %e2,%d2
+	mov %e4,%d3,%d2
+	call <waitTime>
+	nop 
+	ret 
+
+<Ifx_Ssw_Pms_Init>:
+	mov.aa %a14,%sp
+	movh.a %a2,61443
+	lea %a2,[%a2]24576 <<bmhd_3_copy+0x40c34a00>>
+	ld.w %d2,[%a2]692 <<bmhd_3_copy+0x40c2ecb4>>
+	extr.u %d2,%d2,2,14
+	movh.a %a2,61477
+	lea %a2,[%a2]-32724 <<bmhd_3_copy+0x40e46a2c>>
+	ld.w %d3,[%a2]
+	jnz.t %d3,0,<Ifx_Ssw_Pms_Init+0x24>
+	ji %a11
+	ret 
+	movh.a %a2,32768
+	lea %a3,[%a2]1128 <<IfxPmsEvr_cfgSequenceDefault>>
+	add.a %a3,4
+	ld.a %a3,[%a3]
+	ld.bu %d7,[%a2]1128 <<IfxPmsEvr_cfgSequenceDefault>>
+	mul %d7,%d7,12
+	mov.d %d3,%a3
+	add %d3,%d7
+	mov.d %d4,%a3
+	jge.u %d4,%d3,<Ifx_Ssw_Pms_Init+0x20>
+	xor %d2,%d2,63
+	sh %d2,2
+	movh %d0,65532
+	or %d0,%d2
+	movh %d1,65532
+	add %d1,2
+	or %d1,%d2
+	mov %d8,1
+	movh.a %a4,61443
+	lea %a4,[%a4]24576 <<bmhd_3_copy+0x40c34a00>>
+	mov %d4,%d8
+	movh.a %a5,61477
+	lea %a5,[%a5]-32504 <<bmhd_3_copy+0x40e46b08>>
+	mov %d9,0
+	movh %d6,19452
+	addi %d6,%d6,-15072
+	lea %a6,<bmhd_3_copy+0x40bffa10>
+	lea %a12,[%a2]1128 <<IfxPmsEvr_cfgSequenceDefault>>
+	j <Ifx_Ssw_Pms_Init+0xa8>
+	mov %d8,%d9
+	ld.w %d2,[%a3]8
+	mul.f %d2,%d6,%d2
+	ftouz %d3,%d2
+	ld.w %d5,[%a6]
+	ld.w %d2,[%a6]
+	sub %d2,%d5
+	jlt.u %d2,%d3,<Ifx_Ssw_Pms_Init+0x90>
+	lea %a3,[%a3]12
+	ld.w %d2,[%a12]4
+	add %d2,%d7
+	mov.d %d3,%a3
+	jge.u %d3,%d2,<Ifx_Ssw_Pms_Init+0x11c>
+	st.w [%a4]692 <<bmhd_3_copy+0x40c2ecb4>>,%d0
+	ld.w %d2,[%a4]692 <<bmhd_3_copy+0x40c2ecb4>>
+	extr.u %d2,%d2,1,1
+	jeq %d2,%d4,<Ifx_Ssw_Pms_Init+0xac>
+	ld.a %a2,[%a3]4
+	ld.bu %d2,[%a3]
+	mov.d %d3,%a2
+	madd %d2,%d3,%d2,12
+	jge.u %d3,%d2,<Ifx_Ssw_Pms_Init+0xf0>
+	ld.a %a7,[%a2]
+	ld.w %d2,[%a7]
+	ld.w %d3,[%a2]8
+	andn %d2,%d2,%d3
+	ld.w %d3,[%a2]4
+	or %d2,%d3
+	st.w [%a7],%d2
+	lea %a2,[%a2]12
+	ld.bu %d2,[%a3]
+	ld.w %d3,[%a3]4
+	madd %d2,%d3,%d2,12
+	mov.d %d3,%a2
+	jlt.u %d3,%d2,<Ifx_Ssw_Pms_Init+0xc8>
+	ld.w %d2,[%a5]
+	insert %d2,%d2,1,30,1
+	st.w [%a5],%d2
+	st.w [%a4]692 <<bmhd_3_copy+0x40c2ecb4>>,%d1
+	ld.w %d2,[%a4]692 <<bmhd_3_copy+0x40c2ecb4>>
+	jz.t %d2,1,<Ifx_Ssw_Pms_Init+0xfc>
+	mov %d2,256
+	add %d2,-1
+	jeq %d2,0,<Ifx_Ssw_Pms_Init+0x80>
+	ld.w %d3,[%a5]
+	extr.u %d3,%d3,30,1
+	jeq %d3,%d4,<Ifx_Ssw_Pms_Init+0x108>
+	j <Ifx_Ssw_Pms_Init+0x82>
+	jne %d8,0,<Ifx_Ssw_Pms_Init+0x20>
+	debug 
+	j <Ifx_Ssw_Pms_Init+0x20>
+
+<Ifx_Ssw_Pms_InitCheck>:
+	mov.aa %a14,%sp
+	movh.a %a2,61477
+	lea %a2,[%a2]-32724 <<bmhd_3_copy+0x40e46a2c>>
+	ld.w %d2,[%a2]
+	jnz.t %d2,0,<Ifx_Ssw_Pms_InitCheck+0x14>
+	ji %a11
+	ret 
+	movh.a %a2,32768
+	ld.bu %d5,[%a2]1400 <<IfxPmsEvr_checkRegCfgDefault>>
+	jeq %d5,0,<Ifx_Ssw_Pms_InitCheck+0x56>
+	movh.a %a2,32768
+	ld.a %a2,[%a2]1404 <<IfxPmsEvr_checkRegCfgDefault+0x4>>
+	mov %d2,1
+	mov %d3,0
+	ld.a %a3,[%a2]
+	ld.w %d4,[%a3]
+	ld.w %d6,[%a2]8
+	and %d4,%d6
+	ld.w %d6,[%a2]4
+	eq %d4,%d4,%d6
+	sel %d2,%d4,%d2,0
+	add %d3,1
+	lea %a2,[%a2]12
+	jne %d3,%d5,<Ifx_Ssw_Pms_InitCheck+0x2c>
+	jeq %d2,1,<Ifx_Ssw_Pms_InitCheck+0x56>
+	debug 
+	j <Ifx_Ssw_Pms_InitCheck+0x10>
+	movh.a %a2,61477
+	lea %a2,[%a2]-32724 <<bmhd_3_copy+0x40e46a2c>>
+	ld.w %d2,[%a2]
+	jnz.t %d2,21,<Ifx_Ssw_Pms_InitCheck+0x10>
+	j <Ifx_Ssw_Pms_InitCheck+0x50>
+
+<Ifx_Ssw_clearCpuEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	st.a [%a14]-12,%a4
+	mov %d2,%d4
+	st.h [%a14]-16,%d2
+	ld.hu %d2,[%a14]-16
+	ld.w %d3,[%a14]-12
+	st.w [%a14]-4,%d3
+	st.h [%a14]-6,%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_clearCpuEndinit+0x56>
+	ld.hu %d2,[%a14]-6
+	sh %d3,%d2,2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	or %d2,%d2,1
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-6
+	sh %d3,%d2,2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	or %d2,%d2,2
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	nop 
+	ret 
+
+<Ifx_Ssw_setCpuEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	st.a [%a14]-12,%a4
+	mov %d2,%d4
+	st.h [%a14]-16,%d2
+	ld.hu %d2,[%a14]-16
+	ld.w %d3,[%a14]-12
+	st.w [%a14]-4,%d3
+	st.h [%a14]-6,%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_setCpuEndinit+0x56>
+	ld.hu %d2,[%a14]-6
+	sh %d3,%d2,2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	or %d2,%d2,1
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-6
+	sh %d3,%d2,2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	or %d2,%d2,3
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	nop 
+	ret 
+
+<Ifx_Ssw_clearSafetyEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	mov %d2,%d4
+	st.h [%a14]-12,%d2
+	ld.hu %d2,[%a14]-12
+	st.h [%a14]-2,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_clearSafetyEndinit+0x56>
+	ld.hu %d2,[%a14]-2
+	sh %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	or %d2,%d2,1
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-2
+	sh %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	or %d2,%d2,2
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	nop 
+	ret 
+
+<Ifx_Ssw_setSafetyEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	mov %d2,%d4
+	st.h [%a14]-12,%d2
+	ld.hu %d2,[%a14]-12
+	st.h [%a14]-2,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_setSafetyEndinit+0x56>
+	ld.hu %d2,[%a14]-2
+	sh %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	or %d2,%d2,1
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-2
+	sh %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	or %d2,%d2,3
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	nop 
+	ret 
+
+<Ifx_Ssw_serviceCpuWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	st.a [%a14]-12,%a4
+	mov %d2,%d4
+	st.h [%a14]-16,%d2
+	ld.hu %d2,[%a14]-16
+	ld.w %d3,[%a14]-12
+	st.w [%a14]-4,%d3
+	st.h [%a14]-6,%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_serviceCpuWatchdog+0x56>
+	ld.hu %d2,[%a14]-6
+	sh %d3,%d2,2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	or %d2,%d2,1
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-6
+	sh %d3,%d2,2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	or %d2,%d2,3
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	nop 
+	ret 
+
+<Ifx_Ssw_serviceSafetyWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	mov %d2,%d4
+	st.h [%a14]-12,%d2
+	ld.hu %d2,[%a14]-12
+	st.h [%a14]-2,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_serviceSafetyWatchdog+0x56>
+	ld.hu %d2,[%a14]-2
+	sh %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	or %d2,%d2,1
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-2
+	sh %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	or %d2,%d2,3
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	nop 
+	ret 
+
+<Ifx_Ssw_disableCpuWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,32
+	st.a [%a14]-28,%a4
+	mov %d2,%d4
+	st.h [%a14]-32,%d2
+	mfcr %d2,$core_id
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,7
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	st.w [%a14]-16,%d2
+	mov %d2,5
+	st.w [%a14]-20,%d2
+	ld.w %d2,[%a14]-16
+	ld.w %d3,[%a14]-20
+	min.u %d2,%d2,%d3
+	st.w [%a14]-24,%d2
+	ld.w %d2,[%a14]-24
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	mul %d2,%d2,12
+	addi %d2,%d2,25164
+	addih %d2,%d2,61443
+	st.w [%a14]-12,%d2
+	ld.hu %d2,[%a14]-32
+	mov %d4,%d2
+	ld.a %a4,[%a14]-12
+	call <Ifx_Ssw_clearCpuEndinit>
+	ld.a %a2,[%a14]-12
+	lea %a3,[%a2]4
+	ld.w %d2,[%a3]
+	insert %d2,%d2,1,3,1
+	add.a %a2,4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-32
+	mov %d4,%d2
+	ld.a %a4,[%a14]-12
+	call <Ifx_Ssw_setCpuEndinit>
+	nop 
+	ret 
+
+<Ifx_Ssw_enableCpuWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,32
+	st.a [%a14]-28,%a4
+	mov %d2,%d4
+	st.h [%a14]-32,%d2
+	mfcr %d2,$core_id
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,7
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	st.w [%a14]-16,%d2
+	mov %d2,5
+	st.w [%a14]-20,%d2
+	ld.w %d2,[%a14]-16
+	ld.w %d3,[%a14]-20
+	min.u %d2,%d2,%d3
+	st.w [%a14]-24,%d2
+	ld.w %d2,[%a14]-24
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	mul %d2,%d2,12
+	addi %d2,%d2,25164
+	addih %d2,%d2,61443
+	st.w [%a14]-12,%d2
+	ld.hu %d2,[%a14]-32
+	mov %d4,%d2
+	ld.a %a4,[%a14]-12
+	call <Ifx_Ssw_clearCpuEndinit>
+	ld.a %a2,[%a14]-12
+	lea %a3,[%a2]4
+	ld.w %d2,[%a3]
+	andn %d2,%d2,8
+	add.a %a2,4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-32
+	mov %d4,%d2
+	ld.a %a4,[%a14]-12
+	call <Ifx_Ssw_setCpuEndinit>
+	nop 
+	ret 
+
+<Ifx_Ssw_disableSafetyWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,8
+	mov %d2,%d4
+	st.h [%a14]-4,%d2
+	ld.hu %d2,[%a14]-4
+	mov %d4,%d2
+	call <Ifx_Ssw_clearSafetyEndinit>
+	movh.a %a2,61443
+	lea %a2,[%a2]25260 <<bmhd_3_copy+0x40c34cac>>
+	ld.w %d2,[%a2]
+	insert %d2,%d2,1,3,1
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-4
+	mov %d4,%d2
+	call <Ifx_Ssw_setSafetyEndinit>
+	nop 
+	ret 
+
+<Ifx_Ssw_enableSafetyWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,8
+	mov %d2,%d4
+	st.h [%a14]-4,%d2
+	ld.hu %d2,[%a14]-4
+	mov %d4,%d2
+	call <Ifx_Ssw_clearSafetyEndinit>
+	movh.a %a2,61443
+	lea %a2,[%a2]25260 <<bmhd_3_copy+0x40c34cac>>
+	ld.w %d2,[%a2]
+	andn %d2,%d2,8
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-4
+	mov %d4,%d2
+	call <Ifx_Ssw_setSafetyEndinit>
+	nop 
+	ret 
+
+<Ifx_Ssw_startCore>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	st.a [%a14]-12,%a4
+	st.w [%a14]-16,%d4
+	ld.w %d2,[%a14]-16
+	sh %d2,-1
+	mov %d3,-1
+	sh %d3,-1
+	and %d3,%d2
+	ld.w %d2,[%a14]-12
+	mov.a %a2,%d2
+	lea %a2,[%a2]-504
+	addih.a %a2,%a2,2
+	ld.w %d2,[%a2]
+	insert %d2,%d2,%d3,1,31
+	st.w [%a2],%d2
+	ld.w %d2,[%a14]-12
+	mov.a %a2,%d2
+	lea %a2,[%a2]-492
+	addih.a %a2,%a2,2
+	ld.w %d2,[%a2]
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	extr.u %d2,%d2,24,1
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_startCore+0x76>
+	ld.w %d2,[%a14]-4
+	movh %d3,65280
+	add %d3,-1
+	and %d2,%d3
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-12
+	mov.a %a2,%d2
+	lea %a2,[%a2]-492
+	addih.a %a2,%a2,2
+	ld.w %d2,[%a14]-4
+	st.w [%a2],%d2
+	nop 
+	ret 
+
+<Ifx_Ssw_getStmFrequency>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-4,%d2
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-8,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	st.w [%a14]-12,%d2
+	ld.w %d2,[%a14]-12
+	jne %d2,2,<Ifx_Ssw_getStmFrequency+0x4a>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-4,%d2
+	j <Ifx_Ssw_getStmFrequency+0x6e>
+	ld.w %d2,[%a14]-12
+	jne %d2,1,<Ifx_Ssw_getStmFrequency+0x62>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-4,%d2
+	j <Ifx_Ssw_getStmFrequency+0x6e>
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-4,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,28,2
+	and %d2,%d2,255
+	jeq %d2,0,<Ifx_Ssw_getStmFrequency+0xdc>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,9,7
+	and %d2,%d2,255
+	add %d2,1
+	utof %d3,%d2
+	ld.w %d2,[%a14]-4
+	mul.f %d3,%d3,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,24,3
+	and %d2,%d2,255
+	addi %d4,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]24604 <<bmhd_3_copy+0x40c34a1c>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,3
+	and %d2,%d2,255
+	add %d2,1
+	mul %d2,%d4
+	utof %d2,%d2
+	div.f %d2,%d3,%d2
+	st.w [%a14]-8,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,4
+	and %d2,%d2,255
+	itof %d2,%d2
+	ld.w %d3,[%a14]-8
+	div.f %d2,%d3,%d2
+	ret 
+
+<Ifx_Ssw_doCppInit>:
+	mov.aa %a14,%sp
+	sub.a %sp,24
+	movh.a %a2,32768
+	lea %a2,[%a2]40 <<__clear_table>>
+	st.a [%a14]-4 <<__clear_table>>,%a2
+	j <Ifx_Ssw_doCppInit+0xc0>
+	ld.a %a2,[%a14]-4
+	mov.d %d2,%a2
+	add %d2,4
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a2]
+	st.w [%a14]-16,%d2
+	ld.a %a2,[%a14]-4
+	mov.d %d2,%a2
+	add %d2,4
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a2]
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	jeq %d2,-1,<Ifx_Ssw_doCppInit+0xcc>
+	ld.w %d2,[%a14]-8
+	sh %d2,-3
+	st.w [%a14]-12,%d2
+	j <Ifx_Ssw_doCppInit+0x64>
+	ld.a %a4,[%a14]-16
+	mov.d %d2,%a4
+	addi %d2,%d2,8
+	st.w [%a14]-16,%d2
+	mov.a %a2,0
+	mov.a %a3,0
+	st.da [%a4],%a2
+	ld.w %d2,[%a14]-12
+	addi %d3,%d2,-1
+	st.w [%a14]-12,%d3
+	jne %d2,0,<Ifx_Ssw_doCppInit+0x4e>
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,4
+	jeq %d2,0,<Ifx_Ssw_doCppInit+0x90>
+	ld.a %a2,[%a14]-16
+	mov.d %d2,%a2
+	add %d2,4
+	st.w [%a14]-16,%d2
+	mov %d2,0
+	st.w [%a2],%d2
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,2
+	jeq %d2,0,<Ifx_Ssw_doCppInit+0xac>
+	ld.a %a2,[%a14]-16
+	mov.d %d2,%a2
+	add %d2,2
+	st.w [%a14]-16,%d2
+	mov %d2,0
+	st.h [%a2],%d2
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,1
+	jeq %d2,0,<Ifx_Ssw_doCppInit+0xc0>
+	ld.a %a2,[%a14]-16
+	mov %d2,0
+	st.b [%a2],%d2
+	ld.w %d2,[%a14]-4
+	jne %d2,0,<Ifx_Ssw_doCppInit+0x14>
+	j <Ifx_Ssw_doCppInit+0xce>
+	nop 
+	movh.a %a2,32768
+	lea %a2,[%a2]248 <<__copy_table>>
+	st.a [%a14]-4 <<__copy_table>>,%a2
+	j <Ifx_Ssw_doCppInit+0x1c8>
+	ld.a %a2,[%a14]-4
+	mov.d %d2,%a2
+	add %d2,4
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a2]
+	st.w [%a14]-20,%d2
+	ld.a %a2,[%a14]-4
+	mov.d %d2,%a2
+	add %d2,4
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a2]
+	st.w [%a14]-16,%d2
+	ld.a %a2,[%a14]-4
+	mov.d %d2,%a2
+	add %d2,4
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a2]
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	jeq %d2,-1,<Ifx_Ssw_doCppInit+0x1d4>
+	ld.w %d2,[%a14]-8
+	sh %d2,-3
+	st.w [%a14]-12,%d2
+	j <Ifx_Ssw_doCppInit+0x14e>
+	ld.a %a2,[%a14]-20
+	mov.d %d2,%a2
+	addi %d2,%d2,8
+	st.w [%a14]-20,%d2
+	ld.a %a4,[%a14]-16
+	mov.d %d2,%a4
+	addi %d2,%d2,8
+	st.w [%a14]-16,%d2
+	ld.da %a2,[%a2]
+	st.da [%a4],%a2
+	ld.w %d2,[%a14]-12
+	addi %d3,%d2,-1
+	st.w [%a14]-12,%d3
+	jne %d2,0,<Ifx_Ssw_doCppInit+0x12a>
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,4
+	jeq %d2,0,<Ifx_Ssw_doCppInit+0x186>
+	ld.a %a3,[%a14]-20
+	mov.d %d2,%a3
+	add %d2,4
+	st.w [%a14]-20,%d2
+	ld.a %a2,[%a14]-16
+	mov.d %d2,%a2
+	add %d2,4
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a3]
+	st.w [%a2],%d2
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,2
+	jeq %d2,0,<Ifx_Ssw_doCppInit+0x1b0>
+	ld.a %a3,[%a14]-20
+	mov.d %d2,%a3
+	add %d2,2
+	st.w [%a14]-20,%d2
+	ld.a %a2,[%a14]-16
+	mov.d %d2,%a2
+	add %d2,2
+	st.w [%a14]-16,%d2
+	ld.hu %d2,[%a3]0
+	st.h [%a2],%d2
+	ld.w %d2,[%a14]-8
+	and %d2,%d2,1
+	jeq %d2,0,<Ifx_Ssw_doCppInit+0x1c8>
+	ld.a %a3,[%a14]-20
+	ld.a %a2,[%a14]-16
+	ld.bu %d2,[%a3]
+	st.b [%a2],%d2
+	ld.w %d2,[%a14]-4
+	jne %d2,0,<Ifx_Ssw_doCppInit+0xde>
+	j <Ifx_Ssw_doCppInit+0x1d6>
+	nop 
+	nop 
+	call <_init>
+	nop 
+	ret 
+
+<IfxScuWdt_clearCpuEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	mov %d2,%d4
+	st.h [%a14]-36,%d2
+	mfcr %d2,$core_id
+	st.w [%a14]-12,%d2
+	ld.w %d2,[%a14]-12
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	st.w [%a14]-20,%d2
+	mov %d2,5
+	st.w [%a14]-24,%d2
+	ld.w %d2,[%a14]-20
+	ld.w %d3,[%a14]-24
+	min.u %d2,%d2,%d3
+	st.w [%a14]-28,%d2
+	ld.w %d2,[%a14]-28
+	mul %d2,%d2,12
+	addi %d3,%d2,25164
+	addih %d3,%d3,61443
+	ld.hu %d2,[%a14]-36
+	st.w [%a14]-4,%d3
+	st.h [%a14]-6,%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_clearCpuEndinit+0x8a>
+	ld.hu %d2,[%a14]-6
+	sh %d2,2
+	or %d3,%d2,1
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-6
+	sh %d2,2
+	or %d3,%d2,2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuWdt_clearCpuEndinit+0xae>
+	ret 
+
+<IfxScuWdt_clearSafetyEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	mov %d2,%d4
+	st.h [%a14]-12,%d2
+	ld.hu %d2,[%a14]-12
+	st.h [%a14]-2,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_clearSafetyEndinit+0x54>
+	ld.hu %d2,[%a14]-2
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-2 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuWdt_clearSafetyEndinit+0x80>
+	ret 
+
+<IfxScuWdt_disableCpuWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,56
+	mov %d2,%d4
+	st.h [%a14]-52,%d2
+	mfcr %d2,$core_id
+	st.w [%a14]-28,%d2
+	ld.w %d2,[%a14]-28
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	st.w [%a14]-36,%d2
+	mov %d2,5
+	st.w [%a14]-40,%d2
+	ld.w %d2,[%a14]-36
+	ld.w %d3,[%a14]-40
+	min.u %d2,%d2,%d3
+	st.w [%a14]-44,%d2
+	ld.w %d2,[%a14]-44
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	mul %d2,%d2,12
+	addi %d2,%d2,25164
+	addih %d2,%d2,61443
+	st.w [%a14]-8,%d2
+	ld.hu %d2,[%a14]-52
+	ld.w %d3,[%a14]-8
+	st.w [%a14]-20,%d3
+	st.h [%a14]-22,%d2
+	ld.a %a2,[%a14]-20
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_disableCpuWatchdog+0x9a>
+	ld.hu %d2,[%a14]-22
+	sh %d2,2
+	or %d3,%d2,1
+	ld.a %a2,[%a14]-20
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-20
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-22
+	sh %d2,2
+	or %d3,%d2,2
+	ld.a %a2,[%a14]-20
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-20
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-20
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuWdt_disableCpuWatchdog+0xbe>
+	ld.a %a2,[%a14]-8
+	lea %a3,[%a2]4
+	ld.w %d2,[%a3]
+	insert %d2,%d2,1,3,1
+	add.a %a2,4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-52
+	ld.w %d3,[%a14]-8
+	st.w [%a14]-12,%d3
+	st.h [%a14]-14,%d2
+	ld.a %a2,[%a14]-12
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_disableCpuWatchdog+0x128>
+	ld.hu %d2,[%a14]-14
+	sh %d2,2
+	or %d3,%d2,1
+	ld.a %a2,[%a14]-12
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-12
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-14
+	sh %d2,2
+	or %d3,%d2,3
+	ld.a %a2,[%a14]-12
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-12
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-12
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_disableCpuWatchdog+0x14c>
+	ret 
+
+<IfxScuWdt_disableSafetyWatchdog>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	mov %d2,%d4
+	st.h [%a14]-12,%d2
+	ld.hu %d2,[%a14]-12
+	st.h [%a14]-4,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_disableSafetyWatchdog+0x54>
+	ld.hu %d2,[%a14]-4
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-4 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuWdt_disableSafetyWatchdog+0x80>
+	movh.a %a2,61443
+	lea %a2,[%a2]25260 <<bmhd_3_copy+0x40c34cac>>
+	ld.w %d2,[%a2]
+	insert %d2,%d2,1,3,1
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-12
+	st.h [%a14]-2,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_disableSafetyWatchdog+0xf0>
+	ld.hu %d2,[%a14]-2
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-2 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_disableSafetyWatchdog+0x11c>
+	ret 
+
+<IfxScuWdt_getCpuWatchdogPassword>:
+	mov.aa %a14,%sp
+	sub.a %sp,32
+	mfcr %d2,$core_id
+	st.w [%a14]-12,%d2
+	ld.w %d2,[%a14]-12
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	st.w [%a14]-20,%d2
+	mov %d2,5
+	st.w [%a14]-24,%d2
+	ld.w %d2,[%a14]-20
+	ld.w %d3,[%a14]-24
+	min.u %d2,%d2,%d3
+	st.w [%a14]-28,%d2
+	ld.w %d2,[%a14]-28
+	nop 
+	mul %d2,%d2,12
+	addi %d2,%d2,25164
+	addih %d2,%d2,61443
+	st.w [%a14]-4,%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	extr.u %d2,%d2,0,16
+	st.h [%a14]-6,%d2
+	ld.h %d2,[%a14]-6
+	xor %d2,%d2,63
+	st.h [%a14]-6,%d2
+	ld.hu %d2,[%a14]-6
+	ret 
+
+<IfxScuWdt_getSafetyWatchdogPassword>:
+	mov.aa %a14,%sp
+	sub.a %sp,8
+	movh %d2,61443
+	addi %d2,%d2,25256
+	st.w [%a14]-4,%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	extr.u %d2,%d2,0,16
+	st.h [%a14]-6,%d2
+	ld.h %d2,[%a14]-6
+	xor %d2,%d2,63
+	st.h [%a14]-6,%d2
+	ld.hu %d2,[%a14]-6
+	ret 
+
+<IfxScuWdt_setCpuEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	mov %d2,%d4
+	st.h [%a14]-36,%d2
+	mfcr %d2,$core_id
+	st.w [%a14]-12,%d2
+	ld.w %d2,[%a14]-12
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	st.w [%a14]-20,%d2
+	mov %d2,5
+	st.w [%a14]-24,%d2
+	ld.w %d2,[%a14]-20
+	ld.w %d3,[%a14]-24
+	min.u %d2,%d2,%d3
+	st.w [%a14]-28,%d2
+	ld.w %d2,[%a14]-28
+	mul %d2,%d2,12
+	addi %d3,%d2,25164
+	addih %d3,%d3,61443
+	ld.hu %d2,[%a14]-36
+	st.w [%a14]-4,%d3
+	st.h [%a14]-6,%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_setCpuEndinit+0x8a>
+	ld.hu %d2,[%a14]-6
+	sh %d2,2
+	or %d3,%d2,1
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-6
+	sh %d2,2
+	or %d3,%d2,3
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	ld.a %a2,[%a14]-4
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-4
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_setCpuEndinit+0xae>
+	ret 
+
+<IfxScuWdt_setSafetyEndinit>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	mov %d2,%d4
+	st.h [%a14]-12,%d2
+	ld.hu %d2,[%a14]-12
+	st.h [%a14]-2,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_setSafetyEndinit+0x54>
+	ld.hu %d2,[%a14]-2
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-2 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuWdt_setSafetyEndinit+0x80>
+	ret 
+
+<IfxScuCcu_calRGainParameters>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	st.w [%a14]-36,%d4
+	st.a [%a14]-40,%a4
+	movh.a %a2,32768
+	lea %a2,[%a2]664 <<IfxScuCcu_MA_percent>>
+	ld.w %d2,[%a14]-36 <<IfxScuCcu_MA_percent>>
+	sh %d2,2
+	addsc.a %a2,%a2,%d2,0
+	ld.w %d2,[%a2]
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-40
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-40
+	add %d2,4
+	st.w [%a14]-12,%d2
+	movh %d2,61443
+	addi %d2,%d2,24576
+	st.w [%a14]-16,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_calRGainParameters+0x68>
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-28,%d2
+	j <IfxScuCcu_calRGainParameters+0xba>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,1,<IfxScuCcu_calRGainParameters+0x8e>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-28,%d2
+	j <IfxScuCcu_calRGainParameters+0xba>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,2,<IfxScuCcu_calRGainParameters+0xb4>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-28,%d2
+	j <IfxScuCcu_calRGainParameters+0xba>
+	mov %d2,0
+	st.w [%a14]-28,%d2
+	ld.w %d2,[%a14]-28
+	st.w [%a14]-20,%d2
+	ld.a %a2,[%a14]-16
+	lea %a2,[%a2]24
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,9,7
+	and %d2,%d2,255
+	add %d2,1
+	itof %d3,%d2
+	ld.w %d2,[%a14]-20
+	mul.f %d3,%d3,%d2
+	ld.a %a2,[%a14]-16
+	lea %a2,[%a2]24
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,24,3
+	and %d2,%d2,255
+	add %d2,1
+	itof %d2,%d2
+	div.f %d2,%d3,%d2
+	st.w [%a14]-24,%d2
+	ld.w %d2,[%a14]-4
+	movh %d3,17096
+	div.f %d2,%d2,%d3
+	add.f %d3,%d2,%d2
+	ld.w %d2,[%a14]-24
+	movh %d4,19036
+	addi %d4,%d4,-17920
+	div.f %d2,%d2,%d4
+	mul.f %d2,%d3,%d2
+	ld.a %a2,[%a14]-8
+	st.w [%a2],%d2
+	ld.a %a2,[%a14]-8
+	ld.w %d2,[%a2]
+	movh %d3,16896
+	mul.f %d2,%d2,%d3
+	movh %d3,16128
+	add.f %d2,%d2,%d3
+	ftouz %d2,%d2
+	extr.u %d2,%d2,0,16
+	ld.a %a2,[%a14]-12
+	st.h [%a2],%d2
+	nop 
+	ret 
+
+<IfxScuCcu_getPerPllFrequency1>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	movh %d2,61443
+	addi %d2,%d2,24576
+	st.w [%a14]-4,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_getPerPllFrequency1+0x36>
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPerPllFrequency1+0x88>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,1,<IfxScuCcu_getPerPllFrequency1+0x5c>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPerPllFrequency1+0x88>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,2,<IfxScuCcu_getPerPllFrequency1+0x82>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPerPllFrequency1+0x88>
+	mov %d2,0
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	st.w [%a14]-8,%d2
+	ld.a %a2,[%a14]-4
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,9,7
+	and %d2,%d2,255
+	add %d2,1
+	itof %d3,%d2
+	ld.w %d2,[%a14]-8
+	mul.f %d3,%d3,%d2
+	ld.a %a2,[%a14]-4
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,24,3
+	and %d2,%d2,255
+	addi %d4,%d2,1
+	ld.a %a2,[%a14]-4
+	lea %a2,[%a2]44
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,3
+	and %d2,%d2,255
+	add %d2,1
+	mul %d2,%d4
+	itof %d2,%d2
+	div.f %d2,%d3,%d2
+	st.w [%a14]-12,%d2
+	ld.w %d2,[%a14]-12
+	ret 
+
+<IfxScuCcu_getPerPllFrequency2>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	movh %d2,61443
+	addi %d2,%d2,24576
+	st.w [%a14]-8,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_getPerPllFrequency2+0x36>
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPerPllFrequency2+0x88>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,1,<IfxScuCcu_getPerPllFrequency2+0x5c>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPerPllFrequency2+0x88>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,2,<IfxScuCcu_getPerPllFrequency2+0x82>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPerPllFrequency2+0x88>
+	mov %d2,0
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	st.w [%a14]-12,%d2
+	ld.a %a2,[%a14]-8
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_getPerPllFrequency2+0x10e>
+	ld.a %a2,[%a14]-8
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,9,7
+	and %d2,%d2,255
+	add %d2,1
+	itof %d3,%d2
+	ld.w %d2,[%a14]-12
+	mul.f %d3,%d3,%d2
+	ld.a %a2,[%a14]-8
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,24,3
+	and %d2,%d2,255
+	addi %d4,%d2,1
+	ld.a %a2,[%a14]-8
+	lea %a2,[%a2]44
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,8,3
+	and %d2,%d2,255
+	add %d2,1
+	mul %d2,%d4
+	itof %d2,%d2
+	movh %d4,16333
+	addi %d4,%d4,-13107
+	mul.f %d2,%d2,%d4
+	div.f %d2,%d3,%d2
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getPerPllFrequency2+0x168>
+	ld.a %a2,[%a14]-8
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,9,7
+	and %d2,%d2,255
+	add %d2,1
+	itof %d3,%d2
+	ld.w %d2,[%a14]-12
+	mul.f %d3,%d3,%d2
+	ld.a %a2,[%a14]-8
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,24,3
+	and %d2,%d2,255
+	addi %d4,%d2,1
+	ld.a %a2,[%a14]-8
+	lea %a2,[%a2]44
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,8,3
+	and %d2,%d2,255
+	add %d2,1
+	mul %d2,%d4
+	sh %d2,1
+	itof %d2,%d2
+	div.f %d2,%d3,%d2
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	ret 
+
+<IfxScuCcu_getPllFrequency>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	movh %d2,61443
+	addi %d2,%d2,24576
+	st.w [%a14]-4,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_getPllFrequency+0x36>
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPllFrequency+0x88>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,1,<IfxScuCcu_getPllFrequency+0x5c>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPllFrequency+0x88>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,30,2
+	and %d2,%d2,255
+	jne %d2,2,<IfxScuCcu_getPllFrequency+0x82>
+	movh %d2,19353
+	addi %d2,%d2,-27008
+	st.w [%a14]-16,%d2
+	j <IfxScuCcu_getPllFrequency+0x88>
+	mov %d2,0
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	st.w [%a14]-8,%d2
+	ld.a %a2,[%a14]-4
+	lea %a2,[%a2]24
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,9,7
+	and %d2,%d2,255
+	add %d2,1
+	itof %d3,%d2
+	ld.w %d2,[%a14]-8
+	mul.f %d3,%d3,%d2
+	ld.a %a2,[%a14]-4
+	lea %a2,[%a2]28
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,3
+	and %d2,%d2,255
+	addi %d4,%d2,1
+	ld.a %a2,[%a14]-4
+	lea %a2,[%a2]24
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,24,3
+	and %d2,%d2,255
+	add %d2,1
+	mul %d2,%d4
+	itof %d2,%d2
+	div.f %d2,%d3,%d2
+	st.w [%a14]-12,%d2
+	ld.w %d2,[%a14]-12
+	ret 
+
+<IfxScuCcu_getSourceFrequency>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	st.w [%a14]-12,%d4
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,28,2
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_getSourceFrequency+0x26>
+	jeq %d2,1,<IfxScuCcu_getSourceFrequency+0x36>
+	j <IfxScuCcu_getSourceFrequency+0xb4>
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xbc>
+	ld.w %d2,[%a14]-12
+	jeq %d2,2,<IfxScuCcu_getSourceFrequency+0x98>
+	ld.w %d2,[%a14]-12
+	jge.u %d2,3,<IfxScuCcu_getSourceFrequency+0xa4>
+	ld.w %d2,[%a14]-12
+	jeq %d2,0,<IfxScuCcu_getSourceFrequency+0x5a>
+	ld.w %d2,[%a14]-12
+	jeq %d2,1,<IfxScuCcu_getSourceFrequency+0x66>
+	j <IfxScuCcu_getSourceFrequency+0xa4>
+	call <IfxScuCcu_getPllFrequency>
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xb0>
+	call <IfxScuCcu_getPerPllFrequency1>
+	st.w [%a14]-4,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,7,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_getSourceFrequency+0xae>
+	ld.w %d2,[%a14]-4
+	movh %d3,16384
+	div.f %d2,%d2,%d3
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xae>
+	call <IfxScuCcu_getPerPllFrequency2>
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xb0>
+	mov %d2,0
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xb0>
+	nop 
+	j <IfxScuCcu_getSourceFrequency+0xbc>
+	mov %d2,0
+	st.w [%a14]-4,%d2
+	nop 
+	ld.w %d2,[%a14]-4
+	ret 
+
+<IfxScuCcu_init>:
+	mov.aa %a14,%sp
+	sub.a %sp,176
+	st.a [%a14]-172,%a4
+	mov %d2,0
+	st.b [%a14]-1,%d2
+	ld.w %d2,[%a14]-172
+	st.w [%a14]-8,%d2
+	mov %d2,0
+	st.b [%a14]-9,%d2
+	ld.w %d2,[%a14]-8
+	st.w [%a14]-16,%d2
+	movh %d2,61443
+	addi %d2,%d2,25256
+	st.w [%a14]-20,%d2
+	ld.a %a2,[%a14]-20
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	extr.u %d2,%d2,0,16
+	st.h [%a14]-22,%d2
+	ld.h %d2,[%a14]-22
+	xor %d2,%d2,63
+	st.h [%a14]-22,%d2
+	ld.hu %d2,[%a14]-22
+	st.h [%a14]-24,%d2
+	ld.hu %d2,[%a14]-24
+	st.h [%a14]-26,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0xa0>
+	ld.hu %d2,[%a14]-26
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-26 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	nop 
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuCcu_init+0xce>
+	nop 
+	mov %d2,4096
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x10e>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x10e>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x124>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xf2>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-148 <<bmhd_3_copy+0x40c34a30>>,%d2
+	ld.w %d2,[%a14]-148 <<bmhd_3_copy+0x40c34a30>>
+	movh %d3,53248
+	add %d3,-1
+	and %d2,%d3
+	st.w [%a14]-148,%d2
+	ld.w %d2,[%a14]-148
+	insert %d2,%d2,1,30,1
+	st.w [%a14]-148,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a14]-148 <<bmhd_3_copy+0x40c34a30>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x184>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x184>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x19a>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0x168>
+	movh.a %a2,61443
+	lea %a2,[%a2]26676 <<bmhd_3_copy+0x40c35234>>
+	mov %d2,188
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]26976 <<bmhd_3_copy+0x40c35360>>
+	ld.w %d2,[%a2]
+	movh.a %a2,61443
+	lea %a2,[%a2]26976 <<bmhd_3_copy+0x40c35360>>
+	andn %d2,%d2,29
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]26980 <<bmhd_3_copy+0x40c35364>>
+	ld.w %d2,[%a2]
+	movh.a %a2,61443
+	lea %a2,[%a2]26980 <<bmhd_3_copy+0x40c35364>>
+	andn %d2,%d2,29
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]26984 <<bmhd_3_copy+0x40c35368>>
+	ld.w %d2,[%a2]
+	movh.a %a2,61443
+	lea %a2,[%a2]26984 <<bmhd_3_copy+0x40c35368>>
+	andn %d2,%d2,29
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]26676 <<bmhd_3_copy+0x40c35234>>
+	mov %d2,0
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	movh %d3,65535
+	add %d3,-1
+	and %d2,%d3
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24616 <<bmhd_3_copy+0x40c34a28>>
+	ld.w %d2,[%a2]
+	movh %d3,65535
+	add %d3,-1
+	and %d2,%d3
+	st.w [%a2],%d2
+	mov %d2,12288
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x24c>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x24c>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x278>
+	movh.a %a2,61443
+	lea %a2,[%a2]24596 <<bmhd_3_copy+0x40c34a14>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x230>
+	movh.a %a2,61443
+	lea %a2,[%a2]24612 <<bmhd_3_copy+0x40c34a24>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x230>
+	ld.a %a2,[%a14]-16
+	add.a %a2,4
+	ld.w %d2,[%a2]
+	jeq %d2,1,<IfxScuCcu_init+0x290>
+	ld.a %a2,[%a14]-16
+	add.a %a2,4
+	ld.w %d2,[%a2]
+	jne %d2,2,<IfxScuCcu_init+0x2ee>
+	movh.a %a2,61443
+	lea %a2,[%a2]24592 <<bmhd_3_copy+0x40c34a10>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-152 <<bmhd_3_copy+0x40c34a10>>,%d2
+	ld.w %d2,[%a14]-152 <<bmhd_3_copy+0x40c34a10>>
+	andn %d2,%d2,96
+	st.w [%a14]-152,%d2
+	ld.a %a2,[%a14]-16
+	ld.w %d2,[%a2]
+	movh %d3,17180
+	addi %d3,%d3,-8573
+	mul.u %e2,%d2,%d3
+	sh %d2,%d3,-18
+	and %d2,%d2,255
+	addi %d2,%d2,-15
+	and %d2,%d2,255
+	and %d2,%d2,31
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-152
+	insert %d2,%d2,%d3,16,5
+	st.w [%a14]-152,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24592 <<bmhd_3_copy+0x40c34a10>>
+	ld.w %d2,[%a14]-152 <<bmhd_3_copy+0x40c34a10>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-156 <<bmhd_3_copy+0x40c34a18>>,%d2
+	ld.a %a2,[%a14]-16 <<bmhd_3_copy+0x40c34a18>>
+	ld.bu %d2,[%a2]8 <<bmhd_3_copy+0x40c34a18>>
+	and %d2,%d2,7
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-156
+	insert %d2,%d2,%d3,24,3
+	st.w [%a14]-156,%d2
+	ld.a %a2,[%a14]-16
+	ld.bu %d2,[%a2]9
+	and %d2,%d2,127
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-156
+	insert %d2,%d2,%d3,9,7
+	st.w [%a14]-156,%d2
+	ld.a %a2,[%a14]-16
+	add.a %a2,4
+	ld.w %d2,[%a2]
+	and %d2,%d2,3
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-156
+	insert %d2,%d2,%d3,30,2
+	st.w [%a14]-156,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a14]-156 <<bmhd_3_copy+0x40c34a18>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24616 <<bmhd_3_copy+0x40c34a28>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-160 <<bmhd_3_copy+0x40c34a28>>,%d2
+	ld.a %a2,[%a14]-16 <<bmhd_3_copy+0x40c34a28>>
+	ld.bu %d2,[%a2]16 <<bmhd_3_copy+0x40c34a28>>
+	and %d2,%d2,1
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-160
+	ins.t %d2,%d2,0,%d3,0
+	st.w [%a14]-160,%d2
+	ld.a %a2,[%a14]-16
+	ld.bu %d2,[%a2]12
+	and %d2,%d2,7
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-160
+	insert %d2,%d2,%d3,24,3
+	st.w [%a14]-160,%d2
+	ld.a %a2,[%a14]-16
+	ld.bu %d2,[%a2]13
+	and %d2,%d2,127
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-160
+	insert %d2,%d2,%d3,9,7
+	st.w [%a14]-160,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24616 <<bmhd_3_copy+0x40c34a28>>
+	ld.w %d2,[%a14]-160 <<bmhd_3_copy+0x40c34a28>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	insert %d2,%d2,1,16,1
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24616 <<bmhd_3_copy+0x40c34a28>>
+	ld.w %d2,[%a2]
+	insert %d2,%d2,1,16,1
+	st.w [%a2],%d2
+	mov %d2,12288
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x416>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x416>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x442>
+	movh.a %a2,61443
+	lea %a2,[%a2]24596 <<bmhd_3_copy+0x40c34a14>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuCcu_init+0x3fa>
+	movh.a %a2,61443
+	lea %a2,[%a2]24612 <<bmhd_3_copy+0x40c34a24>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuCcu_init+0x3fa>
+	mov %d2,24576
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x46a>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x46a>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x4ac>
+	movh.a %a2,61443
+	lea %a2,[%a2]24596 <<bmhd_3_copy+0x40c34a14>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,5,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x44e>
+	movh.a %a2,61443
+	lea %a2,[%a2]24612 <<bmhd_3_copy+0x40c34a24>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,5,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x44e>
+	movh.a %a2,61443
+	lea %a2,[%a2]24612 <<bmhd_3_copy+0x40c34a24>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,4,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x44e>
+	ld.a %a2,[%a14]-16
+	ld.bu %d2,[%a2]10
+	movh.a %a2,61443
+	lea %a2,[%a2]24604 <<bmhd_3_copy+0x40c34a1c>>
+	and %d2,%d2,7
+	and %d3,%d2,255
+	ld.w %d2,[%a2]
+	insert %d2,%d2,%d3,0,3
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24620 <<bmhd_3_copy+0x40c34a2c>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-164 <<bmhd_3_copy+0x40c34a2c>>,%d2
+	ld.a %a2,[%a14]-16 <<bmhd_3_copy+0x40c34a2c>>
+	ld.bu %d2,[%a2]14 <<bmhd_3_copy+0x40c34a2c>>
+	and %d2,%d2,7
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-164
+	insert %d2,%d2,%d3,0,3
+	st.w [%a14]-164,%d2
+	ld.a %a2,[%a14]-16
+	ld.bu %d2,[%a2]15
+	and %d2,%d2,7
+	and %d3,%d2,255
+	ld.w %d2,[%a14]-164
+	insert %d2,%d2,%d3,8,3
+	st.w [%a14]-164,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24620 <<bmhd_3_copy+0x40c34a2c>>
+	ld.w %d2,[%a14]-164 <<bmhd_3_copy+0x40c34a2c>>
+	st.w [%a2],%d2
+	mov %d2,24576
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x548>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x548>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x58a>
+	movh.a %a2,61443
+	lea %a2,[%a2]24596 <<bmhd_3_copy+0x40c34a14>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,5,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x52c>
+	movh.a %a2,61443
+	lea %a2,[%a2]24612 <<bmhd_3_copy+0x40c34a24>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,5,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x52c>
+	movh.a %a2,61443
+	lea %a2,[%a2]24612 <<bmhd_3_copy+0x40c34a24>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,4,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x52c>
+	movh %d2,5
+	addi %d2,%d2,-27680
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x5b6>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x5b6>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x5e2>
+	movh.a %a2,61443
+	lea %a2,[%a2]24592 <<bmhd_3_copy+0x40c34a10>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0x5e2>
+	movh.a %a2,61443
+	lea %a2,[%a2]24592 <<bmhd_3_copy+0x40c34a10>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,8,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x59a>
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	insert %d2,%d2,1,18,1
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24616 <<bmhd_3_copy+0x40c34a28>>
+	ld.w %d2,[%a2]
+	insert %d2,%d2,1,18,1
+	st.w [%a2],%d2
+	mov %d2,12288
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x62a>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x62a>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x656>
+	movh.a %a2,61443
+	lea %a2,[%a2]24596 <<bmhd_3_copy+0x40c34a14>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x60e>
+	movh.a %a2,61443
+	lea %a2,[%a2]24612 <<bmhd_3_copy+0x40c34a24>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x60e>
+	movh.a %a2,61443
+	lea %a2,[%a2]26676 <<bmhd_3_copy+0x40c35234>>
+	mov %d2,188
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]26656 <<bmhd_3_copy+0x40c35220>>
+	mov %d2,5
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]27104 <<bmhd_3_copy+0x40c353e0>>
+	mov %d2,29
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]26676 <<bmhd_3_copy+0x40c35234>>
+	mov %d2,0
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-168 <<bmhd_3_copy+0x40c34a30>>,%d2
+	ld.w %d2,[%a14]-168 <<bmhd_3_copy+0x40c34a30>>
+	insert %d2,%d2,1,28,2
+	st.w [%a14]-168,%d2
+	ld.w %d2,[%a14]-168
+	insert %d2,%d2,1,30,1
+	st.w [%a14]-168,%d2
+	mov %d2,4096
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x6d8>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x6d8>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x6ee>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0x6bc>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a14]-168 <<bmhd_3_copy+0x40c34a30>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-32,%d2
+	j <IfxScuCcu_init+0x724>
+	ld.w %d2,[%a14]-32
+	add %d2,-1
+	st.w [%a14]-32,%d2
+	ld.w %d2,[%a14]-32
+	jge %d2,1,<IfxScuCcu_init+0x724>
+	mov %d2,1
+	st.b [%a14]-9,%d2
+	j <IfxScuCcu_init+0x73a>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0x708>
+	ld.hu %d2,[%a14]-24
+	st.h [%a14]-34,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x784>
+	ld.hu %d2,[%a14]-34
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-34 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	nop 
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x7b2>
+	nop 
+	ld.bu %d2,[%a14]-9
+	st.b [%a14]-1,%d2
+	ld.bu %d2,[%a14]-1
+	jne %d2,0,<IfxScuCcu_init+0x7ea>
+	ld.a %a2,[%a14]-172
+	lea %a2,[%a2]116
+	ld.w %d2,[%a2]
+	mov.a %a4,%d2
+	call <IfxScuCcu_modulation_init>
+	ld.bu %d2,[%a14]-1
+	jne %d2,0,<IfxScuCcu_init+0x1052>
+	ld.w %d2,[%a14]-172
+	addi %d2,%d2,32
+	st.w [%a14]-40,%d2
+	mov %d2,0
+	st.w [%a14]-44,%d2
+	movh %d2,61443
+	addi %d2,%d2,25256
+	st.w [%a14]-48,%d2
+	ld.a %a2,[%a14]-48
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	extr.u %d2,%d2,0,16
+	st.h [%a14]-50,%d2
+	ld.h %d2,[%a14]-50
+	xor %d2,%d2,63
+	st.h [%a14]-50,%d2
+	ld.hu %d2,[%a14]-50
+	st.h [%a14]-52,%d2
+	ld.hu %d2,[%a14]-52
+	st.h [%a14]-54,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x880>
+	ld.hu %d2,[%a14]-54
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-54 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	nop 
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuCcu_init+0x8ae>
+	nop 
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a30>>
+	add.a %a2,4
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-108,%d2
+	ld.w %d3,[%a14]-108
+	ld.a %a2,[%a14]-40
+	add.a %a2,4
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-108,%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0x922>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0x922>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0x938>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0x906>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a14]-108 <<bmhd_3_copy+0x40c34a30>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0x96e>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0x96e>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0x984>
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0x952>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-112 <<bmhd_3_copy+0x40c34a34>>,%d2
+	ld.w %d2,[%a14]-112 <<bmhd_3_copy+0x40c34a34>>
+	and %d2,%d2,48
+	jne %d2,0,<IfxScuCcu_init+0x9ba>
+	ld.w %d2,[%a14]-112
+	movh %d3,48
+	and %d2,%d3
+	jne %d2,0,<IfxScuCcu_init+0x9ba>
+	ld.w %d2,[%a14]-112
+	movh %d3,12288
+	and %d2,%d3
+	jeq %d2,0,<IfxScuCcu_init+0xaac>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a34>>
+	lea %a2,[%a2]12 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-112,%d2
+	ld.w %d3,[%a14]-112
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]12
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]8
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-112,%d2
+	ld.w %d2,[%a14]-112
+	andn %d2,%d2,48
+	st.w [%a14]-112,%d2
+	ld.w %d2,[%a14]-112
+	movh %d3,65488
+	add %d3,-1
+	and %d2,%d3
+	st.w [%a14]-112,%d2
+	ld.w %d2,[%a14]-112
+	movh %d3,53248
+	add %d3,-1
+	and %d2,%d3
+	st.w [%a14]-112,%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xa4a>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xa4a>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xa60>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xa2e>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a14]-112 <<bmhd_3_copy+0x40c34a34>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xa96>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xa96>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xaac>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xa7a>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a34>>
+	lea %a2,[%a2]12 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-112,%d2
+	ld.w %d3,[%a14]-112
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]12
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]8
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-112,%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xb10>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xb10>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xb26>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xaf4>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a14]-112 <<bmhd_3_copy+0x40c34a34>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xb5c>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xb5c>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xb72>
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xb40>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-116 <<bmhd_3_copy+0x40c34a40>>,%d2
+	ld.w %d2,[%a14]-116 <<bmhd_3_copy+0x40c34a40>>
+	mov %d3,12288
+	and %d2,%d3
+	jeq %d2,0,<IfxScuCcu_init+0xc62>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a40>>
+	lea %a2,[%a2]20 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-116,%d2
+	ld.w %d3,[%a14]-116
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]20
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]16
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-116,%d2
+	ld.w %d2,[%a14]-116
+	mov %d3,-12289
+	and %d2,%d3
+	st.w [%a14]-116,%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xc00>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xc00>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xc16>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xbe4>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a14]-116 <<bmhd_3_copy+0x40c34a40>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xc4c>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xc4c>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xc62>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xc30>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a40>>
+	lea %a2,[%a2]20 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-116,%d2
+	ld.w %d3,[%a14]-116
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]20
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]16
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-116,%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xcc6>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xcc6>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xcdc>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xcaa>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a14]-116 <<bmhd_3_copy+0x40c34a40>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xd12>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xd12>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xd28>
+	movh.a %a2,61443
+	lea %a2,[%a2]24640 <<bmhd_3_copy+0x40c34a40>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xcf6>
+	movh.a %a2,61443
+	lea %a2,[%a2]24652 <<bmhd_3_copy+0x40c34a4c>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a4c>>
+	lea %a2,[%a2]28 <<bmhd_3_copy+0x40c34a4c>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-120,%d2
+	ld.w %d3,[%a14]-120
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]28
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]24
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-120,%d2
+	ld.w %d2,[%a14]-120
+	insert %d2,%d2,1,30,1
+	st.w [%a14]-120,%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xd98>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xd98>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xdae>
+	movh.a %a2,61443
+	lea %a2,[%a2]24652 <<bmhd_3_copy+0x40c34a4c>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xd7c>
+	movh.a %a2,61443
+	lea %a2,[%a2]24652 <<bmhd_3_copy+0x40c34a4c>>
+	ld.w %d2,[%a14]-120 <<bmhd_3_copy+0x40c34a4c>>
+	st.w [%a2],%d2
+	mov %d2,4096
+	st.w [%a14]-60,%d2
+	j <IfxScuCcu_init+0xde4>
+	ld.w %d2,[%a14]-60
+	add %d2,-1
+	st.w [%a14]-60,%d2
+	ld.w %d2,[%a14]-60
+	jge %d2,1,<IfxScuCcu_init+0xde4>
+	mov %d2,1
+	st.w [%a14]-44,%d2
+	j <IfxScuCcu_init+0xdfa>
+	movh.a %a2,61443
+	lea %a2,[%a2]24652 <<bmhd_3_copy+0x40c34a4c>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,31,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_init+0xdc8>
+	movh.a %a2,61443
+	lea %a2,[%a2]24704 <<bmhd_3_copy+0x40c34a80>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a80>>
+	lea %a2,[%a2]36 <<bmhd_3_copy+0x40c34a80>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-124,%d2
+	ld.w %d3,[%a14]-124
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]36
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]32
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-124,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24704 <<bmhd_3_copy+0x40c34a80>>
+	ld.w %d2,[%a14]-124 <<bmhd_3_copy+0x40c34a80>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24708 <<bmhd_3_copy+0x40c34a84>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a84>>
+	lea %a2,[%a2]44 <<bmhd_3_copy+0x40c34a84>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-128,%d2
+	ld.w %d3,[%a14]-128
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]44
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]40
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-128,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24708 <<bmhd_3_copy+0x40c34a84>>
+	ld.w %d2,[%a14]-128 <<bmhd_3_copy+0x40c34a84>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24712 <<bmhd_3_copy+0x40c34a88>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a88>>
+	lea %a2,[%a2]52 <<bmhd_3_copy+0x40c34a88>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-132,%d2
+	ld.w %d3,[%a14]-132
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]52
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]48
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-132,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24712 <<bmhd_3_copy+0x40c34a88>>
+	ld.w %d2,[%a14]-132 <<bmhd_3_copy+0x40c34a88>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24716 <<bmhd_3_copy+0x40c34a8c>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a8c>>
+	lea %a2,[%a2]60 <<bmhd_3_copy+0x40c34a8c>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-136,%d2
+	ld.w %d3,[%a14]-136
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]60
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]56
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-136,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24716 <<bmhd_3_copy+0x40c34a8c>>
+	ld.w %d2,[%a14]-136 <<bmhd_3_copy+0x40c34a8c>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24720 <<bmhd_3_copy+0x40c34a90>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a90>>
+	lea %a2,[%a2]68 <<bmhd_3_copy+0x40c34a90>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-140,%d2
+	ld.w %d3,[%a14]-140
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]68
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]64
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-140,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24720 <<bmhd_3_copy+0x40c34a90>>
+	ld.w %d2,[%a14]-140 <<bmhd_3_copy+0x40c34a90>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24724 <<bmhd_3_copy+0x40c34a94>>
+	ld.w %d3,[%a2]
+	ld.a %a2,[%a14]-40 <<bmhd_3_copy+0x40c34a94>>
+	lea %a2,[%a2]76 <<bmhd_3_copy+0x40c34a94>>
+	ld.w %d2,[%a2]
+	not %d2
+	and %d2,%d3
+	st.w [%a14]-144,%d2
+	ld.w %d3,[%a14]-144
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]76
+	ld.w %d4,[%a2]
+	ld.a %a2,[%a14]-40
+	lea %a2,[%a2]72
+	ld.w %d2,[%a2]
+	and %d2,%d4
+	or %d2,%d3
+	st.w [%a14]-144,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24724 <<bmhd_3_copy+0x40c34a94>>
+	ld.w %d2,[%a14]-144 <<bmhd_3_copy+0x40c34a94>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-52 <<bmhd_3_copy+0x40c34a94>>
+	st.h [%a14]-62 <<bmhd_3_copy+0x40c34a94>>,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x1000>
+	ld.hu %d2,[%a14]-62
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-62 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	nop 
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x102e>
+	nop 
+	ld.w %d2,[%a14]-44
+	and %d2,%d2,255
+	st.b [%a14]-1,%d2
+	ld.bu %d2,[%a14]-1
+	jne %d2,0,<IfxScuCcu_init+0x12c4>
+	ld.w %d2,[%a14]-172
+	addi %d2,%d2,24
+	st.w [%a14]-68,%d2
+	mov %d2,0
+	st.b [%a14]-69,%d2
+	movh %d2,61443
+	addi %d2,%d2,25256
+	st.w [%a14]-76,%d2
+	ld.a %a2,[%a14]-76
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,2,14
+	extr.u %d2,%d2,0,16
+	st.h [%a14]-78,%d2
+	ld.h %d2,[%a14]-78
+	xor %d2,%d2,63
+	st.h [%a14]-78,%d2
+	ld.hu %d2,[%a14]-78
+	st.h [%a14]-80,%d2
+	mov %d2,0
+	st.b [%a14]-81,%d2
+	j <IfxScuCcu_init+0x12ae>
+	ld.hu %d2,[%a14]-80
+	st.h [%a14]-84,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x10f2>
+	ld.hu %d2,[%a14]-84
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-84 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	nop 
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,1,<IfxScuCcu_init+0x1120>
+	nop 
+	mov %d2,24576
+	st.w [%a14]-88,%d2
+	j <IfxScuCcu_init+0x1160>
+	ld.w %d2,[%a14]-88
+	add %d2,-1
+	st.w [%a14]-88,%d2
+	ld.w %d2,[%a14]-88
+	jge %d2,1,<IfxScuCcu_init+0x1160>
+	mov %d2,1
+	st.b [%a14]-69,%d2
+	j <IfxScuCcu_init+0x1176>
+	movh.a %a2,61443
+	lea %a2,[%a2]24596 <<bmhd_3_copy+0x40c34a14>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,5,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x1144>
+	ld.a %a2,[%a14]-68
+	add.a %a2,4
+	ld.w %d3,[%a2]
+	ld.bu %d2,[%a14]-81
+	sh %d2,3
+	mov.a %a2,%d3
+	addsc.a %a2,%a2,%d2,0
+	ld.bu %d2,[%a2]
+	movh.a %a2,61443
+	lea %a2,[%a2]24604 <<bmhd_3_copy+0x40c34a1c>>
+	and %d2,%d2,7
+	and %d3,%d2,255
+	ld.w %d2,[%a2]
+	insert %d2,%d2,%d3,0,3
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-80
+	st.h [%a14]-90,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,1,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x11ee>
+	ld.hu %d2,[%a14]-90
+	sh %d2,2
+	or %d3,%d2,1
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-90 <<bmhd_3_copy+0x40c34ca8>>
+	sh %d2,2
+	or %d3,%d2,3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,16,16
+	extr.u %d2,%d2,0,16
+	sh %d2,%d2,16
+	or %d2,%d3
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	st.w [%a2],%d2
+	nop 
+	movh.a %a2,61443
+	lea %a2,[%a2]25256 <<bmhd_3_copy+0x40c34ca8>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,1
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_init+0x121c>
+	nop 
+	ld.a %a2,[%a14]-68
+	add.a %a2,4
+	ld.w %d3,[%a2]
+	ld.bu %d2,[%a14]-81
+	sh %d2,3
+	mov.a %a2,%d3
+	addsc.a %a2,%a2,%d2,0
+	add.a %a2,4
+	ld.w %d2,[%a2]
+	st.w [%a14]-96,%d2
+	mov %d4,0
+	call <IfxScuCcu_getSourceFrequency>
+	mov %d3,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,4
+	and %d2,%d2,255
+	itof %d2,%d2
+	div.f %d3,%d3,%d2
+	ld.w %d2,[%a14]-96
+	mul.f %d2,%d3,%d2
+	ftouz %d2,%d2
+	st.w [%a14]-100,%d2
+	lea %a2,<bmhd_3_copy+0x40bffa10>
+	ld.w %d2,[%a2]
+	st.w [%a14]-104,%d2
+	nop 
+	lea %a2,<bmhd_3_copy+0x40bffa10>
+	ld.w %d3,[%a2]
+	ld.w %d2,[%a14]-104
+	sub %d3,%d2
+	ld.w %d2,[%a14]-100
+	jlt.u %d3,%d2,<IfxScuCcu_init+0x128e>
+	nop 
+	ld.bu %d2,[%a14]-81
+	add %d2,1
+	st.b [%a14]-81,%d2
+	ld.a %a2,[%a14]-68
+	ld.bu %d2,[%a2]
+	ld.bu %d3,[%a14]-81
+	jlt.u %d3,%d2,<IfxScuCcu_init+0x10a8>
+	ld.bu %d2,[%a14]-69
+	st.b [%a14]-1,%d2
+	ld.bu %d2,[%a14]-1
+	ret 
+
+<IfxScuCcu_modulation_init>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	st.a [%a14]-36,%a4
+	ld.a %a2,[%a14]-36
+	ld.w %d2,[%a2]
+	st.w [%a14]-4,%d2
+	ld.a %a2,[%a14]-36
+	add.a %a2,4
+	ld.w %d2,[%a2]
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-4
+	jne %d2,1,<IfxScuCcu_modulation_init+0xa6>
+	lea %a2,[%a14]-20
+	mov.aa %a4,%a2
+	ld.w %d4,[%a14]-8
+	call <IfxScuCcu_calRGainParameters>
+	call <IfxScuWdt_getSafetyWatchdogPassword>
+	st.h [%a14]-10,%d2
+	ld.hu %d2,[%a14]-10
+	mov %d4,%d2
+	call <IfxScuWdt_clearSafetyEndinit>
+	movh.a %a2,61443
+	lea %a2,[%a2]24608 <<bmhd_3_copy+0x40c34a20>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-28 <<bmhd_3_copy+0x40c34a20>>,%d2
+	ld.hu %d2,[%a14]-16 <<bmhd_3_copy+0x40c34a20>>
+	mov %d3,-3072
+	or %d2,%d3
+	extr.u %d2,%d2,0,16
+	st.h [%a14]-28,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24608 <<bmhd_3_copy+0x40c34a20>>
+	ld.w %d2,[%a14]-28 <<bmhd_3_copy+0x40c34a20>>
+	st.w [%a2],%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a2]
+	st.w [%a14]-24 <<bmhd_3_copy+0x40c34a18>>,%d2
+	ld.w %d2,[%a14]-24 <<bmhd_3_copy+0x40c34a18>>
+	insert %d2,%d2,1,2,1
+	st.w [%a14]-24,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24600 <<bmhd_3_copy+0x40c34a18>>
+	ld.w %d2,[%a14]-24 <<bmhd_3_copy+0x40c34a18>>
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-10 <<bmhd_3_copy+0x40c34a18>>
+	mov %d4,%d2
+	call <IfxScuWdt_setSafetyEndinit>
+	nop 
+	ret 
+
+<IfxCpu_waitEvent>:
+	mov.aa %a14,%sp
+	sub.a %sp,32
+	st.a [%a14]-28,%a4
+	st.w [%a14]-32,%d4
+	ld.w %d2,[%a14]-28
+	movh %d3,61440
+	and %d2,%d3
+	movh %d3,53248
+	jne %d2,%d3,<IfxCpu_waitEvent+0x48>
+	ld.w %d2,[%a14]-28
+	mov %d3,-1
+	sh %d3,%d3,-12
+	and %d2,%d3
+	movh %d3,28672
+	or %d3,%d2
+	mfcr %d2,$core_id
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-8
+	sh %d2,%d2,28
+	sub %d2,%d3,%d2
+	j <IfxCpu_waitEvent+0x4c>
+	ld.w %d2,[%a14]-28
+	st.w [%a14]-12,%d2
+	mov %d2,0
+	st.b [%a14]-1,%d2
+	mov %d4,0
+	call <IfxScuCcu_getSourceFrequency>
+	mov %d3,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,4
+	and %d2,%d2,255
+	itof %d2,%d2
+	div.f %d2,%d3,%d2
+	movh %d3,17530
+	div.f %d3,%d2,%d3
+	ld.w %d2,[%a14]-32
+	utof %d2,%d2
+	mul.f %d2,%d3,%d2
+	ftouz %d2,%d2
+	st.w [%a14]-16,%d2
+	lea %a2,<bmhd_3_copy+0x40bffa10>
+	ld.w %d2,[%a2]
+	st.w [%a14]-20,%d2
+	j <IfxCpu_waitEvent+0xc4>
+	nop 
+	nop 
+	lea %a2,<bmhd_3_copy+0x40bffa10>
+	ld.w %d3,[%a2]
+	ld.w %d2,[%a14]-20
+	sub %d3,%d2
+	ld.w %d2,[%a14]-16
+	jlt.u %d3,%d2,<IfxCpu_waitEvent+0xc4>
+	mov %d2,1
+	st.b [%a14]-1,%d2
+	j <IfxCpu_waitEvent+0xd6>
+	ld.a %a2,[%a14]-12
+	ld.w %d2,[%a2]
+	and %d2,%d2,95
+	ne %d2,%d2,95
+	jne %d2,0,<IfxCpu_waitEvent+0xa2>
+	ld.bu %d2,[%a14]-1
+	ret 
+
+<IfxCpu_emitEvent>:
+	mov.aa %a14,%sp
+	sub.a %sp,24
+	st.a [%a14]-20,%a4
+	mfcr %d2,$core_id
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	mov %d3,1
+	imask %e2,%d3,%d2,1
+	st.d [%a14]-12,%e2
+	ld.a %a2,[%a14]-20
+	ld.d %e2,[%a14]-12
+	ldmst [%a2]0,%e2
+	nop 
+	ret 
+
+<waitTime>:
+	mov.aa %a14,%sp
+	sub.a %sp,128
+	st.d [%a14]-128,%e4
+	ld.da %a2,[%a14]-128
+	st.da [%a14]-8,%a2
+	ld.da %a2,[%a14]-8
+	st.da [%a14]-16,%a2
+	ld.d %e4,[%a14]-16
+	mov %d12,-1
+	sh %d12,-1
+	ne %d12,%d5,%d12
+	or.ne %d12,%d4,-1
+	jne %d12,0,<waitTime+0x3e>
+	mov.a %a2,0
+	add.a %a2,-1
+	lea %a3,<LCF_STARTPTR_CPU0>
+	add.a %a3,-1
+	st.da [%a14]-24,%a2
+	j <waitTime+0x100>
+	mfcr %d4,$icr
+	st.w [%a14]-28,%d4
+	ld.w %d4,[%a14]-28
+	st.w [%a14]-116,%d4
+	ld.w %d4,[%a14]-116
+	extr.u %d4,%d4,15,1
+	and %d4,%d4,255
+	st.b [%a14]-29,%d4
+	disable 
+	nop 
+	nop 
+	ld.bu %d4,[%a14]-29
+	st.b [%a14]-30,%d4
+	movh %d4,61440
+	addi %d4,%d4,4096
+	st.w [%a14]-36,%d4
+	ld.a %a2,[%a14]-36
+	lea %a2,[%a2]16
+	ld.w %d4,[%a2]
+	mov %d4,%d4
+	mov %d5,0
+	st.d [%a14]-44,%e4
+	ld.a %a2,[%a14]-36
+	lea %a2,[%a2]44
+	ld.w %d4,[%a2]
+	mov %d4,%d4
+	mov %d5,0
+	mov %d11,%d4
+	mov %d10,0
+	ld.w %d4,[%a14]-44
+	or %d2,%d4,%d10
+	ld.w %d4,[%a14]-40
+	or %d3,%d4,%d11
+	st.d [%a14]-44,%e2
+	ld.da %a2,[%a14]-44
+	mov.d %d2,%a2
+	mov.d %d3,%a3
+	mov %d4,%d2
+	st.w [%a14]-52,%d4
+	mov %d4,-1
+	sh %d4,-1
+	and %d2,%d3,%d4
+	st.w [%a14]-48,%d2
+	ld.bu %d2,[%a14]-30
+	st.b [%a14]-53,%d2
+	ld.bu %d2,[%a14]-53
+	st.b [%a14]-54,%d2
+	ld.bu %d2,[%a14]-54
+	jeq %d2,0,<waitTime+0xe8>
+	enable 
+	nop 
+	nop 
+	ld.d %e4,[%a14]-52
+	ld.d %e2,[%a14]-16
+	addx %d6,%d2,%d4
+	addc %d7,%d3,%d5
+	st.d [%a14]-24,%e6
+	ld.da %a2,[%a14]-24
+	st.da [%a14]-64,%a2
+	nop 
+	ld.da %a2,[%a14]-64
+	st.da [%a14]-72,%a2
+	ld.d %e2,[%a14]-72
+	mov %d4,-1
+	sh %d4,-1
+	ne %d4,%d3,%d4
+	or.ne %d4,%d2,-1
+	jne %d4,0,<waitTime+0x130>
+	mov %d2,0
+	st.b [%a14]-73,%d2
+	j <waitTime+0x202>
+	mfcr %d2,$icr
+	st.w [%a14]-80,%d2
+	ld.w %d2,[%a14]-80
+	st.w [%a14]-112,%d2
+	ld.w %d2,[%a14]-112
+	extr.u %d2,%d2,15,1
+	and %d2,%d2,255
+	st.b [%a14]-81,%d2
+	disable 
+	nop 
+	nop 
+	ld.bu %d2,[%a14]-81
+	st.b [%a14]-82,%d2
+	movh %d2,61440
+	addi %d2,%d2,4096
+	st.w [%a14]-88,%d2
+	ld.a %a2,[%a14]-88
+	lea %a2,[%a2]16
+	ld.w %d2,[%a2]
+	mov %d2,%d2
+	mov %d3,0
+	st.d [%a14]-96,%e2
+	ld.a %a2,[%a14]-88
+	lea %a2,[%a2]44
+	ld.w %d2,[%a2]
+	mov %d2,%d2
+	mov %d3,0
+	mov %d9,%d2
+	mov %d8,0
+	ld.w %d2,[%a14]-96
+	or %d0,%d2,%d8
+	ld.w %d2,[%a14]-92
+	or %d1,%d2,%d9
+	st.d [%a14]-96,%e0
+	ld.da %a2,[%a14]-96
+	mov.d %d2,%a2
+	mov.d %d3,%a3
+	mov %d4,%d2
+	st.w [%a14]-104,%d4
+	mov %d4,-1
+	sh %d4,-1
+	and %d2,%d3,%d4
+	st.w [%a14]-100,%d2
+	ld.bu %d2,[%a14]-82
+	st.b [%a14]-105,%d2
+	ld.bu %d2,[%a14]-105
+	st.b [%a14]-106,%d2
+	ld.bu %d2,[%a14]-106
+	jeq %d2,0,<waitTime+0x1da>
+	enable 
+	nop 
+	nop 
+	ld.d %e6,[%a14]-104
+	ld.d %e2,[%a14]-72
+	mov %d4,%d7
+	eq %d4,%d3,%d4
+	mov %d5,%d2
+	and.ge.u %d4,%d6,%d5
+	mov %d5,%d7
+	or.lt %d4,%d3,%d5
+	mov %d2,%d4
+	and %d2,%d2,255
+	st.b [%a14]-73,%d2
+	ld.bu %d2,[%a14]-73
+	jeq %d2,0,<waitTime+0x10a>
+	nop 
+	nop 
+	ret 
+
+<IfxPort_setPinMode>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	st.a [%a14]-28,%a4
+	mov %d2,%d4
+	st.w [%a14]-36,%d5
+	st.b [%a14]-32,%d2
+	ld.w %d2,[%a14]-28
+	addi %d2,%d2,16
+	st.w [%a14]-4,%d2
+	ld.bu %d2,[%a14]-32
+	sh %d2,-2
+	st.b [%a14]-5,%d2
+	ld.b %d2,[%a14]-32
+	and %d2,%d2,3
+	and %d2,%d2,255
+	sh %d2,3
+	st.b [%a14]-6,%d2
+	ld.w %d2,[%a14]-28
+	movh %d3,61444
+	addi %d3,%d3,-14336
+	jeq %d2,%d3,<IfxPort_setPinMode+0x5a>
+	ld.w %d2,[%a14]-28
+	movh %d3,61444
+	addi %d3,%d3,-14080
+	jne %d2,%d3,<IfxPort_setPinMode+0x98>
+	call <IfxScuWdt_getCpuWatchdogPassword>
+	st.h [%a14]-8,%d2
+	ld.hu %d2,[%a14]-8
+	mov %d4,%d2
+	call <IfxScuWdt_clearCpuEndinit>
+	ld.a %a2,[%a14]-28
+	lea %a2,[%a2]96
+	ld.w %d3,[%a2]
+	ld.bu %d2,[%a14]-32
+	mov %d4,1
+	sh %d2,%d4,%d2
+	not %d2
+	and %d2,%d3
+	ld.a %a2,[%a14]-28
+	lea %a2,[%a2]96
+	st.w [%a2],%d2
+	ld.hu %d2,[%a14]-8
+	mov %d4,%d2
+	call <IfxScuWdt_setCpuEndinit>
+	ld.bu %d2,[%a14]-5
+	sh %d2,2
+	ld.w %d3,[%a14]-4
+	add %d2,%d3
+	mov %d5,%d2
+	ld.bu %d2,[%a14]-6
+	mov %d3,255
+	sh %d3,%d3,%d2
+	ld.bu %d2,[%a14]-6
+	ld.w %d4,[%a14]-36
+	sh %d2,%d4,%d2
+	st.w [%a14]-12,%d5
+	st.w [%a14]-16,%d3
+	st.w [%a14]-20,%d2
+	ld.w %d2,[%a14]-20
+	mov %d2,%d2
+	mov %d3,0
+	ld.a %a2,[%a14]-12
+	ld.w %d4,[%a14]-16
+	mov %d3,%d4
+	ldmst [%a2]0,%e2
+	nop 
+	ret 
+
+<__fixunsdfsi>:
+	mov %d6,0
+	movh %d7,16864
+	mov.a %a13,%d4
+	mov.a %a12,%d5
+	call <__gedf2>
+	jge %d2,0,<__fixunsdfsi+0x1c>
+	mov.d %d4,%a13
+	mov.d %d5,%a12
+	call <__fixdfsi>
+	ret 
+	mov %d6,0
+	movh %d7,16864
+	mov.d %d4,%a13
+	mov.d %d5,%a12
+	call <__subdf3>
+	mov %e4,%d3,%d2
+	call <__fixdfsi>
+	addih %d2,%d2,32768
+	ret 
+
+<__extendsfdf2>:
+	sub.a %sp,32
+	lea %a5,[%sp]16
+	lea %a4,[%sp]12
+	st.w [%sp]12,%d4
+	call <__unpack_f>
+	ld.w %d2,[%sp]28
+	ld.w %d6,[%sp]24
+	mul.u %e4,%d2,1
+	dextr %d3,%d5,%d4,30
+	sh %d2,%d4,30
+	ld.w %d5,[%sp]20
+	ld.w %d4,[%sp]16
+	st.w [%sp],%d2
+	st.w [%sp]4,%d3
+	call <__make_dp>
+	ret 
+
+<_fpadd_parts>:
+	ld.w %d2,[%a4]
+	mov.aa %a2,%a4
+	jlt.u %d2,2,<_fpadd_parts+0xdc>
+	ld.w %d3,[%a5]
+	mov.aa %a2,%a5
+	jlt.u %d3,2,<_fpadd_parts+0xdc>
+	jeq %d2,4,<_fpadd_parts+0x236>
+	jeq %d3,4,<_fpadd_parts+0xdc>
+	jeq %d3,2,<_fpadd_parts+0xde>
+	jeq %d2,2,<_fpadd_parts+0xdc>
+	ld.w %d0,[%a4]8
+	ld.w %d7,[%a5]8
+	ld.d %e4,[%a4]12
+	sub %d6,%d0,%d7
+	ld.d %e2,[%a5]12
+	jlt %d6,0,<_fpadd_parts+0x1c8>
+	ge %d1,%d6,64
+	jeq %d1,0,<_fpadd_parts+0x10e>
+	jge %d7,%d0,<_fpadd_parts+0x22e>
+	mov %e2,0
+	ld.w %d1,[%a4]4
+	ld.w %d6,[%a5]4
+	jeq %d1,%d6,<_fpadd_parts+0x172>
+	subx %d6,%d4,%d2
+	subc %d7,%d5,%d3
+	jeq %d1,0,<_fpadd_parts+0x66>
+	subx %d6,%d2,%d4
+	subc %d7,%d3,%d5
+	rsub %d3,%d7,0
+	rsub %d9,%d6,0
+	cadd %d3,%d6,%d3,-1
+	mov %d2,1
+	jlt %d7,0,<_fpadd_parts+0x7e>
+	mov %d9,%d6
+	mov %d3,%d7
+	mov %d2,0
+	addx %d7,%d9,-1
+	mov %d5,-1
+	addc %d6,%d3,-1
+	sh %d5,-4
+	st.w [%a6]4,%d2
+	mov %d1,-2
+	eq %d2,%d6,%d5
+	and.ge.u %d2,%d1,%d7
+	st.w [%a6]8,%d0
+	or.lt.u %d2,%d6,%d5
+	addi %d7,%d0,-1
+	jeq %d2,0,<_fpadd_parts+0x182>
+	dextr %d3,%d3,%d9,1
+	sh %d9,1
+	addx %d0,%d9,-1
+	addc %d6,%d3,-1
+	eq %d2,%d6,%d5
+	and.ge.u %d2,%d1,%d0
+	or.lt.u %d2,%d6,%d5
+	mov %d8,%d7
+	add %d7,-1
+	jne %d2,0,<_fpadd_parts+0xa8>
+	mov %d2,3
+	st.w [%a6]12,%d9
+	st.w [%a6]16,%d3
+	st.w [%a6]8,%d8
+	st.w [%a6],%d2
+	mov.aa %a2,%a6
+	ret 
+	mov.aa %a2,%a4
+	jne %d2,2,<_fpadd_parts+0xdc>
+	mov.aa %a2,%a6
+	mov.aa %a3,%a4
+	ld.d %e4,[%a3+]8
+	st.d [%a2+]8,%e4
+	ld.d %e4,[%a3+]8
+	st.d [%a2+]8,%e4
+	ld.w %d4,[%a3+]
+	st.w [%a2+],%d4
+	mov.aa %a2,%a6
+	ld.w %d3,[%a4]4
+	ld.w %d2,[%a5]4
+	and %d2,%d3
+	st.w [%a6]4,%d2
+	ret 
+	jeq %d6,0,<_fpadd_parts+0x46>
+	ge %d7,%d6,32
+	seln %d9,%d7,%d2,%d3
+	seln %d8,%d7,%d3,0
+	and %d7,%d6,31
+	rsub %d1,%d7,32
+	dextr %d1,%d8,%d9,%d1
+	sel %d1,%d7,%d1,%d9
+	ge %d10,%d6,32
+	rsub %d7
+	mov %d9,%d1
+	and %d6,%d6,31
+	mov %d1,-1
+	sh %d8,%d8,%d7
+	dextr %d7,%d1,%d1,%d6
+	sh %d6,%d1,%d6
+	seln %d7,%d10,%d7,%d6
+	seln %d6,%d10,%d6,0
+	andn %d1,%d2,%d6
+	andn %d7,%d3,%d7
+	ne %d6,%d1,0
+	or.ne %d6,%d7,0
+	or %d2,%d6,%d9
+	ld.w %d1,[%a4]4
+	ld.w %d6,[%a5]4
+	mov %d3,%d8
+	jne %d1,%d6,<_fpadd_parts+0x52>
+	addx %d9,%d4,%d2
+	st.w [%a6]4,%d1
+	st.w [%a6]8,%d0
+	addc %d3,%d5,%d3
+	mov %d2,3
+	movh %d5,8192
+	st.w [%a6]12,%d9
+	st.w [%a6],%d2
+	eq %d2,%d3,%d5
+	insert %d2,%d2,0,0,1
+	st.w [%a6]16,%d3
+	or.lt.u %d2,%d3,%d5
+	jne %d2,0,<_fpadd_parts+0xda>
+	sh %d2,%d3,-1
+	dextr %d5,%d3,%d9,31
+	and %d3,%d9,1
+	st.w [%a6]16,%d2
+	ld.w %d2,[%a6]8
+	or %d3,%d5
+	add %d2,1
+	lea %a2,[%a6]8
+	st.w [%a6]12,%d3
+	st.w [%a2],%d2
+	mov.aa %a2,%a6
+	ret 
+	sub %d6,%d7,%d0
+	lt %d1,%d6,64
+	jeq %d1,0,<_fpadd_parts+0x40>
+	ge %d0,%d6,32
+	seln %d9,%d0,%d4,%d5
+	seln %d8,%d0,%d5,0
+	and %d0,%d6,31
+	rsub %d1,%d0,32
+	dextr %d1,%d8,%d9,%d1
+	sel %d1,%d0,%d1,%d9
+	ge %d10,%d6,32
+	rsub %d0
+	mov %d9,%d1
+	and %d6,%d6,31
+	mov %d1,-1
+	sh %d8,%d8,%d0
+	dextr %d0,%d1,%d1,%d6
+	sh %d6,%d1,%d6
+	seln %d0,%d10,%d0,%d6
+	seln %d6,%d10,%d6,0
+	andn %d1,%d4,%d6
+	andn %d0,%d5,%d0
+	ne %d6,%d1,0
+	or.ne %d6,%d0,0
+	or %d4,%d6,%d9
+	mov %d5,%d8
+	mov %d0,%d7
+	j <_fpadd_parts+0x46>
+	mov %e4,0
+	mov %d0,%d7
+	j <_fpadd_parts+0x46>
+	mov.aa %a2,%a4
+	jne %d3,4,<_fpadd_parts+0xdc>
+	ld.w %d3,[%a4]4
+	ld.w %d2,[%a5]4
+	movh %d4,32768
+	ne %d2,%d3,%d2
+	addi %d4,%d4,16
+	mov.d %d3,%a4
+	seln %d2,%d2,%d3,%d4
+	mov.a %a2,%d2
+	ret 
+
+<__subdf3>:
+	sub.a %sp,80
+	lea %a5,[%sp]20
+	lea %a4,[%sp]4
+	st.d [%sp]4,%e4
+	st.d [%sp]12,%e6
+	call <__unpack_d>
+	lea %a5,[%sp]40
+	lea %a4,[%sp]12
+	call <__unpack_d>
+	ld.w %d2,[%sp]44
+	lea %a4,[%sp]20
+	xor %d2,%d2,1
+	lea %a6,[%sp]60
+	lea %a5,[%sp]40
+	st.w [%sp]44,%d2
+	call <_fpadd_parts>
+	mov.aa %a4,%a2
+	call <__pack_d>
+	ret 
+
+<__muldf3>:
+	sub.a %sp,80
+	lea %a5,[%sp]20
+	lea %a4,[%sp]4
+	st.d [%sp]4,%e4
+	st.d [%sp]12,%e6
+	call <__unpack_d>
+	lea %a5,[%sp]40
+	lea %a4,[%sp]12
+	call <__unpack_d>
+	ld.w %d2,[%sp]20
+	jge.u %d2,2,<__muldf3+0x44>
+	ld.w %d3,[%sp]24
+	ld.w %d2,[%sp]44
+	ne %d4,%d3,%d2
+	st.w [%sp]24,%d4
+	lea %a4,[%sp]20
+	call <__pack_d>
+	ret 
+	ld.w %d3,[%sp]40
+	jlt.u %d3,2,<__muldf3+0x70>
+	jne %d2,4,<__muldf3+0x60>
+	movh.a %a4,32768
+	lea %a4,[%a4]16 <<__thenan_df>>
+	jeq %d3,2,<__muldf3+0x3e>
+	j <__muldf3+0x2a>
+	jne %d3,4,<__muldf3+0x8a>
+	movh.a %a4,32768
+	lea %a4,[%a4]16 <<__thenan_df>>
+	jeq %d2,2,<__muldf3+0x3e>
+	ld.w %d3,[%sp]24
+	ld.w %d2,[%sp]44
+	ne %d4,%d3,%d2
+	lea %a4,[%sp]40
+	st.w [%sp]44,%d4
+	call <__pack_d>
+	ret 
+	ld.w %d5,[%sp]24
+	ld.w %d4,[%sp]44
+	ne %d4,%d5,%d4
+	jeq %d2,2,<__muldf3+0x36>
+	jeq %d3,2,<__muldf3+0x7c>
+	ld.w %d5,[%sp]52
+	ld.w %d6,[%sp]32
+	mov %d3,0
+	mul.u %e0,%d5,%d6
+	ld.w %d2,[%sp]56
+	mov %d11,0
+	madd %d1,%d1,%d5,%d3
+	mov %d8,%d6
+	ld.w %d10,[%sp]36
+	madd %d1,%d1,%d11,%d6
+	mul.u %e6,%d2,%d6
+	mov %d13,0
+	mov %d12,0
+	madd %d7,%d7,%d2,%d3
+	madd %d7,%d7,%d13,%d8
+	mul.u %e8,%d10,%d2
+	madd %d9,%d9,%d10,%d13
+	madd %d9,%d9,%d12,%d2
+	madd.u %e2,%e6,%d10,%d5
+	madd %d3,%d3,%d10,%d11
+	mov %d11,0
+	madd %d3,%d3,%d12,%d5
+	eq %d10,%d7,%d3
+	and.lt.u %d10,%d2,%d6
+	mov %d6,0
+	addx %d6,%d6,%d0
+	addc %d5,%d2,%d1
+	or.lt.u %d10,%d3,%d7
+	eq %d7,%d1,%d5
+	and.ge.u %d7,%d6,%d0
+	or.lt.u %d7,%d1,%d5
+	jne %d7,0,<__muldf3+0x118>
+	addx %d11,%d11,1
+	addc %d10,%d10,0
+	mov %d7,0
+	addx %d3,%d3,%d8
+	addc %d2,%d7,%d9
+	ld.w %d0,[%sp]48
+	ld.w %d7,[%sp]28
+	addx %d3,%d3,%d11
+	addc %d2,%d2,%d10
+	add %d7,%d0
+	st.w [%sp]64,%d4
+	movh %d4,8192
+	addi %d0,%d7,4
+	eq %d7,%d2,%d4
+	insert %d7,%d7,0,0,1
+	st.w [%sp]68,%d0
+	or.lt.u %d7,%d2,%d4
+	jne %d7,0,<__muldf3+0x1c4>
+	and %d7,%d3,1
+	add %d0,1
+	jeq %d7,0,<__muldf3+0x168>
+	dextr %d6,%d5,%d6,31
+	sh %d5,-1
+	insert %d5,%d5,15,31,1
+	dextr %d3,%d2,%d3,31
+	sh %d2,-1
+	lt.u %d7,%d4,%d2
+	or.eq %d7,%d4,%d2
+	jne %d7,0,<__muldf3+0x154>
+	st.w [%sp]68,%d0
+	and %d4,%d3,255
+	ne %d4,%d4,128
+	jeq %d4,0,<__muldf3+0x1a0>
+	st.w [%sp]76,%d2
+	mov %d2,3
+	st.w [%sp]72,%d3
+	lea %a4,[%sp]60
+	st.w [%sp]60,%d2
+	j <__muldf3+0x3e>
+	dextr %d7,%d2,%d3,24
+	ne %d4,%d6,0
+	or.ne %d4,%d5,0
+	andn %d4,%d4,%d7
+	jeq %d4,0,<__muldf3+0x18a>
+	addx %d3,%d3,128
+	addc %d2,%d2,0
+	andn %d3,%d3,255
+	j <__muldf3+0x18a>
+	movh %d7,4096
+	lt.u %d4,%d7,%d2
+	or.eq %d4,%d7,%d2
+	jne %d4,0,<__muldf3+0x17e>
+	dextr %d2,%d2,%d3,1
+	add %d0,-1
+	sh %d3,1
+	jge %d5,0,<__muldf3+0x1e8>
+	or %d1,%d3,1
+	mov %e2,%d1,%d2
+	eq %d4,%d2,%d7
+	insert %d4,%d4,0,0,1
+	dextr %d5,%d5,%d6,1
+	or.lt.u %d4,%d2,%d7
+	sh %d6,1
+	jne %d4,0,<__muldf3+0x1d4>
+	j <__muldf3+0x17a>
+
+<__gedf2>:
+	sub.a %sp,56
+	lea %a5,[%sp]16
+	mov.aa %a4,%sp
+	st.d [%sp],%e4
+	st.d [%sp]8,%e6
+	call <__unpack_d>
+	lea %a5,[%sp]36
+	lea %a4,[%sp]8
+	call <__unpack_d>
+	ld.w %d3,[%sp]16
+	mov %d2,-1
+	jlt.u %d3,2,<__gedf2+0x3e>
+	ld.w %d3,[%sp]36
+	jlt.u %d3,2,<__gedf2+0x3e>
+	lea %a5,[%sp]36
+	lea %a4,[%sp]16
+	call <__fpcmp_parts_d>
+	ret 
+
+<__fixdfsi>:
+	sub.a %sp,32
+	lea %a5,[%sp]12
+	lea %a4,[%sp]4
+	st.d [%sp]4,%e4
+	call <__unpack_d>
+	ld.w %d3,[%sp]12
+	mov %d2,0
+	jlt.u %d3,3,<__fixdfsi+0x62>
+	jeq %d3,4,<__fixdfsi+0x6e>
+	ld.w %d3,[%sp]20
+	jlt %d3,0,<__fixdfsi+0x62>
+	lt %d2,%d3,31
+	ld.w %d6,[%sp]16
+	jeq %d2,0,<__fixdfsi+0x64>
+	rsub %d2,%d3,60
+	ld.w %d5,[%sp]28
+	ld.w %d4,[%sp]24
+	ge %d3,%d2,32
+	seln %d4,%d3,%d4,%d5
+	seln %d5,%d3,%d5,0
+	and %d3,%d2,31
+	rsub %d2,%d3,32
+	dextr %d2,%d5,%d4,%d2
+	sel %d2,%d3,%d2,%d4
+	jeq %d6,0,<__fixdfsi+0x62>
+	rsub %d2
+	ret 
+	mov %d2,-1
+	sh %d2,-1
+	cadd %d2,%d6,%d2,1
+	ret 
+	ld.w %d3,[%sp]16
+	mov %d2,-1
+	sh %d2,-1
+	cadd %d2,%d3,%d2,1
+	ret 
+
+<__make_dp>:
+	sub.a %sp,24
+	ld.da %a2,[%sp]24
+	lea %a4,[%sp]4
+	st.w [%sp]4,%d4
+	st.w [%sp]8,%d5
+	st.w [%sp]12,%d6
+	st.da [%sp]16,%a2
+	call <__pack_d>
+	ret 
+
+<__unpack_f>:
+	ld.w %d2,[%a4]
+	sh %d5,%d2,-31
+	extr.u %d3,%d2,23,8
+	insert %d4,%d2,0,23,9
+	st.w [%a5]4,%d5
+	jne %d3,0,<__unpack_f+0x3e>
+	jeq %d4,0,<__unpack_f+0x60>
+	mov %d3,3
+	sh %d2,%d4,7
+	movh %d5,16384
+	st.w [%a5],%d3
+	mov %d3,-127
+	sh %d2,1
+	mov %d4,%d3
+	add %d3,-1
+	jlt.u %d2,%d5,<__unpack_f+0x2a>
+	st.w [%a5]8,%d4
+	st.w [%a5]12,%d2
+	ret 
+	ne %d5,%d3,255
+	jeq %d5,0,<__unpack_f+0x66>
+	mov %d2,3
+	addi %d3,%d3,-127
+	st.w [%a5],%d2
+	sh %d2,%d4,7
+	insert %d2,%d2,15,30,1
+	st.w [%a5]8,%d3
+	st.w [%a5]12,%d2
+	ret 
+	mov %d2,2
+	st.w [%a5],%d2
+	ret 
+	jne %d4,0,<__unpack_f+0x70>
+	mov %d2,4
+	st.w [%a5],%d2
+	ret 
+	extr.u %d3,%d2,22,1
+	sh %d2,7
+	st.w [%a5],%d3
+	movh %d3,8192
+	addi %d3,%d3,-128
+	and %d2,%d3
+	st.w [%a5]12,%d2
+	ret 
+
+<__pack_d>:
+	ld.w %d5,[%a4]
+	ld.w %d4,[%a4]12
+	ld.w %d2,[%a4]16
+	ld.w %d1,[%a4]4
+	jlt.u %d5,2,<__pack_d+0xb8>
+	movh %d6,32752
+	mov %d7,0
+	mov %d0,0
+	jeq %d5,4,<__pack_d+0x30>
+	eq %d3,%d2,0
+	and.eq %d3,%d4,0
+	or.eq %d3,%d5,2
+	mov %d6,0
+	jeq %d3,0,<__pack_d+0x44>
+	mov %e2,%d1
+	or %d6,%d0
+	sh %d2,%d2,31
+	or %d4,%d6,%d2
+	mov %d3,%d4
+	mov %d2,%d7
+	ret 
+	ld.w %d3,[%a4]8
+	mov %d5,-1022
+	jlt %d3,%d5,<__pack_d+0xca>
+	mov %d5,1024
+	movh %d6,32752
+	jge %d3,%d5,<__pack_d+0x30>
+	and %d5,%d4,255
+	ne %d5,%d5,128
+	jeq %d5,0,<__pack_d+0xa4>
+	addx %d4,%d4,127
+	addc %d2,%d2,0
+	movh %d5,8192
+	lt.u %d6,%d5,%d2
+	or.eq %d6,%d5,%d2
+	addi %d5,%d3,1023
+	jeq %d6,0,<__pack_d+0x8e>
+	dextr %d4,%d2,%d4,31
+	addi %d5,%d3,1024
+	sh %d2,-1
+	dextr %d7,%d2,%d4,24
+	sh %d2,-8
+	insert %d0,%d2,0,20,12
+	mov %e2,%d5
+	sh %d6,%d2,20
+	j <__pack_d+0x30>
+	and %d5,%d4,256
+	jeq %d5,0,<__pack_d+0x70>
+	addx %d4,%d4,128
+	addc %d2,%d2,0
+	j <__pack_d+0x70>
+	dextr %d7,%d2,%d4,24
+	sh %d2,-8
+	insert %d0,%d2,1,19,13
+	movh %d6,32752
+	j <__pack_d+0x30>
+	sub %d3,%d5,%d3
+	ge %d5,%d3,57
+	jne %d5,0,<__pack_d+0x30>
+	ge %d5,%d3,32
+	seln %d0,%d5,%d4,%d2
+	seln %d7,%d5,%d2,0
+	and %d5,%d3,31
+	rsub %d6,%d5,32
+	dextr %d6,%d7,%d0,%d6
+	sel %d6,%d5,%d6,%d0
+	ge %d8,%d3,32
+	rsub %d5
+	mov %d0,%d6
+	and %d3,%d3,31
+	mov %d6,-1
+	sh %d7,%d7,%d5
+	dextr %d5,%d6,%d6,%d3
+	sh %d3,%d6,%d3
+	seln %d5,%d8,%d5,%d3
+	seln %d3,%d8,%d3,0
+	andn %d4,%d4,%d3
+	andn %d2,%d2,%d5
+	ne %d3,%d4,0
+	or.ne %d3,%d2,0
+	or %d2,%d3,%d0
+	and %d5,%d2,255
+	mov %d3,1
+	and.eq %d3,%d5,128
+	mov %d4,%d7
+	jeq %d3,0,<__pack_d+0x17c>
+	addx %d7,%d2,128
+	addc %d3,%d4,0
+	movh %d10,4096
+	sh %d0,%d3,-8
+	dextr %d7,%d3,%d7,24
+	ge.u %d3,%d3,%d10
+	mul.u %e8,%d3,1
+	and %d5,%d2,256
+	insert %d0,%d0,0,20,12
+	sh %d6,%d8,20
+	jne %d5,0,<__pack_d+0x30>
+	dextr %d7,%d4,%d2,24
+	sh %d0,%d4,-8
+	ge.u %d2,%d4,%d10
+	insert %d0,%d0,0,20,12
+	sh %d6,%d2,20
+	j <__pack_d+0x30>
+	addx %d7,%d2,127
+	addc %d2,%d4,0
+	movh %d3,4096
+	sh %d0,%d2,-8
+	dextr %d7,%d2,%d7,24
+	ge.u %d2,%d2,%d3
+	insert %d0,%d0,0,20,12
+	sh %d6,%d2,20
+	j <__pack_d+0x30>
+
+<__unpack_d>:
+	ld.d %e8,[%a4]
+	mov %d0,2047
+	sh %d7,%d9,-31
+	extr.u %d5,%d9,20,11
+	insert %d6,%d9,0,20,12
+	st.w [%a5]4,%d7
+	jne %d5,0,<__unpack_d+0x64>
+	ne %d2,%d8,0
+	or.ne %d2,%d6,0
+	jeq %d2,0,<__unpack_d+0x8a>
+	mov %d2,3
+	dextr %d3,%d6,%d8,8
+	sh %d4,%d8,8
+	st.w [%a5],%d2
+	mov %d5,-1023
+	movh %d6,4096
+	dextr %d3,%d3,%d4,1
+	mov %d7,%d5
+	eq %d2,%d3,%d6
+	insert %d2,%d2,0,0,1
+	sh %d4,1
+	or.lt.u %d2,%d3,%d6
+	add %d5,-1
+	jne %d2,0,<__unpack_d+0x3c>
+	st.w [%a5]8,%d7
+	st.w [%a5]12,%d4
+	st.w [%a5]16,%d3
+	ret 
+	jeq %d5,%d0,<__unpack_d+0x90>
+	mov %d2,3
+	addi %d5,%d5,-1023
+	sh %d4,%d8,8
+	st.w [%a5],%d2
+	dextr %d2,%d6,%d8,8
+	st.w [%a5]8,%d5
+	insert %d2,%d2,15,28,1
+	st.w [%a5]12,%d4
+	st.w [%a5]16,%d2
+	ret 
+	mov %d2,2
+	st.w [%a5],%d2
+	ret 
+	ne %d5,%d8,0
+	or.ne %d5,%d6,0
+	jne %d5,0,<__unpack_d+0xa2>
+	mov %d2,4
+	st.w [%a5],%d2
+	ret 
+	dextr %d3,%d9,%d8,8
+	extr.u %d4,%d9,19,1
+	insert %d3,%d3,0,27,5
+	sh %d2,%d8,8
+	st.w [%a5],%d4
+	st.w [%a5]12,%d2
+	st.w [%a5]16,%d3
+	ret 
+
+<__fpcmp_parts_d>:
+	ld.w %d3,[%a4]
+	mov %d2,1
+	jlt.u %d3,2,<__fpcmp_parts_d+0x72>
+	ld.w %d4,[%a5]
+	jlt.u %d4,2,<__fpcmp_parts_d+0x72>
+	jeq %d3,4,<__fpcmp_parts_d+0x8e>
+	jeq %d4,4,<__fpcmp_parts_d+0x7a>
+	jeq %d3,2,<__fpcmp_parts_d+0x74>
+	ld.w %d3,[%a4]4
+	jeq %d4,2,<__fpcmp_parts_d+0x86>
+	ld.w %d5,[%a5]4
+	jne %d5,%d3,<__fpcmp_parts_d+0x86>
+	ld.w %d4,[%a4]8
+	ld.w %d3,[%a5]8
+	jlt %d3,%d4,<__fpcmp_parts_d+0xa4>
+	jlt %d4,%d3,<__fpcmp_parts_d+0xae>
+	ld.w %d6,[%a4]16
+	ld.w %d7,[%a5]16
+	ld.w %d1,[%a4]12
+	eq %d4,%d6,%d7
+	ld.w %d0,[%a5]12
+	mov %d3,%d4
+	and.ge.u %d3,%d0,%d1
+	and.ge.u %d4,%d1,%d0
+	or.lt.u %d3,%d6,%d7
+	or.lt.u %d4,%d7,%d6
+	sel %d6,%d5,%d2,-1
+	mov %d2,-1
+	sel %d2,%d5,%d2,1
+	seln %d4,%d4,%d6,0
+	sel %d2,%d3,%d4,%d2
+	ret 
+	mov %d2,0
+	jeq %d4,2,<__fpcmp_parts_d+0xac>
+	ld.w %d3,[%a5]4
+	mov %d2,1
+	sel %d2,%d3,%d2,-1
+	ret 
+	mov %d2,-1
+	sel %d2,%d3,%d2,1
+	ret 
+	ld.w %d3,[%a4]4
+	mov %d2,-1
+	sel %d2,%d3,%d2,1
+	jne %d4,4,<__fpcmp_parts_d+0x72>
+	ld.w %d2,[%a5]4
+	sub %d2,%d3
+	ret 
+	mov %d2,-1
+	sel %d2,%d5,%d2,1
+	ret 
+	ret 
+	sel %d2,%d5,%d2,-1
+	ret 
+
+<abort>:
+	debug 
+	movh %d2,57006
+	addi %d2,%d2,-16657
+	mov.a %a14,%d2
+	j <_exit>
+	j <abort+0x10>
+
+<_exit>:
+	jeq %d4,0,<_exit+0xc>
+	mov.a %a14,%d4
+	debug 
+	j <_exit+0x8>
+	mov.u %d2,36877
+	mov.a %a14,%d2
+	debug 
+	j <_exit+0x8>
+
+<_exit_end>:
+	...
