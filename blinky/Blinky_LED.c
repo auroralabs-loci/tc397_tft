@@ -63,9 +63,8 @@ __attribute__((noinline)) static void simulateCpuWorkload(void)
     {
         checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u;
     }
-    thisDoesNotExist();
     (void)checksum;
-}
+
 
 
 /* This function toggles the port pin and wait 500 milliseconds */

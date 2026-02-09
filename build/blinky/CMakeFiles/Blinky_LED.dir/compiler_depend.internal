@@ -44,6 +44,7 @@ blinky/CMakeFiles/Blinky_LED.dir/Blinky_LED.c.obj
  /home/melisa/tc397_tft/Libraries/iLLD/TC39B/Tricore/_Impl/IfxSrc_cfg.h
  /home/melisa/tc397_tft/Libraries/iLLD/TC39B/Tricore/_Impl/IfxStm_cfg.h
  /home/melisa/tc397_tft/Libraries/iLLD/TC39B/Tricore/_PinMap/IfxScu_PinMap.h
+ /home/melisa/tc397_tft/blinky/Blinky_LED.h
  /home/melisa/tricore-gcc/lib/gcc/tricore-elf/13.4.0/include/stddef.h
  /home/melisa/tricore-gcc/tricore-elf/include/machine/cint.h
  /home/melisa/tricore-gcc/tricore-elf/include/machine/intrinsics.h
