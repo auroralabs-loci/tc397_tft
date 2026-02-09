@@ -1,0 +1,315 @@
+function_name,assembly_code
+simulateCpuWorkload,"<simulateCpuWorkload>:
+	mov.aa %a14,%sp
+	sub.a %sp,8
+	mov %d2,0
+	st.w [%a14]-8,%d2
+	mov %d2,0
+	st.w [%a14]-4,%d2
+	j <simulateCpuWorkload+0x3c>
+	ld.w %d2,[%a14]-8
+	sh %d2,-3
+	ld.w %d3,[%a14]-4
+	xor %d2,%d3
+	addi %d2,%d2,31161
+	addih %d2,%d2,40503
+	ld.w %d3,[%a14]-8
+	add %d2,%d3
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-4
+	add %d2,1
+	st.w [%a14]-4,%d2
+	ld.w %d2,[%a14]-4
+	movh %d3,8
+	addi %d3,%d3,-24288
+	jlt.u %d2,%d3,<simulateCpuWorkload+0x14>
+	ld.w %d2,[%a14]-8
+	nop
+	ret"
+blinkLED,"<blinkLED>:
+	mov.aa %a14,%sp
+	sub.a %sp,40
+	movh %d2,61444
+	addi %d2,%d2,-21248
+	st.w [%a14]-24,%d2
+	mov %d2,0
+	st.b [%a14]-25,%d2
+	ld.bu %d2,[%a14]-25
+	ld.w %d3,[%a14]-24
+	st.w [%a14]-32,%d3
+	st.b [%a14]-33,%d2
+	movh %d2,1
+	add %d2,1
+	st.w [%a14]-40,%d2
+	ld.bu %d2,[%a14]-33
+	ld.w %d3,[%a14]-40
+	sh %d2,%d3,%d2
+	ld.a %a2,[%a14]-32
+	add.a %a2,4
+	st.w [%a2],%d2
+	nop
+	nop
+	call <simulateCpuWorkload>
+	movh %d2,61440
+	addi %d2,%d2,4096
+	st.w [%a14]-4,%d2
+	mov %d2,500
+	st.w [%a14]-8,%d2
+	ld.w %d2,[%a14]-4
+	st.w [%a14]-12,%d2
+	mov %d4,0
+	call <IfxScuCcu_getSourceFrequency>
+	mov %d3,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,0,4
+	and %d2,%d2,255
+	itof %d2,%d2
+	div.f %d2,%d3,%d2
+	st.w [%a14]-16,%d2
+	ld.w %d2,[%a14]-16
+	ftoiz %d2,%d2
+	st.w [%a14]-20,%d2
+	ld.w %d4,[%a14]-20
+	movh %d2,4194
+	addi %d2,%d2,19923
+	mul %e2,%d4,%d2
+	sha %d3,-6
+	sha %d2,%d4,-31
+	sub %d2,%d3,%d2
+	mov %d3,%d2
+	ld.w %d2,[%a14]-8
+	mul %d2,%d3
+	mov %e2,%d2
+	mov %e4,%d3,%d2
+	call <waitTime>
+	nop
+	ret"
+IfxScuCcu_getSourceFrequency,"<IfxScuCcu_getSourceFrequency>:
+	mov.aa %a14,%sp
+	sub.a %sp,16
+	st.w [%a14]-12,%d4
+	movh.a %a2,61443
+	lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,28,2
+	and %d2,%d2,255
+	jeq %d2,0,<IfxScuCcu_getSourceFrequency+0x26>
+	jeq %d2,1,<IfxScuCcu_getSourceFrequency+0x36>
+	j <IfxScuCcu_getSourceFrequency+0xb4>
+	movh %d2,19647
+	addi %d2,%d2,-17376
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xbc>
+	ld.w %d2,[%a14]-12
+	jeq %d2,2,<IfxScuCcu_getSourceFrequency+0x98>
+	ld.w %d2,[%a14]-12
+	jge.u %d2,3,<IfxScuCcu_getSourceFrequency+0xa4>
+	ld.w %d2,[%a14]-12
+	jeq %d2,0,<IfxScuCcu_getSourceFrequency+0x5a>
+	ld.w %d2,[%a14]-12
+	jeq %d2,1,<IfxScuCcu_getSourceFrequency+0x66>
+	j <IfxScuCcu_getSourceFrequency+0xa4>
+	call <IfxScuCcu_getPllFrequency>
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xb0>
+	call <IfxScuCcu_getPerPllFrequency1>
+	st.w [%a14]-4,%d2
+	movh.a %a2,61443
+	lea %a2,[%a2]24628 <<bmhd_3_copy+0x40c34a34>>
+	ld.w %d2,[%a2]
+	extr.u %d2,%d2,7,1
+	and %d2,%d2,255
+	jne %d2,0,<IfxScuCcu_getSourceFrequency+0xae>
+	ld.w %d2,[%a14]-4
+	movh %d3,16384
+	div.f %d2,%d2,%d3
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xae>
+	call <IfxScuCcu_getPerPllFrequency2>
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xb0>
+	mov %d2,0
+	st.w [%a14]-4,%d2
+	j <IfxScuCcu_getSourceFrequency+0xb0>
+	nop 
+	j <IfxScuCcu_getSourceFrequency+0xbc>
+	mov %d2,0
+	st.w [%a14]-4,%d2
+	nop 
+	ld.w %d2,[%a14]-4
+	ret 
+
+<IfxScuCcu_init>:
+	mov.aa %a14,%sp
+	sub.a %sp,176
+	st.a [%a14]-172,%a4
+	mov %d2,0
+	st.b [%a14]-1,%d2
+	ld.w %d2,[%a14]-172
+	st.w [%a14]-8,%d2
+"
+waitTime,"<waitTime>:
+	mov.aa %a14,%sp
+	sub.a %sp,128
+	st.d [%a14]-128,%e4
+	ld.da %a2,[%a14]-128
+	st.da [%a14]-8,%a2
+	ld.da %a2,[%a14]-8
+	st.da [%a14]-16,%a2
+	ld.d %e4,[%a14]-16
+	mov %d12,-1
+	sh %d12,-1
+	ne %d12,%d5,%d12
+	or.ne %d12,%d4,-1
+	jne %d12,0,<waitTime+0x3e>
+	mov.a %a2,0
+	add.a %a2,-1
+	lea %a3,<LCF_STARTPTR_CPU0>
+	add.a %a3,-1
+	st.da [%a14]-24,%a2
+	j <waitTime+0x100>
+	mfcr %d4,$icr
+	st.w [%a14]-28,%d4
+	ld.w %d4,[%a14]-28
+	st.w [%a14]-116,%d4
+	ld.w %d4,[%a14]-116
+	extr.u %d4,%d4,15,1
+	and %d4,%d4,255
+	st.b [%a14]-29,%d4
+	disable 
+	nop 
+	nop 
+	ld.bu %d4,[%a14]-29
+	st.b [%a14]-30,%d4
+	movh %d4,61440
+	addi %d4,%d4,4096
+	st.w [%a14]-36,%d4
+	ld.a %a2,[%a14]-36
+	lea %a2,[%a2]16
+	ld.w %d4,[%a2]
+	mov %d4,%d4
+	mov %d5,0
+	st.d [%a14]-44,%e4
+	ld.a %a2,[%a14]-36
+	lea %a2,[%a2]44
+	ld.w %d4,[%a2]
+	mov %d4,%d4
+	mov %d5,0
+	mov %d11,%d4
+	mov %d10,0
+	ld.w %d4,[%a14]-44
+	or %d2,%d4,%d10
+	ld.w %d4,[%a14]-40
+	or %d3,%d4,%d11
+	st.d [%a14]-44,%e2
+	ld.da %a2,[%a14]-44
+	mov.d %d2,%a2
+	mov.d %d3,%a3
+	mov %d4,%d2
+	st.w [%a14]-52,%d4
+	mov %d4,-1
+	sh %d4,-1
+	and %d2,%d3,%d4
+	st.w [%a14]-48,%d2
+	ld.bu %d2,[%a14]-30
+	st.b [%a14]-53,%d2
+	ld.bu %d2,[%a14]-53
+	st.b [%a14]-54,%d2
+	ld.bu %d2,[%a14]-54
+	jeq %d2,0,<waitTime+0xe8>
+	enable 
+	nop 
+	nop 
+	ld.d %e4,[%a14]-52
+	ld.d %e2,[%a14]-16
+	addx %d6,%d2,%d4
+	addc %d7,%d3,%d5
+	st.d [%a14]-24,%e6
+	ld.da %a2,[%a14]-24
+	st.da [%a14]-64,%a2
+	nop 
+	ld.da %a2,[%a14]-64
+	st.da [%a14]-72,%a2
+	ld.d %e2,[%a14]-72
+	mov %d4,-1
+	sh %d4,-1
+	ne %d4,%d3,%d4
+	or.ne %d4,%d2,-1
+	jne %d4,0,<waitTime+0x130>
+	mov %d2,0
+	st.b [%a14]-73,%d2
+	j <waitTime+0x202>
+	mfcr %d2,$icr
+	st.w [%a14]-80,%d2
+	ld.w %d2,[%a14]-80
+	st.w [%a14]-112,%d2
+	ld.w %d2,[%a14]-112
+	extr.u %d2,%d2,15,1
+	and %d2,%d2,255
+	st.b [%a14]-81,%d2
+	disable 
+	nop 
+	nop 
+	ld.bu %d2,[%a14]-81
+	st.b [%a14]-82,%d2
+	movh %d2,61440
+	addi %d2,%d2,4096
+	st.w [%a14]-88,%d2
+	ld.a %a2,[%a14]-88
+	lea %a2,[%a2]16
+	ld.w %d2,[%a2]
+	mov %d2,%d2
+	mov %d3,0
+	st.d [%a14]-96,%e2
+	ld.a %a2,[%a14]-88
+	lea %a2,[%a2]44
+	ld.w %d2,[%a2]
+	mov %d2,%d2
+	mov %d3,0
+	mov %d9,%d2
+	mov %d8,0
+	ld.w %d2,[%a14]-96
+	or %d0,%d2,%d8
+	ld.w %d2,[%a14]-92
+	or %d1,%d2,%d9
+	st.d [%a14]-96,%e0
+	ld.da %a2,[%a14]-96
+	mov.d %d2,%a2
+	mov.d %d3,%a3
+	mov %d4,%d2
+	st.w [%a14]-104,%d4
+	mov %d4,-1
+	sh %d4,-1
+	and %d2,%d3,%d4
+	st.w [%a14]-100,%d2
+	ld.bu %d2,[%a14]-82
+	st.b [%a14]-105,%d2
+	ld.bu %d2,[%a14]-105
+	st.b [%a14]-106,%d2
+	ld.bu %d2,[%a14]-106
+	jeq %d2,0,<waitTime+0x1da>
+	enable 
+	nop 
+	nop 
+	ld.d %e6,[%a14]-104
+	ld.d %e2,[%a14]-72
+	mov %d4,%d7
+	eq %d4,%d3,%d4
+	mov %d5,%d2
+	and.ge.u %d4,%d6,%d5
+	mov %d5,%d7
+	or.lt %d4,%d3,%d5
+	mov %d2,%d4
+	and %d2,%d2,255
+	st.b [%a14]-73,%d2
+	ld.bu %d2,[%a14]-73
+	jeq %d2,0,<waitTime+0x10a>
+	nop 
+	nop 
+	ret 
+
+<IfxPort_setPinMode>:
+	mov.aa %a14,%sp
+"

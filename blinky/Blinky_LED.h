@@ -33,5 +33,6 @@
 /*********************************************************************************************************************/
 void initLED(void);
 void blinkLED(void);
+void largeFunction(void);
 
 #endif /* BLINKY_LED_H_ */

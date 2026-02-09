@@ -1,0 +1,3 @@
+function_name,std_dev_ns,execution_time_ns
+simulateCpuWorkload,1.1342332363128662,36.68443298339844
+blinkLED,1.6743512153625488,113.74707794189453

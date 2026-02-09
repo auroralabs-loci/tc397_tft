@@ -67,9 +67,15 @@ __attribute__((noinline)) static void simulateCpuWorkload(void)
 
 
 /* This function toggles the port pin and wait 500 milliseconds */
-void blinkLED(void)
-{
-    IfxPort_togglePin(LED_D107);                                                /* Toggle the state of the LED      */
-    simulateCpuWorkload();
-    waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, WAIT_TIME));    /* Wait 500 milliseconds            */
+void blinkLED(void) {
+    IfxPort_setPinMode(&MODULE_P00.OUT, 5, IfxPort_Mode_outputPushPullGeneral);
+    
+    // Call the large function once to ensure it's not optimized away
+    largeFunction();
+    
+    while (1) {
+        simulateCpuWorkload();
+        IfxPort_togglePin(&MODULE_P00, 5);
+        waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, 500));
+    }
 }
