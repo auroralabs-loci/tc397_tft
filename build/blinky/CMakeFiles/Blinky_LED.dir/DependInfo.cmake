@@ -15,6 +15,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/melisa/tc397_tft/blinky/Cpu3_Main.c" "blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj" "gcc" "blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj.d"
   "/home/melisa/tc397_tft/blinky/Cpu4_Main.c" "blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj" "gcc" "blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj.d"
   "/home/melisa/tc397_tft/blinky/Cpu5_Main.c" "blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj" "gcc" "blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj.d"
+  "/home/melisa/tc397_tft/blinky/LargeFunction.c" "blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj" "gcc" "blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

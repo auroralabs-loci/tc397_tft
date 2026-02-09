@@ -83,10 +83,24 @@ blinky/CMakeFiles/Blinky_LED.dir/Blinky_LED.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/Blinky_LED.dir/Blinky_LED.c.s"
 	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/melisa/tc397_tft/blinky/Blinky_LED.c -o CMakeFiles/Blinky_LED.dir/Blinky_LED.c.s
 
+blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj: blinky/CMakeFiles/Blinky_LED.dir/flags.make
+blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj: /home/melisa/tc397_tft/blinky/LargeFunction.c
+blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj: blinky/CMakeFiles/Blinky_LED.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj"
+	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj -MF CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj.d -o CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj -c /home/melisa/tc397_tft/blinky/LargeFunction.c
+
+blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/Blinky_LED.dir/LargeFunction.c.i"
+	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/melisa/tc397_tft/blinky/LargeFunction.c > CMakeFiles/Blinky_LED.dir/LargeFunction.c.i
+
+blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/Blinky_LED.dir/LargeFunction.c.s"
+	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/melisa/tc397_tft/blinky/LargeFunction.c -o CMakeFiles/Blinky_LED.dir/LargeFunction.c.s
+
 blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/flags.make
 blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj: /home/melisa/tc397_tft/blinky/Cpu0_Main.c
 blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj"
 	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj -MF CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj.d -o CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj -c /home/melisa/tc397_tft/blinky/Cpu0_Main.c
 
 blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.i: cmake_force
@@ -100,7 +114,7 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.s: cmake_force
 blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/flags.make
 blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj: /home/melisa/tc397_tft/blinky/Cpu1_Main.c
 blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj"
 	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj -MF CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj.d -o CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj -c /home/melisa/tc397_tft/blinky/Cpu1_Main.c
 
 blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.i: cmake_force
@@ -114,7 +128,7 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.s: cmake_force
 blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/flags.make
 blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj: /home/melisa/tc397_tft/blinky/Cpu2_Main.c
 blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj"
 	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj -MF CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj.d -o CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj -c /home/melisa/tc397_tft/blinky/Cpu2_Main.c
 
 blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.i: cmake_force
@@ -128,7 +142,7 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.s: cmake_force
 blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/flags.make
 blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj: /home/melisa/tc397_tft/blinky/Cpu3_Main.c
 blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj"
 	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj -MF CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj.d -o CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.obj -c /home/melisa/tc397_tft/blinky/Cpu3_Main.c
 
 blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.i: cmake_force
@@ -142,7 +156,7 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu3_Main.c.s: cmake_force
 blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/flags.make
 blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj: /home/melisa/tc397_tft/blinky/Cpu4_Main.c
 blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj"
 	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj -MF CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj.d -o CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.obj -c /home/melisa/tc397_tft/blinky/Cpu4_Main.c
 
 blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.i: cmake_force
@@ -156,7 +170,7 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu4_Main.c.s: cmake_force
 blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/flags.make
 blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj: /home/melisa/tc397_tft/blinky/Cpu5_Main.c
 blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj: blinky/CMakeFiles/Blinky_LED.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj"
 	cd /home/melisa/tc397_tft/build/blinky && /home/melisa/tricore-gcc/bin/tricore-elf-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj -MF CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj.d -o CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.obj -c /home/melisa/tc397_tft/blinky/Cpu5_Main.c
 
 blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.i: cmake_force
@@ -170,6 +184,7 @@ blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.s: cmake_force
 # Object files for target Blinky_LED
 Blinky_LED_OBJECTS = \
 "CMakeFiles/Blinky_LED.dir/Blinky_LED.c.obj" \
+"CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj" \
 "CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj" \
 "CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj" \
 "CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj" \
@@ -197,6 +212,7 @@ Blinky_LED_EXTERNAL_OBJECTS = \
 "/home/melisa/tc397_tft/build/Libraries/CMakeFiles/port.dir/iLLD/TC39B/Tricore/Port/Std/IfxPort.c.obj"
 
 blinky/Blinky_LED.elf: blinky/CMakeFiles/Blinky_LED.dir/Blinky_LED.c.obj
+blinky/Blinky_LED.elf: blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj
 blinky/Blinky_LED.elf: blinky/CMakeFiles/Blinky_LED.dir/Cpu0_Main.c.obj
 blinky/Blinky_LED.elf: blinky/CMakeFiles/Blinky_LED.dir/Cpu1_Main.c.obj
 blinky/Blinky_LED.elf: blinky/CMakeFiles/Blinky_LED.dir/Cpu2_Main.c.obj
@@ -221,7 +237,7 @@ blinky/Blinky_LED.elf: Libraries/CMakeFiles/port.dir/iLLD/TC39B/Tricore/Port/Io/
 blinky/Blinky_LED.elf: Libraries/CMakeFiles/port.dir/iLLD/TC39B/Tricore/Port/Std/IfxPort.c.obj
 blinky/Blinky_LED.elf: blinky/CMakeFiles/Blinky_LED.dir/build.make
 blinky/Blinky_LED.elf: blinky/CMakeFiles/Blinky_LED.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable Blinky_LED.elf"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/melisa/tc397_tft/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking C executable Blinky_LED.elf"
 	cd /home/melisa/tc397_tft/build/blinky && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Blinky_LED.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

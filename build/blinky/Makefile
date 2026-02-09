@@ -312,6 +312,30 @@ Cpu5_Main.c.s:
 	cd /home/melisa/tc397_tft/build && $(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED.dir/build.make blinky/CMakeFiles/Blinky_LED.dir/Cpu5_Main.c.s
 .PHONY : Cpu5_Main.c.s
 
+LargeFunction.obj: LargeFunction.c.obj
+.PHONY : LargeFunction.obj
+
+# target to build an object file
+LargeFunction.c.obj:
+	cd /home/melisa/tc397_tft/build && $(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED.dir/build.make blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.obj
+.PHONY : LargeFunction.c.obj
+
+LargeFunction.i: LargeFunction.c.i
+.PHONY : LargeFunction.i
+
+# target to preprocess a source file
+LargeFunction.c.i:
+	cd /home/melisa/tc397_tft/build && $(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED.dir/build.make blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.i
+.PHONY : LargeFunction.c.i
+
+LargeFunction.s: LargeFunction.c.s
+.PHONY : LargeFunction.s
+
+# target to generate assembly for a file
+LargeFunction.c.s:
+	cd /home/melisa/tc397_tft/build && $(MAKE) $(MAKESILENT) -f blinky/CMakeFiles/Blinky_LED.dir/build.make blinky/CMakeFiles/Blinky_LED.dir/LargeFunction.c.s
+.PHONY : LargeFunction.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -343,6 +367,9 @@ help:
 	@echo "... Cpu5_Main.obj"
 	@echo "... Cpu5_Main.i"
 	@echo "... Cpu5_Main.s"
+	@echo "... LargeFunction.obj"
+	@echo "... LargeFunction.i"
+	@echo "... LargeFunction.s"
 .PHONY : help
 
 

@@ -60,7 +60,7 @@ __attribute__((noinline)) static void simulateCpuWorkload(void)
     volatile uint32 checksum = 0u;
     for (uint32 i = 0u; i < 500000u; ++i)
     {
-        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u;
+        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u
     }
     (void)checksum;
 }
