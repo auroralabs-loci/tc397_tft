@@ -1,0 +1,65 @@
+mov.aa %a14,%sp
+sub.a %sp,40
+mov %d5,128
+mov %d4,5
+movh.a %a4,61444
+lea %a4,[%a4]-24576 <<bmhd_3_copy+0x40c38a00>>
+call <IfxPort_setPinMode>
+call <largeFunction>
+call <simulateCpuWorkload>
+movh %d2,61444
+addi %d2,%d2,-24576
+st.w [%a14]-24,%d2
+mov %d2,5
+st.b [%a14]-25,%d2
+ld.bu %d2,[%a14]-25
+ld.w %d3,[%a14]-24
+st.w [%a14]-32,%d3
+st.b [%a14]-33,%d2
+movh %d2,1
+add %d2,1
+st.w [%a14]-40,%d2
+ld.bu %d2,[%a14]-33
+ld.w %d3,[%a14]-40
+sh %d2,%d3,%d2
+ld.a %a2,[%a14]-32
+add.a %a2,4
+st.w [%a2],%d2
+nop
+nop
+movh %d2,61440
+addi %d2,%d2,4096
+st.w [%a14]-4,%d2
+mov %d2,500
+st.w [%a14]-8,%d2
+ld.w %d2,[%a14]-4
+st.w [%a14]-12,%d2
+mov %d4,0
+call <IfxScuCcu_getSourceFrequency>
+mov %d3,%d2
+movh.a %a2,61443
+lea %a2,[%a2]24624 <<bmhd_3_copy+0x40c34a30>>
+ld.w %d2,[%a2]
+extr.u %d2,%d2,0,4
+and %d2,%d2,255
+itof %d2,%d2
+div.f %d2,%d3,%d2
+st.w [%a14]-16,%d2
+ld.w %d2,[%a14]-16
+ftoiz %d2,%d2
+st.w [%a14]-20,%d2
+ld.w %d4,[%a14]-20
+movh %d2,4194
+addi %d2,%d2,19923
+mul %e2,%d4,%d2
+sha %d3,-6
+sha %d2,%d4,-31
+sub %d2,%d3,%d2
+mov %d3,%d2
+ld.w %d2,[%a14]-8
+mul %d2,%d3
+mov %e2,%d2
+mov %e4,%d3,%d2
+call <waitTime>
+nop
+j <blinkLED+0x1a>
