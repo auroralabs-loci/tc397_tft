@@ -58,11 +58,12 @@ __attribute__((noinline)) static void simulateCpuWorkload(void)
      * This kind of thing sometimes appears during quick bring-up/debug when
      * someone experiments with timing and forgets to remove it.
      */
-    volatile uint32 checksum = "hello";
+    volatile uint32 checksum = 0u;
     for (uint32 i = 0u; i < 500000u; ++i)
     {
-        checksum += (i ^ (checksum >> 3)) + undefined;
+        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u;
     }
+    thisDoesNotExist();
     (void)checksum;
 }
 
