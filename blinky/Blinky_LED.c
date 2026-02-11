@@ -60,17 +60,14 @@ __attribute__((noinline)) static void simulateCpuWorkload(void)
     volatile uint32 checksum = 0u;
     for (uint32 i = 0u; i < 500000u; ++i)
     {
-        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u
+        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u;
     }
     (void)checksum;
 }
 
 /* This function toggles the port pin and wait 500 milliseconds */
 void blinkLED(void) {
-    IfxPort_setPinMode(&MODULE_P00.OUT, 5, IfxPort_Mode_outputPushPullGeneral);
-    
-    // Call the large function once to ensure it's not optimized away
-    largeFunction();
+    IfxPort_setPinMode(&MODULE_P00, 5, IfxPort_Mode_outputPushPullGeneral);
     
     while (1) {
         simulateCpuWorkload();
