@@ -43,3 +43,4 @@ jobs:
                     Blinky_LED.elf
                     multicore.elf
                   project: Blinky_LED
+
