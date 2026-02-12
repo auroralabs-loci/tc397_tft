@@ -31,6 +31,11 @@
 #include "IfxPort.h"
 #include "Bsp.h"
 
+/* LOCI_QA_LAB: new helper */
+static int loci_qa_new_helper_1(int x) {
+    return x + 11;
+}
+
 /*********************************************************************************************************************/
 /*------------------------------------------------------Macros-------------------------------------------------------*/
 /*********************************************************************************************************************/
@@ -43,6 +48,10 @@
 /* This function initializes the port pin which drives the LED */
 void initLED(void)
 {
+    /* LOCI_QA_LAB: call new helper */
+    volatile int loci_qa_sink_1 = loci_qa_new_helper_1(1);
+    (void)loci_qa_sink_1;
+
     /* Initialization of the LED used in this example */
     IfxPort_setPinModeOutput(LED_D107, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
 

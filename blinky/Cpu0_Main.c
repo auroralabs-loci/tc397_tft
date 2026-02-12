@@ -40,6 +40,11 @@
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
 
+/* LOCI_QA_LAB: new helper */
+static int loci_qa_new_helper_2(int x) {
+    return x + 12;
+}
+
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
 void _init(void)
@@ -48,6 +53,10 @@ void _init(void)
 
 void core0_main(void)
 {
+    /* LOCI_QA_LAB: call new helper */
+    volatile int loci_qa_sink_2 = loci_qa_new_helper_2(2);
+    (void)loci_qa_sink_2;
+
     IfxCpu_enableInterrupts();
 
     /* !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
