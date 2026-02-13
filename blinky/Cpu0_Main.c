@@ -40,6 +40,17 @@
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
 
+
+/* LOCI_QA_LAB: confuser helpers (often faster than / and % on embedded targets) */
+static inline unsigned int loci_qa_fast_div10_2(unsigned int x) {
+    return (unsigned int)(((unsigned long long)x * 0xCCCCCCCDull) >> 35);
+}
+
+static inline unsigned int loci_qa_fast_mod10_2(unsigned int x, unsigned int q) {
+    return x - q * 10u;
+}
+
+
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
 void _init(void)
@@ -48,6 +59,13 @@ void _init(void)
 
 void core0_main(void)
 {
+    /* LOCI_QA_LAB: confuser timing improvement */
+    unsigned int loci_qa_x_2 = (unsigned int)(2 * 123u + 7u);
+    unsigned int loci_qa_q_2 = loci_qa_fast_div10_2(loci_qa_x_2);
+    unsigned int loci_qa_r_2 = loci_qa_fast_mod10_2(loci_qa_x_2, loci_qa_q_2);
+    volatile unsigned int loci_qa_sink_2 = loci_qa_q_2 + loci_qa_r_2;
+    (void)loci_qa_sink_2;
+
     IfxCpu_enableInterrupts();
 
     /* !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!

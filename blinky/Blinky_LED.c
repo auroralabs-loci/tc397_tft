@@ -31,6 +31,17 @@
 #include "IfxPort.h"
 #include "Bsp.h"
 
+
+/* LOCI_QA_LAB: confuser helpers (often faster than / and % on embedded targets) */
+static inline unsigned int loci_qa_fast_div10_1(unsigned int x) {
+    return (unsigned int)(((unsigned long long)x * 0xCCCCCCCDull) >> 35);
+}
+
+static inline unsigned int loci_qa_fast_mod10_1(unsigned int x, unsigned int q) {
+    return x - q * 10u;
+}
+
+
 /*********************************************************************************************************************/
 /*------------------------------------------------------Macros-------------------------------------------------------*/
 /*********************************************************************************************************************/
@@ -43,6 +54,13 @@
 /* This function initializes the port pin which drives the LED */
 void initLED(void)
 {
+    /* LOCI_QA_LAB: confuser timing improvement */
+    unsigned int loci_qa_x_1 = (unsigned int)(1 * 123u + 7u);
+    unsigned int loci_qa_q_1 = loci_qa_fast_div10_1(loci_qa_x_1);
+    unsigned int loci_qa_r_1 = loci_qa_fast_mod10_1(loci_qa_x_1, loci_qa_q_1);
+    volatile unsigned int loci_qa_sink_1 = loci_qa_q_1 + loci_qa_r_1;
+    (void)loci_qa_sink_1;
+
     /* Initialization of the LED used in this example */
     IfxPort_setPinModeOutput(LED_D107, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
 
