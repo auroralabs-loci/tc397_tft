@@ -1,0 +1,34 @@
+{
+  "touched_files": [
+    "blinky\\Blinky_LED.c",
+    "blinky\\Cpu0_Main.c",
+    "blinky\\Cpu1_Main.c"
+  ],
+  "intent": {
+    "modified": [
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "initLED"
+      },
+      {
+        "file": "blinky\\Cpu0_Main.c",
+        "function": "_init"
+      },
+      {
+        "file": "blinky\\Cpu1_Main.c",
+        "function": "core1_main"
+      }
+    ],
+    "new_helpers": [
+      "loci_qa_new_helper_1",
+      "loci_qa_new_helper_2",
+      "loci_qa_new_helper_3"
+    ],
+    "deleted": [
+      {
+        "skipped": true,
+        "reason": "No safely-unused static function found in selected files."
+      }
+    ]
+  }
+}

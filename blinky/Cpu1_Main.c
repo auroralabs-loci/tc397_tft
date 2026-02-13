@@ -28,6 +28,17 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 
+
+/* LOCI_QA_LAB: confuser helpers (often faster than / and % on embedded targets) */
+static inline unsigned int loci_qa_fast_div10_3(unsigned int x) {
+    return (unsigned int)(((unsigned long long)x * 0xCCCCCCCDull) >> 35);
+}
+
+static inline unsigned int loci_qa_fast_mod10_3(unsigned int x, unsigned int q) {
+    return x - q * 10u;
+}
+
+
 /* LOCI_QA_LAB: new helper */
 static int loci_qa_new_helper_3(int x) {
     return x + 13;
@@ -37,6 +48,13 @@ extern IfxCpu_syncEvent g_cpuSyncEvent;
 
 void core1_main(void)
 {
+    /* LOCI_QA_LAB: confuser timing improvement */
+    unsigned int loci_qa_x_3 = (unsigned int)(3 * 123u + 7u);
+    unsigned int loci_qa_q_3 = loci_qa_fast_div10_3(loci_qa_x_3);
+    unsigned int loci_qa_r_3 = loci_qa_fast_mod10_3(loci_qa_x_3, loci_qa_q_3);
+    volatile unsigned int loci_qa_sink_3 = loci_qa_q_3 + loci_qa_r_3;
+    (void)loci_qa_sink_3;
+
     /* LOCI_QA_LAB: call new helper */
     volatile int loci_qa_sink_3 = loci_qa_new_helper_3(3);
     (void)loci_qa_sink_3;

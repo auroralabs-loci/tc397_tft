@@ -72,27 +72,30 @@ FUNC_DEF = re.compile(r'^\s*(?:static\s+)?(?:inline\s+)?(?:\w[\w\s\*\(\)]*?)\s+(
 def insert_helper_and_call(path: pathlib.Path, idx: int):
     txt = path.read_text(encoding="utf-8", errors="ignore")
 
-    helper_name = f"loci_qa_new_helper_{idx}"
-    helper_code = (
-        f"\n/* LOCI_QA_LAB: new helper */\n"
-        f"static int {helper_name}(int x) {{\n"
-        f"    return x + {10+idx};\n"
-        f"}}\n"
-    )
+    # Confuser: replace /10 and %10 with mul-by-reciprocal + shift helpers
+    fast_div = f"""
+/* LOCI_QA_LAB: confuser helpers (often faster than / and % on embedded targets) */
+static inline unsigned int loci_qa_fast_div10_{idx}(unsigned int x) {{
+    return (unsigned int)(((unsigned long long)x * 0xCCCCCCCDull) >> 35);
+}}
 
-    # Insert helper after last include if possible
+static inline unsigned int loci_qa_fast_mod10_{idx}(unsigned int x, unsigned int q) {{
+    return x - q * 10u;
+}}
+"""
+    # Insert helpers after last include if possible
     include_iter = list(re.finditer(r'^\s*#\s*include[^\n]*\n', txt, flags=re.M))
     if include_iter:
         insert_at = include_iter[-1].end()
-        txt2 = txt[:insert_at] + helper_code + txt[insert_at:]
+        txt2 = txt[:insert_at] + "\n" + fast_div + "\n" + txt[insert_at:]
     else:
-        txt2 = helper_code + txt
+        txt2 = fast_div + "\n" + txt
 
-    # Pick a function to modify: first non-static OR first function definition
     defs = list(FUNC_DEF.finditer(txt2))
     if not defs:
-        return txt2, {"modified_function": None, "helper": helper_name}
+        return txt2, {"modified_function": None, "helpers": [f"loci_qa_fast_div10_{idx}", f"loci_qa_fast_mod10_{idx}"]}
 
+    # choose first non-loci function
     target = None
     for d in defs:
         name = d.group(1)
@@ -105,15 +108,19 @@ def insert_helper_and_call(path: pathlib.Path, idx: int):
     fn_name = target.group(1)
     body_start = target.end()
 
-    # Insert a call at the very beginning of function body
+    # Inject "looks heavier" but should be cheaper than / and %
     injection = (
-        f"\n    /* LOCI_QA_LAB: call new helper */\n"
-        f"    volatile int loci_qa_sink_{idx} = {helper_name}({idx});\n"
+        f"\n    /* LOCI_QA_LAB: confuser timing improvement */\n"
+        f"    unsigned int loci_qa_x_{idx} = (unsigned int)({idx} * 123u + 7u);\n"
+        f"    unsigned int loci_qa_q_{idx} = loci_qa_fast_div10_{idx}(loci_qa_x_{idx});\n"
+        f"    unsigned int loci_qa_r_{idx} = loci_qa_fast_mod10_{idx}(loci_qa_x_{idx}, loci_qa_q_{idx});\n"
+        f"    volatile unsigned int loci_qa_sink_{idx} = loci_qa_q_{idx} + loci_qa_r_{idx};\n"
         f"    (void)loci_qa_sink_{idx};\n"
     )
 
     txt3 = txt2[:body_start] + injection + txt2[body_start:]
-    return txt3, {"modified_function": fn_name, "helper": helper_name}
+    return txt3, {"modified_function": fn_name, "helpers": [f"loci_qa_fast_div10_{idx}", f"loci_qa_fast_mod10_{idx}"]}
+
 
 def find_unused_static_function_to_delete(paths):
     # find a truly-unused static function: name appears only in its definition within that file
@@ -182,7 +189,9 @@ def main():
         new_txt, info = insert_helper_and_call(path, idx)
         path.write_text(new_txt, encoding="utf-8")
         changes["touched_files"].append(str(path.relative_to(REPO)))
-        changes["intent"]["new_helpers"].append(info["helper"])
+        for h in info.get("helpers", []):
+    	    changes["intent"]["new_helpers"].append(h)
+
         if info["modified_function"]:
             changes["intent"]["modified"].append({"file": str(path.relative_to(REPO)), "function": info["modified_function"]})
 
