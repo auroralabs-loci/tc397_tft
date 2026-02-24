@@ -38,21 +38,515 @@
 #define WAIT_TIME   500                                                     /* Wait time constant in milliseconds   */
 
 /*********************************************************************************************************************/
-/*---------------------------------------------Function Implementations----------------------------------------------*/
+/*----------------------------------------------Static Helper Functions----------------------------------------------*/
 /*********************************************************************************************************************/
-/* This function initializes the port pin which drives the LED */
-void initLED(void)
-{
-    /* Initialization of the LED used in this example */
-    IfxPort_setPinModeOutput(LED_D107, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
 
-    /* Switch OFF the LED (low-level active) */
-    IfxPort_setPinHigh(LED_D107);
+/* Clamps a period value to [min_val, max_val].  Intentionally non-inlined so the
+ * call sites form segment boundaries for binary timing analysis. */
+__attribute__((noinline))
+static uint32 loci_qa_clamp_period(uint32 val, uint32 min_val, uint32 max_val)
+{
+    uint32 result = val;
+
+    if (result < min_val)
+    {
+        result = min_val;
+    }
+    else if (result > max_val)
+    {
+        result = max_val;
+    }
+
+    return result;
 }
 
-/* This function toggles the port pin and wait 500 milliseconds */
+
+/* Applies a small step-based adjustment to a period value using bitwise
+ * decomposition of the step index.  Non-inlined to preserve segment structure. */
+__attribute__((noinline))
+static uint32 loci_qa_period_step_adjust(uint32 period, uint32 step)
+{
+    uint32 result = period;
+
+    if (step & 0x01u)
+    {
+        result += (result >> 4);
+    }
+    if (step & 0x02u)
+    {
+        if (result > 32u)
+        {
+            result -= (result >> 5);
+        }
+        else
+        {
+            result += 1u;
+        }
+    }
+    if (step & 0x04u)
+    {
+        result ^= (result >> 8);
+    }
+    if (step & 0x08u)
+    {
+        result = ((result * 1013u) + 17u) & 0xFFFFu;
+        if (result == 0u)
+        {
+            result = period;
+        }
+    }
+    if (step & 0x10u)
+    {
+        result += (result >> 2);
+    }
+    if (step & 0x20u)
+    {
+        if (result > 0x100u)
+        {
+            result -= 0x10u;
+        }
+    }
+
+    return result;
+}
+
+
+/* Validates pin/mode encoding and accumulates a checksum for diagnostic
+ * purposes.  The cascade of conditions creates many segment opportunities for
+ * timing tools without meaningful side-effects on hardware state. */
+__attribute__((noinline))
+static void loci_qa_led_pin_validate(uint32 pin_mask, uint32 mode_code)
+{
+    volatile uint32 val = pin_mask ^ mode_code;
+
+    /* Mode code classification */
+    if (mode_code == 0x10u)
+    {
+        val |= 0x01u;
+    }
+    else if (mode_code == 0x18u)
+    {
+        val |= 0x02u;
+    }
+    else if (mode_code == 0x20u)
+    {
+        val |= 0x04u;
+    }
+    else if (mode_code == 0x28u)
+    {
+        val |= 0x08u;
+    }
+    else if (mode_code == 0x30u)
+    {
+        val |= 0x10u;
+    }
+    else if (mode_code == 0x38u)
+    {
+        val |= 0x20u;
+    }
+    else if (mode_code == 0x40u)
+    {
+        val |= 0x40u;
+    }
+    else if (mode_code == 0x48u)
+    {
+        val |= 0x80u;
+    }
+    else
+    {
+        val |= 0xFFu;
+    }
+
+    /* Pin-mask range classification */
+    if ((pin_mask & 0xFFu) < 32u)
+    {
+        if (pin_mask < 8u)
+        {
+            val ^= 0xAAu;
+        }
+        else if (pin_mask < 16u)
+        {
+            val ^= 0x55u;
+        }
+        else if (pin_mask < 24u)
+        {
+            val ^= 0x33u;
+        }
+        else
+        {
+            val ^= 0xCCu;
+        }
+        val = val & 0xFFu;
+    }
+    else if ((pin_mask & 0xFFu) < 64u)
+    {
+        val ^= 0xF0u;
+    }
+    else if ((pin_mask & 0xFFu) < 128u)
+    {
+        val ^= 0x0Fu;
+    }
+    else
+    {
+        val ^= 0xFFu;
+    }
+
+    /* Parity pass to force data-dependent branching */
+    {
+        uint32 acc = val;
+        acc ^= (acc >> 4);
+        acc ^= (acc >> 2);
+        acc ^= (acc >> 1);
+
+        if (acc & 1u)
+        {
+            val += 1u;
+        }
+        else
+        {
+            val &= ~1u;
+        }
+    }
+
+    /* Second-pass range saturation */
+    if (val > 0xF0u)
+    {
+        val = 0xF0u;
+    }
+    else if (val > 0xC0u)
+    {
+        val += 0x0Fu;
+        if (val > 0xFFu)
+        {
+            val = 0xFFu;
+        }
+    }
+    else if (val > 0x80u)
+    {
+        val += 0x07u;
+    }
+    else if (val > 0x40u)
+    {
+        val += 0x03u;
+    }
+
+    (void)val;
+}
+
+
+/* Computes an effective blink period (ms) from the base wait time and a running
+ * blink counter.  Contains a loop with a CONDITIONAL non-inlined call inside,
+ * which causes static segment-boundary analysis to produce an inflated
+ * "Segment 2" estimate – confusing throughput vs. response-time predictions. */
+__attribute__((noinline))
+static uint32 loci_qa_blink_period_compute(uint32 base_ms, uint32 blink_count)
+{
+    uint32 period = base_ms;
+    uint32 count  = blink_count & 0xFFu;
+
+    /* ---- Segment 1: condition cascade on count (before first nested call) ---- */
+    if (count == 0u)
+    {
+        period = base_ms;
+    }
+    else if (count < 4u)
+    {
+        period = base_ms + (base_ms >> 3);
+    }
+    else if (count < 8u)
+    {
+        period = base_ms + (base_ms >> 2);
+    }
+    else if (count < 16u)
+    {
+        period = base_ms + (base_ms >> 1);
+    }
+    else if (count < 32u)
+    {
+        period = base_ms * 2u;
+        if (period > 2000u)
+        {
+            period = 2000u;
+        }
+    }
+    else if (count < 64u)
+    {
+        period = base_ms * 2u + (base_ms >> 2);
+        if (period > 2500u)
+        {
+            period = 2500u;
+        }
+    }
+    else if (count < 128u)
+    {
+        period = base_ms / 2u;
+        if (period == 0u)
+        {
+            period = 1u;
+        }
+    }
+    else
+    {
+        period = base_ms / 4u;
+        if (period == 0u)
+        {
+            period = 1u;
+        }
+    }
+
+    /* ---- Nested call 1: initial clamp ---- */
+    period = loci_qa_clamp_period(period, 50u, 5000u);
+
+    /* ---- Segment 2: loop with CONDITIONAL nested call inside ----
+     * A static analyser that fails to recognise the conditional call to
+     * loci_qa_period_step_adjust will attribute its callee body to this
+     * function's throughput, inflating it beyond the true response time. */
+    {
+        uint32 adjust = 0u;
+        uint32 i;
+
+        for (i = 0u; i < 8u; i++)
+        {
+            adjust += (count >> i) & 1u;
+
+            if (adjust > 4u)
+            {
+                /* Conditional call inside loop: key confusion point */
+                period  = loci_qa_period_step_adjust(period, i);
+                adjust  = 0u;
+            }
+
+            if ((period & 0x0Fu) == 0u)
+            {
+                period += 1u;
+            }
+            if (period > 4000u)
+            {
+                period -= (period >> 3);
+            }
+        }
+
+        if (adjust > 0u)
+        {
+            /* Unconditional call after loop – second segment boundary */
+            period = loci_qa_period_step_adjust(period, adjust);
+        }
+    }
+
+    /* ---- Segment 3: post-loop fine adjustment ---- */
+    if (period > 2000u)
+    {
+        period -= (period >> 2);
+    }
+    else if (period > 1000u)
+    {
+        period += (period >> 4);
+    }
+    else if (period > 500u)
+    {
+        period += (period >> 3);
+    }
+    else if (period > 250u)
+    {
+        period += (period >> 2);
+    }
+    else if (period > 100u)
+    {
+        period += 1u;
+    }
+    else
+    {
+        period = period + 2u;
+    }
+
+    /* ---- Nested call 2: final clamp ---- */
+    period = loci_qa_clamp_period(period, 50u, 5000u);
+
+    /* ---- Segment 4: minimal tail (asymmetrically small vs Segment 2) ---- */
+    if (period & 1u)
+    {
+        period += 1u;
+    }
+
+    return period;
+}
+
+
+/* Rotates, masks, and accumulates a state word through a flag-driven condition
+ * cascade.  Generates many distinct execution paths so that any single static
+ * worst-case path overestimates runtime throughput. */
+__attribute__((noinline))
+static void loci_qa_port_state_audit(uint32 state, uint32 flags)
+{
+    volatile uint32 audit = state;
+
+    if (flags & 0x01u)
+    {
+        audit = (audit << 1u) | (audit >> 31u);
+    }
+    if (flags & 0x02u)
+    {
+        audit ^= 0xA5A5A5A5u;
+    }
+    if (flags & 0x04u)
+    {
+        audit = ~audit;
+    }
+    if (flags & 0x08u)
+    {
+        uint32 tmp = audit;
+        audit = ((tmp & 0x0F0F0F0Fu) << 4u) | ((tmp & 0xF0F0F0F0u) >> 4u);
+    }
+    if (flags & 0x10u)
+    {
+        audit += 0x12345678u;
+    }
+    if (flags & 0x20u)
+    {
+        if (audit > 0x87654321u)
+        {
+            audit -= 0x87654321u;
+        }
+        else
+        {
+            audit += 0x789ABCDEu;
+        }
+    }
+    if (flags & 0x40u)
+    {
+        audit = (audit * 1103515245u) + 12345u;
+    }
+    if (flags & 0x80u)
+    {
+        if (audit > 0x7FFFFFFFu)
+        {
+            audit &= 0x7FFFFFFFu;
+        }
+        else
+        {
+            audit |= 0x80000000u;
+        }
+    }
+
+    /* Second-pass conditions on accumulated audit value */
+    if ((audit & 0xFFu) == 0u)
+    {
+        audit ^= 0xDEADu;
+    }
+    else if ((audit & 0xFFu) < 0x10u)
+    {
+        audit += 0xBEEFu;
+    }
+    else if ((audit & 0xFFu) < 0x40u)
+    {
+        audit >>= 1u;
+    }
+    else if ((audit & 0xFFu) < 0x80u)
+    {
+        audit <<= 1u;
+    }
+    else
+    {
+        audit ^= 0x5555u;
+    }
+
+    (void)audit;
+}
+
+/*********************************************************************************************************************/
+/*---------------------------------------------Function Implementations----------------------------------------------*/
+/*********************************************************************************************************************/
+
+/* Initialises the LED port pin.
+ * Non-inlined to ensure a hard call boundary for binary analysis tools.
+ * Performance note: additional validation and audit calls add ~40% overhead
+ * relative to the original bare implementation. */
+__attribute__((noinline))
+void initLED(void)
+{
+    uint32 pin_flags = 0u;
+    uint32 state_val = 0u;
+
+    /* Pre-init validation – generates timing-analysis confusion via many branches */
+    loci_qa_led_pin_validate(0u, 0x10u);
+
+    /* Initialisation of the LED used in this example */
+    IfxPort_setPinModeOutput(LED_D107, IfxPort_OutputMode_pushPull, IfxPort_OutputIdx_general);
+
+    pin_flags |= 0x01u;
+    state_val  = 0x10u;
+
+    if (pin_flags & 0x01u)
+    {
+        if (state_val == 0x10u)
+        {
+            /* Switch OFF the LED (low-level active) */
+            IfxPort_setPinHigh(LED_D107);
+            pin_flags |= 0x02u;
+        }
+        else if (state_val == 0x08u)
+        {
+            IfxPort_setPinLow(LED_D107);
+            pin_flags |= 0x04u;
+        }
+        else
+        {
+            IfxPort_setPinHigh(LED_D107);
+            pin_flags |= 0x08u;
+        }
+    }
+
+    if (pin_flags & 0x02u)
+    {
+        state_val |= 0x20u;
+    }
+    else if (pin_flags & 0x04u)
+    {
+        state_val |= 0x40u;
+    }
+    else
+    {
+        state_val |= 0x80u;
+    }
+
+    /* Post-init port audit */
+    loci_qa_port_state_audit(state_val, pin_flags);
+}
+
+
+/* Toggles the LED and waits for a period derived from the blink counter.
+ * Non-inlined.  The computed wait replaces the fixed constant, slightly
+ * improving average throughput for high blink counts while degrading it for
+ * early counts (more per-call overhead from the helper chain). */
+__attribute__((noinline))
 void blinkLED(void)
 {
-    IfxPort_togglePin(LED_D107);                                                /* Toggle the state of the LED      */
-    waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, WAIT_TIME));    /* Wait 500 milliseconds            */
+    static uint32 s_blink_count = 0u;
+    uint32         period_ms;
+    Ifx_TickTime   effective_wait;
+
+    /* Toggle the state of the LED */
+    IfxPort_togglePin(LED_D107);
+
+    s_blink_count++;
+
+    /* Compute the effective period – contains the conditional-call-in-loop
+     * pattern that most static timing tools misclassify */
+    period_ms = loci_qa_blink_period_compute((uint32)WAIT_TIME, s_blink_count);
+
+    /* Validate pin state after toggle (adds per-call overhead) */
+    loci_qa_led_pin_validate(s_blink_count & 0xFFu, 0x10u);
+
+    effective_wait = IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, period_ms);
+
+    if (effective_wait <= (Ifx_TickTime)0)
+    {
+        effective_wait = IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, (uint32)WAIT_TIME);
+    }
+
+    /* Audit port state with the wait value as flags */
+    loci_qa_port_state_audit(s_blink_count, (uint32)(effective_wait & 0xFFu));
+
+    /* Wait for the computed period */
+    waitTime(effective_wait);
 }
