@@ -30,6 +30,7 @@ jobs:
                   just configure
                   just build
                   cp build/blinky/Blinky_LED.elf .
+                  cp build/multicore/multicore.elf .
 
             - name: Upload build artifacts
               uses: auroralabs-loci/loci-action@v1
@@ -40,6 +41,7 @@ jobs:
                   mode: upload
                   binaries: |
                     Blinky_LED.elf
+                    multicore.elf
                   project: Blinky_LED
 
             
