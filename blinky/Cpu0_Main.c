@@ -39,6 +39,9 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_heavy.h"
+#include "perf_workload.h"
+#include "perf_asm.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -64,6 +67,6 @@ void core0_main(void)
 
     while (1)
     {
-        blinkLED(); /* Make the LED blink           */
+        heavy_run_core0(); perf_run_all_workloads(); asm_run_all(); blinkLED(); /* Make the LED blink           */
     }
 }

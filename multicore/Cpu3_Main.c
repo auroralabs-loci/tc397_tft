@@ -1,3 +1,4 @@
+#include "perf_heavy.h"
 /**********************************************************************************************************************
  * \file Cpu3_Main.c
  * \copyright Copyright (C) Infineon Technologies AG 2019

@@ -8,6 +8,9 @@ add_executable(${TARGET}
   Cpu4_Main.c
   Cpu5_Main.c
   Multicore.c
+  perf_heavy.c
+  perf_workload.c
+  perf_asm.c
 )
 
 target_compile_features(${TARGET} PRIVATE c_std_99 cxx_std_11)
