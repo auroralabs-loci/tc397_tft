@@ -176,6 +176,31 @@ IFX_EXTERN Ifx_SizeT Ifx_Fifo_read(Ifx_Fifo *fifo, void *data, Ifx_SizeT count, 
  */
 IFX_EXTERN Ifx_SizeT Ifx_Fifo_write(Ifx_Fifo *fifo, const void *data, Ifx_SizeT count, Ifx_TickTime timeout);
 
+/** \brief Commit a completed read block and update FIFO shared state.
+ *
+ * \param fifo      Pointer on the Fifo object
+ * \param count     Number of bytes originally requested
+ * \param blockSize Number of bytes actually consumed (aligned internally)
+ * \param timeout   Reserved; pass 0 for non-blocking behaviour
+ *
+ * \return Number of bytes remaining unread
+ */
+IFX_EXTERN Ifx_SizeT Ifx_Fifo_endRead(Ifx_Fifo *fifo, Ifx_SizeT count, Ifx_SizeT blockSize, Ifx_TickTime timeout);
+
+/** \brief Read count 32-bit words from the FIFO into data.
+ *
+ * Waits up to timeout ticks for the required bytes to be available, then
+ * copies them using the 32-bit circular-buffer fast-path.
+ *
+ * \param fifo    Pointer on the Fifo object
+ * \param data    Destination buffer (must be 32-bit aligned)
+ * \param count   Number of 32-bit words to read
+ * \param timeout Maximum wait time in system timer ticks
+ *
+ * \return Number of bytes that could not be read (0 on full success)
+ */
+IFX_EXTERN Ifx_SizeT Ifx_Fifo_read32(Ifx_Fifo *fifo, void *data, Ifx_SizeT count, Ifx_TickTime timeout);
+
 /** \brief Empty the fifo
  *
  * \param fifo Pointer on the Fifo object

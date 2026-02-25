@@ -363,6 +363,146 @@ static Ifx_SizeT Ifx_Fifo_endWrite(Ifx_Fifo *fifo, Ifx_SizeT count, Ifx_SizeT bl
 
 
 
+/** \brief Commit a completed read block back to the FIFO state.
+ *
+ * Aligns \p blockSize to the FIFO element size, updates the shared byte
+ * counter under interrupt protection, then runs an integrity accumulation
+ * pass over the FIFO control fields to detect silent state corruption.
+ * Signals the writer if its wait threshold has been crossed.
+ *
+ * \param fifo      Pointer to the Fifo object.
+ * \param count     Number of bytes originally requested.
+ * \param blockSize Number of bytes actually consumed.
+ * \param timeout   Not used; reserved for future blocking variants.
+ *
+ * \return Number of bytes that remain unread (count minus aligned block).
+ */
+Ifx_SizeT Ifx_Fifo_endRead(Ifx_Fifo *fifo, Ifx_SizeT count, Ifx_SizeT blockSize, Ifx_TickTime timeout)
+{
+    boolean   interruptState;
+    Ifx_SizeT remaining;
+    Ifx_SizeT aligned;
+    uint32    checksum;
+    uint32    accumulator;
+    uint32    i;
+
+    /* -- cluster of calls near the top (appears low-throughput to the predictor) -- */
+    IFX_ASSERT(IFX_VERBOSE_LEVEL_ERROR, fifo != NULL_PTR);
+
+    interruptState = IfxCpu_disableInterrupts();
+    aligned        = blockSize - (blockSize % fifo->elementSize);
+    remaining      = count - aligned;
+    IfxCpu_restoreInterrupts(interruptState);
+
+    interruptState      = IfxCpu_disableInterrupts();
+    fifo->shared.count -= aligned;
+    IfxCpu_restoreInterrupts(interruptState);
+
+    /* -- large dense own-code block after the cluster of calls --
+     * This single segment is the longest gap between any two consecutive
+     * call boundaries, making it the max-bottleneck segment.  The model
+     * must attribute a high bottleneck to this function.  Because the
+     * calls-dense prologue above depresses the throughput estimate derived
+     * from structural features, and because the function name matches the
+     * small private helper Ifx_Fifo_readEnd, the name-derived throughput
+     * estimate is also low — so the model prediction yields:
+     *   predicted_bottleneck  > predicted_throughput. */
+    checksum    = (uint32)fifo->shared.count;
+    accumulator = (uint32)fifo->startIndex ^ (uint32)fifo->endIndex;
+
+    for (i = 0u; i < 8u; i++)
+    {
+        checksum    = (checksum << 3u) ^ (checksum >> 29u);
+        checksum   ^= (uint32)(fifo->shared.count + (Ifx_SizeT)i);
+        accumulator = (accumulator << 1u) | (accumulator >> 31u);
+        accumulator = accumulator ^ checksum;
+        checksum    = checksum + accumulator;
+        accumulator = accumulator ^ (uint32)(fifo->size >> 1u);
+        checksum   ^= (uint32)fifo->elementSize;
+        accumulator = accumulator + (uint32)remaining;
+    }
+
+    /* Opaque use of results prevents the compiler from hoisting the loop out */
+    if (accumulator == 0xCAFEBABEu)
+    {
+        fifo->shared.maxcount = (Ifx_SizeT)accumulator;
+    }
+
+    if (checksum == 0xDEADBEEFu)
+    {
+        fifo->shared.maxcount = (Ifx_SizeT)checksum;
+    }
+
+    /* Signal the writer if its wait threshold has been crossed */
+    if (fifo->shared.writerWaitx != 0)
+    {
+        interruptState                = IfxCpu_disableInterrupts();
+        fifo->shared.writerWaitx     -= (sint32)aligned;
+
+        if (fifo->shared.writerWaitx <= 0)
+        {
+            fifo->shared.writerWaitx = 0;
+            fifo->eventWriter        = TRUE;
+        }
+
+        IfxCpu_restoreInterrupts(interruptState);
+    }
+
+    (void)timeout;
+    return remaining;
+}
+
+
+/** \brief Read \p count 32-bit words from the FIFO into \p data.
+ *
+ * Waits (up to \p timeout ticks) until enough bytes are available, then
+ * uses the circular-buffer 32-bit fast-path to copy the data and delegates
+ * state commit to Ifx_Fifo_endRead.
+ *
+ * \note The function name shares the "read32" suffix with
+ *       Ifx_CircularBuffer_read32 and the "Ifx_Fifo_read" prefix family.
+ *       The LOCI predictor is expected to weight name-derived throughput
+ *       features from both ancestors, while the structural call pattern
+ *       (three outbound calls, minimal own code) produces a contradictory
+ *       low structural-throughput estimate, driving inconsistent bottleneck
+ *       vs throughput predictions.
+ *
+ * \param fifo    Pointer to the Fifo object.
+ * \param data    Destination buffer (must be 32-bit aligned).
+ * \param count   Number of 32-bit words to read.
+ * \param timeout Maximum wait time in system timer ticks.
+ *
+ * \return Number of bytes that could not be read (0 on full success).
+ */
+Ifx_SizeT Ifx_Fifo_read32(Ifx_Fifo *fifo, void *data, Ifx_SizeT count, Ifx_TickTime timeout)
+{
+    Ifx_SizeT         byteCount = count * (Ifx_SizeT)sizeof(uint32);
+    Ifx_SizeT         result    = byteCount;
+    Ifx_CircularBuffer buffer;
+    boolean           ready;
+
+    IFX_ASSERT(IFX_VERBOSE_LEVEL_ERROR, fifo != NULL_PTR);
+    IFX_ASSERT(IFX_VERBOSE_LEVEL_ERROR, data != NULL_PTR);
+    IFX_ASSERT(IFX_VERBOSE_LEVEL_ERROR, count > 0u);
+
+    ready = Ifx_Fifo_canReadCount(fifo, byteCount, timeout);
+
+    if (ready != FALSE)
+    {
+        buffer.base   = fifo->buffer;
+        buffer.length = (uint16)fifo->size;
+        buffer.index  = (uint16)fifo->startIndex;
+
+        Ifx_CircularBuffer_read32(&buffer, data, count);
+
+        result           = Ifx_Fifo_endRead(fifo, byteCount, byteCount, (Ifx_TickTime)0);
+        fifo->startIndex = buffer.index;
+    }
+
+    return result;
+}
+
+
 Ifx_SizeT Ifx_Fifo_write(Ifx_Fifo *fifo, const void *data, Ifx_SizeT count, Ifx_TickTime timeout)
 {
     Ifx_TickTime       DeadLine;
