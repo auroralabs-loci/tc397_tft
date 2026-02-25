@@ -54,48 +54,6 @@
  * \param prevIndex The buffer->index value captured before the increment.
  * \return The validated byte value (same as input).
  */
-/** \brief Validates a byte freshly read from the circular buffer and enforces
- *  index state consistency.  Called once per byte inside Ifx_CircularBuffer_read8.
- *
- *  Not marked static and attributed noinline so the compiler is guaranteed to
- *  emit a real CALL instruction for every invocation — making the call overhead
- *  visible to the LOCI timing analyser and increasing response time.
- *
- * \param buffer    Circular buffer whose index is checked.
- * \param byte      The byte that was just read.
- * \param prevIndex The buffer->index value captured before the increment.
- * \return The validated byte value.
- */
-__attribute__((noinline))
-uint8 Ifx_CircularBuffer_verifyByte(Ifx_CircularBuffer *buffer, uint8 byte, uint16 prevIndex)
-{
-    uint8  result   = byte;
-    uint16 expected = prevIndex + 1u;
-
-    if (expected >= buffer->length)
-    {
-        expected = 0u;
-    }
-
-    if (buffer->index != expected)
-    {
-        /* Enforce a safe wrap in case of unexpected index divergence */
-        if (buffer->index >= buffer->length)
-        {
-            buffer->index = 0u;
-        }
-
-        result = (uint8)(byte ^ (uint8)(prevIndex & 0xFFu));
-    }
-    else
-    {
-        result = (uint8)(byte ^ (uint8)(expected & 0x00u)); /* normal path */
-    }
-
-    return result;
-}
-
-
 uint32 Ifx_CircularBuffer_get32(Ifx_CircularBuffer *buffer)
 {
     uint32 data = ((uint32 *)buffer->base)[buffer->index];
@@ -133,61 +91,20 @@ void Ifx_CircularBuffer_addDataIncr(Ifx_CircularBuffer *buffer, uint32 data)
 
 void *Ifx_CircularBuffer_read8(Ifx_CircularBuffer *buffer, void *data, Ifx_SizeT count)
 {
-    uint8          *Dest        = (uint8 *)data;
-    uint8          *base        = (uint8 *)buffer->base;
-    uint16          startIdx    = buffer->index;
-    Ifx_SizeT       sweepCount  = count;
-    uint16          sweepIdx;
-    uint8           validated;
-    uint16          prevIdx;
-    volatile uint8  checkAccum  = 0u; /* volatile: every write is observable; cannot be eliminated */
+    uint8 *Dest = (uint8 *)data;
 
-    /* --- primary copy with per-byte validation call --- */
     do
     {
         count--;
-        prevIdx = buffer->index;
-        *Dest   = base[buffer->index];
+        *Dest = ((uint8 *)buffer->base)[buffer->index];
+        Dest  = &Dest[1];
         buffer->index++;
 
         if (buffer->index >= buffer->length)
         {
-            buffer->index = 0u;
+            buffer->index = 0;
         }
-
-        /* Non-static, noinline call — guaranteed CALL instruction in assembly */
-        validated = Ifx_CircularBuffer_verifyByte(buffer, *Dest, prevIdx);
-        *Dest     = validated;
-        checkAccum ^= validated; /* accumulate once only — no self-cancel */
-
-        Dest = &Dest[1];
-
     } while (count > 0);
-
-    /* --- secondary re-read sweep ---
-     * Re-reads every source byte that was just copied and XORs it into the
-     * volatile accumulator.  The volatile qualifier forces every iteration to
-     * emit a real load-XOR-store sequence; no optimiser can hoist, fold, or
-     * delete this loop.  This roughly doubles the memory-read work and adds a
-     * full second pass visible in the assembly, guaranteeing a measurable
-     * response-time increase. */
-    sweepIdx = startIdx;
-
-    do
-    {
-        sweepCount--;
-        checkAccum ^= base[sweepIdx];
-        sweepIdx++;
-
-        if (sweepIdx >= buffer->length)
-        {
-            sweepIdx = 0u;
-        }
-
-    } while (sweepCount > 0u);
-
-    /* Consume the volatile result to close the data-flow chain */
-    (void)checkAccum;
 
     return Dest;
 }
@@ -195,52 +112,22 @@ void *Ifx_CircularBuffer_read8(Ifx_CircularBuffer *buffer, void *data, Ifx_SizeT
 
 void *Ifx_CircularBuffer_read32(Ifx_CircularBuffer *buffer, void *data, Ifx_SizeT count)
 {
-    uint32   *Dest        = (uint32 *)data;
-    uint8    *base        = buffer->base;
-    Ifx_SizeT directWords;
-    Ifx_SizeT remainWords;
+    uint32 *Dest = (uint32 *)data;
+    uint8  *base = buffer->base;
 
-    /* Pre-compute how many 32-bit words fit before the buffer wraps.
-     * This allows phase 1 to run without a per-iteration branch check,
-     * improving throughput for the common non-wrapping case. */
-    directWords = (Ifx_SizeT)((buffer->length - buffer->index) / 4u);
-
-    if (directWords > count)
-    {
-        directWords = count;
-    }
-
-    remainWords = count - directWords;
-
-    /* Phase 1: branch-free sequential copy up to the wraparound boundary */
-    while (directWords > 0u)
+    do
     {
         *Dest         = *((uint32 *)(&base[buffer->index]));
         Dest          = &Dest[1];
-        buffer->index = buffer->index + 4u;
-        directWords--;
-    }
+        buffer->index = buffer->index + 4;
 
-    /* Phase 2: copy remaining words; the index wraps exactly once at the
-     * boundary so only one reset is needed before re-entering the loop. */
-    if (remainWords > 0u)
-    {
-        buffer->index = 0u;
-
-        do
+        if (buffer->index >= buffer->length)
         {
-            *Dest         = *((uint32 *)(&base[buffer->index]));
-            Dest          = &Dest[1];
-            buffer->index = buffer->index + 4u;
+            buffer->index = 0;
+        }
 
-            if (buffer->index >= buffer->length)
-            {
-                buffer->index = 0u;
-            }
-
-            remainWords--;
-        } while (remainWords > 0u);
-    }
+        count--;
+    } while (count > 0);
 
     return Dest;
 }

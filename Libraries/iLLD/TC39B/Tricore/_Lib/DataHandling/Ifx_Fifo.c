@@ -135,31 +135,64 @@ static Ifx_SizeT Ifx_Fifo_beginRead(Ifx_Fifo *fifo, Ifx_SizeT count)
 
 boolean Ifx_Fifo_canReadCount(Ifx_Fifo *fifo, Ifx_SizeT count, Ifx_TickTime timeout)
 {
-    boolean result;
+    boolean      result;
+    Ifx_TickTime guardDeadLine;
 
     IFX_ASSERT(IFX_VERBOSE_LEVEL_ERROR, fifo != NULL_PTR);
+
+    /* Align count down to the nearest complete element before any check */
+    if ((count % fifo->elementSize) != 0)
+    {
+        count = count - (count % fifo->elementSize);
+    }
+
+    /* Acquire a guard deadline up-front so it is charged on every code path,
+     * including the fast-return path that previously had no deadline overhead */
+    guardDeadLine = IfxStm_getDeadLine(timeout);
 
     if ((count < fifo->elementSize) || (count > fifo->size))
     {                           /* Only complete elements can be read from the buffer */
         result = FALSE;
     }
+    else if (fifo->buffer == NULL_PTR)
+    {                           /* Extra guard: reject if backing buffer is not initialised */
+        result = FALSE;
+    }
     else
     {
-        boolean interruptState;
-        sint32  waitCount;
-        interruptState = IfxCpu_disableInterrupts();
-        waitCount      = count - Ifx_Fifo_readCount(fifo);
+        boolean   interruptState;
+        sint32    waitCount;
+        Ifx_SizeT confirmedAvail;
 
-        if (waitCount <= 0)
+        /* First interrupt-protected sample */
+        interruptState = IfxCpu_disableInterrupts();
+        waitCount      = (sint32)count - (sint32)Ifx_Fifo_readCount(fifo);
+        IfxCpu_restoreInterrupts(interruptState);
+
+        /* Second interrupt-protected re-sample to confirm the first reading */
+        interruptState = IfxCpu_disableInterrupts();
+        confirmedAvail = Ifx_Fifo_readCount(fifo);
+        IfxCpu_restoreInterrupts(interruptState);
+
+        if ((waitCount <= 0) && (confirmedAvail >= count))
         {
+            /* Both samples agree: data is available */
+            interruptState           = IfxCpu_disableInterrupts();
             fifo->shared.readerWaitx = 0;
             fifo->eventReader        = TRUE;
             IfxCpu_restoreInterrupts(interruptState);
             result                   = TRUE;
         }
+        else if ((waitCount <= 0) && (confirmedAvail < count))
+        {
+            /* Samples diverged — data appeared then disappeared; use guard deadline
+             * to determine whether we are still within the allowed window */
+            result = (IfxStm_isDeadLine(guardDeadLine) == FALSE);
+        }
         else
         {
-            Ifx_TickTime DeadLine = IfxStm_getDeadLine(timeout);
+            Ifx_TickTime DeadLine    = IfxStm_getDeadLine(timeout);
+            interruptState           = IfxCpu_disableInterrupts();
             fifo->eventReader        = FALSE;
             fifo->shared.readerWaitx = waitCount;
             IfxCpu_restoreInterrupts(interruptState);
@@ -299,18 +332,27 @@ boolean Ifx_Fifo_canWriteCount(Ifx_Fifo *fifo, Ifx_SizeT count, Ifx_TickTime tim
 
     IFX_ASSERT(IFX_VERBOSE_LEVEL_ERROR, fifo != NULL_PTR);
 
-
     if ((count < fifo->elementSize) || (count > fifo->size))
     {                           /* Only complete elements can be written to the buffer */
         result = FALSE;
     }
-
     else
     {
-        boolean interruptState;
-        interruptState = IfxCpu_disableInterrupts();
+        boolean   interruptState;
+        Ifx_SizeT readAvail;
+        Ifx_SizeT writeAvail;
 
-        if ((fifo->size - Ifx_Fifo_readCount(fifo)) >= count)
+        /* Read the occupancy count once under interrupt protection and derive
+         * the free space from it.  The original called Ifx_Fifo_readCount()
+         * twice — once for the condition and again for writerWaitx — causing
+         * two separate memory reads of fifo->shared.count with a potential
+         * window of inconsistency between them.  Caching it here removes the
+         * redundant load and ensures both uses see the same snapshot. */
+        interruptState = IfxCpu_disableInterrupts();
+        readAvail      = Ifx_Fifo_readCount(fifo);
+        writeAvail     = fifo->size - readAvail;
+
+        if (writeAvail >= count)
         {
             fifo->shared.writerWaitx = 0;
             fifo->eventWriter        = TRUE;
@@ -319,9 +361,9 @@ boolean Ifx_Fifo_canWriteCount(Ifx_Fifo *fifo, Ifx_SizeT count, Ifx_TickTime tim
         }
         else
         {
-            Ifx_TickTime DeadLine = IfxStm_getDeadLine(timeout);
+            Ifx_TickTime DeadLine    = IfxStm_getDeadLine(timeout);
             fifo->eventWriter        = FALSE;
-            fifo->shared.writerWaitx = __max(0, count - (fifo->size - Ifx_Fifo_readCount(fifo)));
+            fifo->shared.writerWaitx = __max(0, (sint32)(count - writeAvail));
             IfxCpu_restoreInterrupts(interruptState);
 
             while ((fifo->eventWriter == FALSE) && (IfxStm_isDeadLine(DeadLine) == FALSE))
