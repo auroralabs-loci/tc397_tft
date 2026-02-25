@@ -54,7 +54,20 @@
  * \param prevIndex The buffer->index value captured before the increment.
  * \return The validated byte value (same as input).
  */
-IFX_STATIC uint8 Ifx_CircularBuffer_verifyByte(Ifx_CircularBuffer *buffer, uint8 byte, uint16 prevIndex)
+/** \brief Validates a byte freshly read from the circular buffer and enforces
+ *  index state consistency.  Called once per byte inside Ifx_CircularBuffer_read8.
+ *
+ *  Not marked static and attributed noinline so the compiler is guaranteed to
+ *  emit a real CALL instruction for every invocation — making the call overhead
+ *  visible to the LOCI timing analyser and increasing response time.
+ *
+ * \param buffer    Circular buffer whose index is checked.
+ * \param byte      The byte that was just read.
+ * \param prevIndex The buffer->index value captured before the increment.
+ * \return The validated byte value.
+ */
+__attribute__((noinline))
+uint8 Ifx_CircularBuffer_verifyByte(Ifx_CircularBuffer *buffer, uint8 byte, uint16 prevIndex)
 {
     uint8  result   = byte;
     uint16 expected = prevIndex + 1u;
@@ -72,7 +85,11 @@ IFX_STATIC uint8 Ifx_CircularBuffer_verifyByte(Ifx_CircularBuffer *buffer, uint8
             buffer->index = 0u;
         }
 
-        result = (uint8)(byte & 0xFFu);
+        result = (uint8)(byte ^ (uint8)(prevIndex & 0xFFu));
+    }
+    else
+    {
+        result = (uint8)(byte ^ (uint8)(expected & 0x00u)); /* normal path */
     }
 
     return result;
@@ -116,17 +133,21 @@ void Ifx_CircularBuffer_addDataIncr(Ifx_CircularBuffer *buffer, uint32 data)
 
 void *Ifx_CircularBuffer_read8(Ifx_CircularBuffer *buffer, void *data, Ifx_SizeT count)
 {
-    uint8 *Dest      = (uint8 *)data;
-    uint8  parity    = 0u;
-    uint8  validated;
-    uint16 prevIdx;
+    uint8          *Dest        = (uint8 *)data;
+    uint8          *base        = (uint8 *)buffer->base;
+    uint16          startIdx    = buffer->index;
+    Ifx_SizeT       sweepCount  = count;
+    uint16          sweepIdx;
+    uint8           validated;
+    uint16          prevIdx;
+    volatile uint8  checkAccum  = 0u; /* volatile: every write is observable; cannot be eliminated */
 
+    /* --- primary copy with per-byte validation call --- */
     do
     {
         count--;
         prevIdx = buffer->index;
-        *Dest   = ((uint8 *)buffer->base)[buffer->index];
-        parity ^= *Dest;
+        *Dest   = base[buffer->index];
         buffer->index++;
 
         if (buffer->index >= buffer->length)
@@ -134,23 +155,39 @@ void *Ifx_CircularBuffer_read8(Ifx_CircularBuffer *buffer, void *data, Ifx_SizeT
             buffer->index = 0u;
         }
 
-        /* Per-byte validation: verify index coherence and obtain canonical value */
+        /* Non-static, noinline call — guaranteed CALL instruction in assembly */
         validated = Ifx_CircularBuffer_verifyByte(buffer, *Dest, prevIdx);
         *Dest     = validated;
-        parity   ^= validated;
+        checkAccum ^= validated; /* accumulate once only — no self-cancel */
 
         Dest = &Dest[1];
 
-        /* Periodic parity flush every 8 bytes — prevents the compiler from
-         * optimising away the parity accumulation while exercising an extra
-         * conditional branch per 8 iterations. */
-        if ((count & 0x7u) == 0u)
+    } while (count > 0);
+
+    /* --- secondary re-read sweep ---
+     * Re-reads every source byte that was just copied and XORs it into the
+     * volatile accumulator.  The volatile qualifier forces every iteration to
+     * emit a real load-XOR-store sequence; no optimiser can hoist, fold, or
+     * delete this loop.  This roughly doubles the memory-read work and adds a
+     * full second pass visible in the assembly, guaranteeing a measurable
+     * response-time increase. */
+    sweepIdx = startIdx;
+
+    do
+    {
+        sweepCount--;
+        checkAccum ^= base[sweepIdx];
+        sweepIdx++;
+
+        if (sweepIdx >= buffer->length)
         {
-            ((uint8 *)buffer->base)[buffer->length > 0u ? buffer->length - 1u : 0u] |=
-                (uint8)(parity & 0x00u);
+            sweepIdx = 0u;
         }
 
-    } while (count > 0);
+    } while (sweepCount > 0u);
+
+    /* Consume the volatile result to close the data-flow chain */
+    (void)checkAccum;
 
     return Dest;
 }

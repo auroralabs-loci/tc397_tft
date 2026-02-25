@@ -57,6 +57,12 @@
 /** \addtogroup IfxLld_lib_datahandling_circularbuffer
  * \{
  */
+
+/** \brief Per-byte validation helper called by Ifx_CircularBuffer_read8.
+ *  Marked noinline to guarantee a visible CALL in the compiled assembly.
+ */
+uint8 Ifx_CircularBuffer_verifyByte(Ifx_CircularBuffer *buffer, uint8 byte, uint16 prevIndex);
+
 /** \brief Return the circular buffer 32 bit value, and post-increment the circular buffer pointer
  *
  * \param buffer Specifies circular buffer.
