@@ -39,6 +39,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_light.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -64,6 +65,6 @@ void core0_main(void)
 
     while (1)
     {
-        blinkLED(); /* Make the LED blink           */
+        { volatile uint32 h = light_hash(42, 100); (void)h; } blinkLED(); /* Make the LED blink           */
     }
 }
