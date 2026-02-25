@@ -39,6 +39,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_heavy.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -62,6 +63,7 @@ void core0_main(void)
 
     initLED(); /* Initialize the LED port pin      */
 
+    heavy_run_core0();
     while (1)
     {
         blinkLED(); /* Make the LED blink           */
