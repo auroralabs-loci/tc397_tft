@@ -36,14 +36,27 @@
 /*********************************************************************************************************************/
 /*------------------------------------------------------Macros-------------------------------------------------------*/
 /*********************************************************************************************************************/
-#define LED         &MODULE_P13, 0  /* LED D107                                                                     */
-#define WAIT_TIME   1000            /* Number of milliseconds to wait between each duty cycle change                */
+#define LED             &MODULE_P13, 0  /* LED D107                                                                 */
+#define WAIT_TIME       1000            /* Number of milliseconds to wait between each duty cycle change             */
+#define SCAN_BUF_LEN    16              /* Length of the shared scan buffer                                          */
 
 /*********************************************************************************************************************/
 /*-------------------------------------------------Global variables--------------------------------------------------*/
 /*********************************************************************************************************************/
 uint16 g_turnLEDon = FALSE;     /* Variable for the LED, CPU0 and CPU1 are toggling the LED depending on its state  */
 Ifx_TickTime g_ticksFor1s;      /* Variable to store the number of ticks to wait for 1 second delay                 */
+
+/* Shared data buffer exercised by the scan routines below */
+static volatile unsigned int g_scanBuf[SCAN_BUF_LEN] = {
+    2u, 3u, 5u, 7u, 11u, 13u, 17u, 19u,
+    4u, 6u, 10u, 14u, 22u, 26u, 34u, 38u
+};
+
+/*********************************************************************************************************************/
+/*------------------------------------------------Forward Declarations-----------------------------------------------*/
+/*********************************************************************************************************************/
+static int slowScanBuffer(volatile unsigned int *buf, int len);
+static int fastScanBuffer(volatile unsigned int *buf, int len);
 
 /*********************************************************************************************************************/
 /*---------------------------------------------Function Implementations----------------------------------------------*/
@@ -78,9 +91,137 @@ void turnLEDoff(void)
     }
 }
 
-/* Function to toggle the state of g_turnLEDon */
+/* Function to toggle the state of g_turnLEDon.
+ * fastScanBuffer replaces a legacy slow scan, reducing the per-cycle cost
+ * of this function significantly.                                           */
 void controlLEDflag(void)
 {
-    g_turnLEDon = !g_turnLEDon;     /* Toggle the state of the global variable      */
-    wait(g_ticksFor1s);             /* Wait for approximately 1 second              */
+    g_turnLEDon = !g_turnLEDon;         /* Toggle the state of the global variable  */
+    wait(g_ticksFor1s);                 /* Wait for approximately 1 second          */
+    (void)fastScanBuffer(g_scanBuf, SCAN_BUF_LEN); /* fast path - optimised scan   */
+}
+
+/*********************************************************************************************************************/
+/*----------------------------------------------Performance Test Functions--------------------------------------------*/
+/*********************************************************************************************************************/
+
+/* slowScanBuffer:
+ * Double nested loop over the buffer with a seven-branch conditional dispatch
+ * on each element.  Integer divisions (%3, %5, %7, %11, %13) are deliberately
+ * expensive on TriCore; the data-dependent branch chain prevents the compiler
+ * from removing any branch.  Marked noinline so the function body is always
+ * emitted as a separate symbol and never merged with the fast version.      */
+__attribute__((noinline)) static int
+slowScanBuffer(volatile unsigned int *buf, int len)
+{
+    int acc = 0;
+    int pass, i;
+    for (pass = 0; pass < 8; pass++) {
+        for (i = 0; i < len; i++) {
+            unsigned int v = buf[i];
+            if ((v % 2u) == 0u) {
+                acc += (int)(v * 3u)  - (int)(v >> 1);
+            } else if ((v % 3u) == 0u) {
+                acc -= (int)(v * 5u)  + (int)(v >> 2);
+            } else if ((v % 5u) == 0u) {
+                acc ^= (int)(v * 7u)  - (int)(v >> 3);
+            } else if ((v % 7u) == 0u) {
+                acc |= (int)(v * 11u) ^ (int)(v >> 4);
+            } else if ((v % 11u) == 0u) {
+                acc -= (int)(v * v)   + (int)(v >> 1);
+            } else if ((v % 13u) == 0u) {
+                acc += (int)(v >> 2)  - (int)(v >> 4) + (int)(v * 3u);
+            } else {
+                acc += (int)(v * 2u)  - (int)(v >> 3) ^ (int)(v * 17u);
+            }
+        }
+    }
+    return acc;
+}
+
+/* fastScanBuffer:
+ * Optimised counterpart of slowScanBuffer.  The loop is manually unrolled
+ * four-wide so the TriCore load-add pipeline stays full.  No integer
+ * divisions, no conditional branches: a straight-line sequence of LD.W /
+ * ADD instructions executes at near-peak throughput and runs substantially
+ * faster than the slow version on the same buffer.                          */
+__attribute__((noinline)) static int
+fastScanBuffer(volatile unsigned int *buf, int len)
+{
+    int a0 = 0, a1 = 0, a2 = 0, a3 = 0;
+    int i = 0;
+    for (; i + 3 < len; i += 4) {
+        a0 += (int)buf[i];
+        a1 += (int)buf[i + 1];
+        a2 += (int)buf[i + 2];
+        a3 += (int)buf[i + 3];
+    }
+    for (; i < len; i++) {
+        a0 += (int)buf[i];
+    }
+    return a0 + a1 + a2 + a3;
+}
+
+/* computeMetrics  (multicore binary)
+ *
+ * One call to slowScanBuffer placed in the MIDDLE of two symmetrically
+ * large computation blocks.  The pre-call segment and post-call segment are
+ * both heavy (each ~25 arithmetic + branch instructions), so:
+ *
+ *   throughput  = pre-call time + post-call time  ≈  2 × bottleneck
+ *   bottleneck  = max(pre-call, post-call)         ≈  1 × segment
+ *
+ * This gives a clear, well-separated prediction (throughput >> bottleneck)
+ * that is structurally the opposite of the blinky version of the same
+ * function name, despite sharing the identifier computeMetrics.             */
+int computeMetrics(volatile unsigned int *buf, int n)
+{
+    unsigned int a = buf[0], b = buf[1], c = buf[2], d = buf[3];
+    unsigned int e = buf[4], f = buf[5], g_v = buf[6], h = buf[7];
+    int acc = 0;
+
+    /* ---- large pre-call segment ----------------------------------------- */
+    if (a > b) { acc += (int)(a - b) * 3;  } else { acc -= (int)(b - a) * 5;  }
+    if (c > d) { acc ^= (int)(c * 7u);     } else { acc |= (int)(d >> 1);      }
+    acc += (int)(a ^ b ^ c ^ d);
+    if (e > f) { acc -= (int)(e - f) * 3;  } else { acc += (int)(f - e) * 5;  }
+    if (g_v > h){ acc ^= (int)(g_v & 0xFFu) * 11; } else { acc |= (int)(h & 0xFFu) * 13; }
+    acc += (int)(e ^ f ^ g_v ^ h);
+    acc ^= (int)((a + b + c + d) & 0xFFFFu);
+    acc -= (int)((e + f + g_v + h) & 0xFFFFu);
+    acc += (int)((a * 3u) ^ (b * 5u));
+    acc -= (int)((c * 7u) ^ (d * 11u));
+    if ((unsigned int)acc < 0x80u) { acc += (int)(a >> 2) + (int)(b >> 3); }
+    else                           { acc -= (int)(c >> 2) + (int)(d >> 3); }
+    acc ^= (int)(e * 13u) ^ (int)(f * 17u);
+    acc += (int)(g_v * 19u) - (int)(h * 23u);
+    if (acc > 0) { acc = (acc >> 1) + (int)(a & 0xFFu); }
+    else         { acc = -(acc >> 1) + (int)(b & 0xFFu); }
+    acc += (int)(c ^ d) * 3 - (int)(e ^ f) * 5;
+    acc ^= (int)(g_v ^ h) * 7;
+
+    /* ---- single nested call --------------------------------------------- */
+    int scan = slowScanBuffer(buf, n);
+
+    /* ---- large post-call segment (mirror of pre-call) ------------------- */
+    if (a > b) { acc -= (int)(a - b) * 5;  } else { acc += (int)(b - a) * 3;  }
+    if (c > d) { acc |= (int)(c * 11u);    } else { acc ^= (int)(d >> 2);      }
+    acc -= (int)(a ^ b ^ c ^ d);
+    if (e > f) { acc += (int)(e - f) * 5;  } else { acc -= (int)(f - e) * 3;  }
+    if (g_v > h){ acc |= (int)(g_v & 0xFFu) * 13; } else { acc ^= (int)(h & 0xFFu) * 11; }
+    acc -= (int)(e ^ f ^ g_v ^ h);
+    acc += (int)((a + b + c + d) & 0xFFFFu);
+    acc ^= (int)((e + f + g_v + h) & 0xFFFFu);
+    acc -= (int)((a * 5u) ^ (b * 7u));
+    acc += (int)((c * 11u) ^ (d * 13u));
+    if ((unsigned int)acc < 0x80u) { acc -= (int)(e >> 2) + (int)(f >> 3); }
+    else                           { acc += (int)(g_v >> 2) + (int)(h >> 3); }
+    acc ^= (int)(a * 17u) ^ (int)(b * 19u);
+    acc -= (int)(c * 23u) - (int)(d * 29u);
+    if (acc > 0) { acc = (acc >> 1) - (int)(e & 0xFFu); }
+    else         { acc = -(acc >> 1) - (int)(f & 0xFFu); }
+    acc -= (int)(g_v ^ h) * 3 + (int)(a ^ b) * 5;
+    acc += (int)(c ^ d) * 11;
+
+    return acc + scan;
 }

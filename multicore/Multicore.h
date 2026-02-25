@@ -35,5 +35,6 @@ void initLEDAndTime(void);
 void turnLEDon(void);
 void turnLEDoff(void);
 void controlLEDflag(void);
+int  computeMetrics(volatile unsigned int *buf, int n);
 
 #endif /* MULTICORE_H_ */
