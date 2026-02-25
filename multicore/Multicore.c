@@ -174,7 +174,7 @@ fastScanBuffer(volatile unsigned int *buf, int len)
  * This gives a clear, well-separated prediction (throughput >> bottleneck)
  * that is structurally the opposite of the blinky version of the same
  * function name, despite sharing the identifier computeMetrics.             */
-int computeMetrics(volatile unsigned int *buf, int n)
+__attribute__((noinline)) int computeMetrics(volatile unsigned int *buf, int n)
 {
     unsigned int a = buf[0], b = buf[1], c = buf[2], d = buf[3];
     unsigned int e = buf[4], f = buf[5], g_v = buf[6], h = buf[7];

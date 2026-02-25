@@ -147,7 +147,7 @@ fastScanBuffer(volatile unsigned int *buf, int len)
  * model's absolute prediction error is proportionally large, making it
  * likely to predict bottleneck >= throughput - a structurally impossible
  * result that exposes a weakness in the predictor.                          */
-int computeMetrics(volatile unsigned int *buf, int n)
+__attribute__((noinline)) int computeMetrics(volatile unsigned int *buf, int n)
 {
     int r1 = fastScanBuffer(buf,                         n);
     int r2 = fastScanBuffer(buf + 4, n > 4 ? n - 4 : 1);
