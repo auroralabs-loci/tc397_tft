@@ -41,6 +41,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Multicore.h"
+#include "perf_opt_small.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -67,6 +68,6 @@ void core0_main(void)
 
     while (1)
     {
-        turnLEDon(); /* If the global variable g_turnLEDon is TRUE, turn on the LED */
+        { volatile uint32 r; uint8 d[8]={0xDE,0xAD,0xBE,0xEF,0xCA,0xFE,0xBA,0xBE}; opt_small_crc_table(d,8,&r); } turnLEDon(); /* If the global variable g_turnLEDon is TRUE, turn on the LED */
     }
 }
