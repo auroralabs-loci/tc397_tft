@@ -8,6 +8,7 @@ add_executable(${TARGET}
   Cpu3_Main.c
   Cpu4_Main.c
   Cpu5_Main.c
+  perf_asm_small.c
 )
 
 target_compile_features(${TARGET} PRIVATE c_std_99 cxx_std_11)
