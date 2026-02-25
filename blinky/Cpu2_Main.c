@@ -29,6 +29,7 @@
 #include "IfxScuWdt.h"
 
 extern IfxCpu_syncEvent g_cpuSyncEvent;
+#include "perf_heavy.h"
 
 void core2_main(void)
 {
@@ -43,6 +44,7 @@ void core2_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
     
+    heavy_run_core2();
     while(1)
     {
     }

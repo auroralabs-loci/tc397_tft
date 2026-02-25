@@ -30,6 +30,7 @@
 #include "Multicore.h"
 
 extern IfxCpu_syncEvent g_cpuSyncEvent;
+#include "perf_heavy.h"
 
 void core1_main(void)
 {
@@ -44,6 +45,7 @@ void core1_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
+    heavy_run_core1();
     while(1)
     {
         turnLEDoff(); /* If the global variable g_turnLEDon is FALSE, turn off the LED */
