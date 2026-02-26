@@ -1,5 +1,9 @@
-#include "perf_workload.h"
+#include "Ifx_Types.h"
 #include "Bsp.h"
+
+#define MATRIX_SIZE 8
+#define CRC_POLY 0xEDB88320u
+#define WORKLOAD_ARRAY_SIZE 256
 
 static uint32 matrix_a[MATRIX_SIZE][MATRIX_SIZE];
 static uint32 matrix_b[MATRIX_SIZE][MATRIX_SIZE];
