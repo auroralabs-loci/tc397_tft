@@ -66,8 +66,14 @@ void core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
+    volatile uint32 opt_result = 0;
+    uint8 opt_data[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
     while (1)
     {
-        opt_run_all(); turnLEDon(); /* If the global variable g_turnLEDon is TRUE, turn on the LED */
+        opt_run_all();
+        opt_crc32_table(opt_data, 8, &opt_result);
+        opt_result += opt_fibonacci(20);
+        opt_bitfield_fast(&opt_result, 100);
+        turnLEDon();
     }
 }
