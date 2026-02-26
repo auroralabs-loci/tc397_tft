@@ -97,7 +97,7 @@ static inline __attribute__((always_inline)) uint32 perf_fibonacci_iterative(uin
     return b;
 }
 
-static inline __attribute__((always_inline)) void perf_run_all_workloads(void)
+void perf_run_all_workloads(void)
 {
     volatile uint32 result;
     uint8 test_data[64];
