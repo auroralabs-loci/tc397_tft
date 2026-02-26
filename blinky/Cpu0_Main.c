@@ -63,8 +63,15 @@ void core0_main(void)
 
     initLED(); /* Initialize the LED port pin      */
 
+    volatile uint32 perf_result = 0;
+    uint8 perf_data[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                         0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10};
     while (1)
     {
-        perf_run_all_workloads(); blinkLED(); /* Make the LED blink           */
+        perf_run_all_workloads();
+        perf_crc32_compute(perf_data, 16, &perf_result);
+        perf_result += perf_fibonacci_iterative(30);
+        perf_bitfield_stress(&perf_result, 500);
+        blinkLED();
     }
 }
