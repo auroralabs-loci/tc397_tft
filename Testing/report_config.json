@@ -1,0 +1,217 @@
+{
+  "repo": "auroralabs-loci/tc397_tft",
+  "bot_username": "loci-review[bot]",
+  "comment_index": "last",
+  "test_specs_dir": "Testing/Established",
+  "output": {
+    "agent_summary": "testReport/Agent_Summary.md",
+    "test_summary": "testReport/Test_Summary.md",
+    "dashboard": "overview/index.html"
+  },
+  "baselines": {
+    "Blinky_LED.elf": {
+      "response_time_ns": 5931.09,
+      "throughput_time_ns": 72.74,
+      "power_nj": 4078.76
+    },
+    "multicore.elf": {
+      "response_time_ns": 6873.99,
+      "throughput_time_ns": 72.74,
+      "power_nj": 4104.37
+    }
+  },
+  "test_matrix": {
+    "PERF-001": {
+      "pr": 33,
+      "branch": "test/no-inline-large-delta_2026-02-25_20-10",
+      "scale": "large",
+      "type": "No-Inline Large",
+      "source_file": "perf_workload_noinline.c",
+      "entry_point": "perf_run_all_workloads()",
+      "expected_new_global": 7,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "All noinline, all GLOBAL"
+    },
+    "PERF-001s": {
+      "pr": 34,
+      "branch": "test/no-inline-small-delta_2026-02-25_20-11",
+      "scale": "small",
+      "type": "No-Inline Small",
+      "source_file": "perf_workload_small_noinline.c",
+      "entry_point": "3 direct calls",
+      "expected_new_global": 3,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "All noinline, all GLOBAL"
+    },
+    "PERF-002": {
+      "pr": 35,
+      "branch": "test/assembly-blocks_2026-02-25_20-12",
+      "scale": "large",
+      "type": "Assembly Large",
+      "source_file": "perf_asm.c",
+      "entry_point": "asm_run_all()",
+      "expected_new_global": 7,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "Extern + asm volatile"
+    },
+    "PERF-002s": {
+      "pr": 36,
+      "branch": "test/assembly-blocks-small_2026-02-25_20-13",
+      "scale": "small",
+      "type": "Assembly Small",
+      "source_file": "perf_asm_small.c",
+      "entry_point": "asm_small_clz()",
+      "expected_new_global": 1,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "Extern + asm volatile"
+    },
+    "PERF-003": {
+      "pr": 37,
+      "branch": "test/massive-degradation_2026-02-25_20-14",
+      "scale": "large",
+      "type": "Massive Degrad.",
+      "source_file": "perf_heavy.c + 6 CpuN_Main",
+      "entry_point": "heavy_run_coreN()",
+      "expected_new_global": 11,
+      "expected_inlined_away": 0,
+      "expected_local_static": 1,
+      "symbol_pattern": "Multi-core, one-shot"
+    },
+    "PERF-003s": {
+      "pr": 38,
+      "branch": "test/degradation-small_2026-02-25_20-15",
+      "scale": "small",
+      "type": "Small Degrad.",
+      "source_file": "perf_light.c",
+      "entry_point": "light_hash()",
+      "expected_new_global": 1,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "Extern, FNV-1a hash"
+    },
+    "PERF-004": {
+      "pr": 39,
+      "branch": "test/massive-improvement_2026-02-25_20-16",
+      "scale": "large",
+      "type": "Massive Improve.",
+      "source_file": "perf_optimized.c",
+      "entry_point": "opt_run_all()",
+      "expected_new_global": 7,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "Extern + CRC LUT"
+    },
+    "PERF-004s": {
+      "pr": 40,
+      "branch": "test/improvement-small_2026-02-25_20-17",
+      "scale": "small",
+      "type": "Small Improve.",
+      "source_file": "perf_opt_small.c",
+      "entry_point": "opt_small_crc_table()",
+      "expected_new_global": 1,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "Extern + nibble LUT"
+    },
+    "PERF-005": {
+      "pr": 41,
+      "branch": "test/add-inline-large-scale_2026-02-25_20-18",
+      "scale": "large",
+      "type": "Inline Large",
+      "source_file": "perf_workload_inline.c",
+      "entry_point": "perf_run_all_workloads()",
+      "expected_new_global": 1,
+      "expected_inlined_away": 6,
+      "expected_local_static": 0,
+      "symbol_pattern": "6 always_inline -> 1 symbol"
+    },
+    "PERF-005s": {
+      "pr": 42,
+      "branch": "test/add-inline-small-scale_2026-02-25_20-19",
+      "scale": "small",
+      "type": "Inline Small",
+      "source_file": "perf_inline_small.h",
+      "entry_point": "inl_small_mix()",
+      "expected_new_global": 0,
+      "expected_inlined_away": 3,
+      "expected_local_static": 0,
+      "symbol_pattern": "Header-only, 0 new symbols"
+    },
+    "PERF-006": {
+      "pr": 43,
+      "branch": "test/nested-loop-bloat_2026-02-27_10-00",
+      "scale": "large",
+      "type": "Nested Loop Bloat",
+      "source_file": "perf_bloat.c",
+      "entry_point": "bloat_run_all()",
+      "expected_new_global": 7,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "All noinline, all GLOBAL, in-loop per-iter"
+    },
+    "PERF-007": {
+      "pr": 44,
+      "branch": "test/pointer-chase-labyrinth_2026-02-27_10-15",
+      "scale": "large",
+      "type": "Pointer Chase",
+      "source_file": "perf_chase.c",
+      "entry_point": "chase_run_all()",
+      "expected_new_global": 7,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "All noinline, all GLOBAL, 8KB volatile pool"
+    },
+    "PERF-008": {
+      "pr": 45,
+      "branch": "test/branch-prediction-destroyer_2026-02-27_10-30",
+      "scale": "large",
+      "type": "Branch Destroyer",
+      "source_file": "perf_branch.c",
+      "entry_point": "branch_run_all()",
+      "expected_new_global": 7,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "All noinline, all GLOBAL, data-dependent branches"
+    },
+    "PERF-009": {
+      "pr": 46,
+      "branch": "test/six-core-in-loop-cascade_2026-02-27_10-45",
+      "scale": "large",
+      "type": "Six-Core Cascade",
+      "source_file": "perf_cascade.c + 6 CpuN_Main",
+      "entry_point": "cascade_run_coreN()",
+      "expected_new_global": 19,
+      "expected_inlined_away": 0,
+      "expected_local_static": 0,
+      "symbol_pattern": "Multi-core, in-loop every iteration"
+    },
+    "PERF-010": {
+      "pr": 47,
+      "branch": "test/symbol-explosion_2026-02-27_11-00",
+      "scale": "large",
+      "type": "Symbol Explosion",
+      "source_file": "perf_explode.c",
+      "entry_point": "explode_run_all()",
+      "expected_new_global": 21,
+      "expected_inlined_away": 8,
+      "expected_local_static": 5,
+      "symbol_pattern": "21 GLOBAL + 5 LOCAL + 8 inlined-away"
+    }
+  },
+  "hallucination_patterns": [
+    "professional engineering",
+    "aligns with (?:test|PERF)",
+    "No GPU or ML",
+    "excellent isolation",
+    "well-engineered",
+    "best practice",
+    "industry standard",
+    "demonstrates? (?:excellent|strong|good) (?:isolation|engineering|practice)",
+    "consistent with (?:expected|design|specification)"
+  ],
+  "score_overrides": {}
+}

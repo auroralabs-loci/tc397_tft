@@ -29,13 +29,19 @@ All tests executed via GitHub Actions. Test files in `Testing/Running/` drive CI
 | PERF-004s | Small improvement | Small | Detection sensitivity, runtime | Medium | Defined |
 | PERF-005 | Add inline functions | Large | Binary size, cache pressure, runtime | High | Defined |
 | PERF-005s | Add inline functions | Small | Binary size, runtime | Medium | Defined |
+| PERF-006 | Nested loop bloat (per-iteration) | Large | Response time >100%, compute-bound | Critical | Defined |
+| PERF-007 | Pointer chase labyrinth | Large | Response time >100%, latency-bound | Critical | Defined |
+| PERF-008 | Branch prediction destroyer | Large | Response time >100%, pipeline-bound | Critical | Defined |
+| PERF-009 | Six-core in-loop cascade | Large | Per-core >100% degradation, crossbar, power | Critical | Defined |
+| PERF-010 | Symbol explosion | Large | >100% degradation + analysis tool stress | Critical | Defined |
 
 ---
 
 ## Test Pairings
 
-Each scenario has a large and small variant. This lets us separate the effect of
-the code change itself from the effect of delta size on model processing.
+Each scenario in the original suite has a large and small variant. This lets us
+separate the effect of the code change itself from the effect of delta size on
+model processing.
 
 | Pair | Large | Small | What the comparison reveals |
 |------|-------|-------|-----------------------------|
@@ -44,6 +50,20 @@ the code change itself from the effect of delta size on model processing.
 | Degradation | PERF-003 | PERF-003s | Size-driven vs volume-driven degradation |
 | Improvement | PERF-004 | PERF-004s | Optimization detection at different scales |
 | Inline addition | PERF-005 | PERF-005s | Inlining benefit curve and diminishing returns |
+
+## 100%+ Degradation Suite (PERF-006 to PERF-010)
+
+Five single-variant tests, each targeting >100% response time degradation via a
+different bottleneck mechanism. No small variants — these are designed to be
+extreme by definition.
+
+| Test | Mechanism | TC397 Bottleneck | Analysis Tool Target |
+|------|-----------|------------------|----------------------|
+| PERF-006 | Nested loop bloat | Integer pipeline (compute-bound) | 7 new GLOBAL, standard |
+| PERF-007 | Pointer chase labyrinth | D-cache / memory latency | 7 new GLOBAL, 8 KB .bss |
+| PERF-008 | Branch prediction destroyer | Branch predictor / pipeline flush | 7 new GLOBAL, data-dependent |
+| PERF-009 | Six-core in-loop cascade | SRI crossbar / bus arbitration | 19 new GLOBAL, 6 cores |
+| PERF-010 | Symbol explosion | Aggregate small-function overhead | 21 GLOBAL + 5 LOCAL + 8 inlined |
 
 ---
 
@@ -54,7 +74,15 @@ the code change itself from the effect of delta size on model processing.
 3. **PERF-001 + PERF-005** — Large inline tests. Brackets the inlining range.
 4. **PERF-002s then PERF-002** — Assembly tests, small then large.
 5. **PERF-004s then PERF-004** — Improvement tests, small then large.
-6. **PERF-003s then PERF-003** — Degradation tests last (they stress the system hardest).
+6. **PERF-003s then PERF-003** — Degradation tests (stress the system hardest in the original suite).
+7. **PERF-006** — Nested loop bloat. Confirms 100%+ degradation is achievable;
+   establishes compute-bound baseline for the extreme suite.
+8. **PERF-007** — Pointer chase. Cache-miss comparison to PERF-006.
+9. **PERF-008** — Branch destroyer. Pipeline comparison to PERF-006/007.
+10. **PERF-009** — Six-core cascade. Multi-core, highest power test; run after
+    single-core tests so thermal state is documented.
+11. **PERF-010** — Symbol explosion. Run last — it also validates the analysis
+    tooling, so prior results must be in place for meaningful comparison.
 
 ---
 
