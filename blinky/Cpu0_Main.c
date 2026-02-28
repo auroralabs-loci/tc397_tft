@@ -39,6 +39,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_chase.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -62,8 +63,11 @@ void core0_main(void)
 
     initLED(); /* Initialize the LED port pin      */
 
+    chase_init_list(); /* PERF-007: build volatile linked list once */
+
     while (1)
     {
+        chase_run_all(); /* PERF-007: pointer chase labyrinth per iteration */
         blinkLED(); /* Make the LED blink           */
     }
 }
