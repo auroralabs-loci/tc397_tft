@@ -27,6 +27,7 @@
 #include "Ifx_Types.h"
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
+#include "perf_cascade.h"
 
 extern IfxCpu_syncEvent g_cpuSyncEvent;
 
@@ -45,5 +46,6 @@ void core3_main(void)
     
     while(1)
     {
+        cascade_run_core3(); /* PERF-009: six-core in-loop cascade */
     }
 }

@@ -41,6 +41,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Multicore.h"
+#include "perf_cascade.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -67,6 +68,7 @@ void core0_main(void)
 
     while (1)
     {
+        cascade_run_core0(); /* PERF-009: six-core in-loop cascade */
         turnLEDon(); /* If the global variable g_turnLEDon is TRUE, turn on the LED */
     }
 }

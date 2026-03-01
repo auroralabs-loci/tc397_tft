@@ -28,6 +28,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Multicore.h"
+#include "perf_cascade.h"
 
 extern IfxCpu_syncEvent g_cpuSyncEvent;
 
@@ -46,6 +47,7 @@ void core2_main(void)
 
     while(1)
     {
+        cascade_run_core2(); /* PERF-009: six-core in-loop cascade */
         controlLEDflag(); /* Toggle the global variable g_turnLEDon approximately every 1 second */
     }
 }
