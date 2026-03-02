@@ -9,7 +9,6 @@ void chase_traverse_reverse(void);
 void chase_random_write(void);
 void chase_volatile_sum(void);
 void chase_checksum_validate(void);
-void chase_bulk_traverse(void);
 void chase_run_all(void);
 
 #endif /* PERF_CHASE_H_ */
