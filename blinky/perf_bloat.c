@@ -128,62 +128,104 @@ void bloat_triple_nested_sum(void)
     s_bloat_mem[2] = (uint32)acc;
 }
 
-/* ---- Volatile pointer-chase linked list (PERF-007 architecture) ---- */
-/* 2048 nodes × 16 bytes = 32 KB volatile global state.
- * PERF-007 showed 512 nodes (8 KB) → +1659 ns (+28%).
- * At 4× the volatile data this targets +6636 ns (112% degradation).
- * Critical: init is a SEPARATE function called before while(1) so that
- * the node content is UNKNOWN to Loci when it analyses bloat_chase_traverse. */
-#define BLOAT_CHASE_SIZE 2048u
+/* ---- Eight independent volatile pointer-chase chains ----
+ * 8 × 512 nodes × 16 B = 64 KB volatile BSS.  Each chain has its own
+ * volatile array and volatile head so Loci credits each traverse
+ * independently: 8 × ~900 ns ≈ 7200 ns (>100% degradation target).
+ * bloat_chains_init() wires all eight before while(1). */
+
+#define BC_SIZE 512u
 
 typedef struct {
     volatile uint32 next_idx;
     volatile uint32 value;
     volatile uint32 pad0;
     volatile uint32 pad1;
-} BloatChaseNode;
+} BloatChainNode; /* 16 bytes */
 
-static volatile BloatChaseNode s_bloat_chase_nodes[BLOAT_CHASE_SIZE];
-static volatile uint32         s_bloat_chase_head;
+static volatile BloatChainNode s_bcn0[BC_SIZE], s_bcn1[BC_SIZE];
+static volatile BloatChainNode s_bcn2[BC_SIZE], s_bcn3[BC_SIZE];
+static volatile BloatChainNode s_bcn4[BC_SIZE], s_bcn5[BC_SIZE];
+static volatile BloatChainNode s_bcn6[BC_SIZE], s_bcn7[BC_SIZE];
 
-/* Fisher-Yates permutation → circular singly-linked list.
- * Called ONCE before while(1) in Cpu0_Main.c. */
+static volatile uint32 s_bh0, s_bh1, s_bh2, s_bh3;
+static volatile uint32 s_bh4, s_bh5, s_bh6, s_bh7;
+
+/* Per-chain Fisher-Yates init — noinline so Loci treats the resulting
+ * volatile node data as UNKNOWN when analysing the traverse functions. */
 __attribute__((noinline))
-void bloat_chase_init(void)
+static void bc_init_one(volatile BloatChainNode *nodes, volatile uint32 *head,
+                        uint32 seed)
 {
-    static uint32 perm[BLOAT_CHASE_SIZE]; /* static: BSS, not stack */
-    uint32 i, j, tmp, seed;
-    for (i = 0u; i < BLOAT_CHASE_SIZE; i++) {
-        perm[i] = i;
-        s_bloat_chase_nodes[i].value = i + 1u;
-    }
-    seed = 0xABCDEF01u;
-    for (i = BLOAT_CHASE_SIZE - 1u; i > 0u; i--) {
+    uint32 perm[BC_SIZE]; /* 2 KB stack — acceptable at 512 entries */
+    uint32 i, j, tmp;
+    for (i = 0u; i < BC_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
+    for (i = BC_SIZE - 1u; i > 0u; i--) {
         seed = seed * 1664525u + 1013904223u;
         j    = seed % (i + 1u);
         tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    for (i = 0u; i < BLOAT_CHASE_SIZE - 1u; i++) {
-        s_bloat_chase_nodes[perm[i]].next_idx = perm[i + 1u];
-    }
-    s_bloat_chase_nodes[perm[BLOAT_CHASE_SIZE - 1u]].next_idx = perm[0u];
-    s_bloat_chase_head = perm[0u];
+    for (i = 0u; i < BC_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
+    nodes[perm[BC_SIZE - 1u]].next_idx = perm[0u];
+    *head = perm[0u];
 }
 
-/* Traverse all 2048 nodes once via random-order pointer chain.
- * Called every while(1) iteration via bloat_run_all(). */
+/* Initialise all 8 chains once before while(1). */
 __attribute__((noinline))
-void bloat_chase_traverse(void)
+void bloat_chains_init(void)
 {
-    volatile uint32 sum = 0u;
-    uint32 idx = s_bloat_chase_head;
-    uint32 step;
-    for (step = 0u; step < BLOAT_CHASE_SIZE; step++) {
-        sum += s_bloat_chase_nodes[idx].value;
-        idx  = s_bloat_chase_nodes[idx].next_idx;
-    }
-    s_bloat_chase_nodes[s_bloat_chase_head].pad0 ^= sum;
+    bc_init_one(s_bcn0, &s_bh0, 0xABCDEF01u);
+    bc_init_one(s_bcn1, &s_bh1, 0x12345678u);
+    bc_init_one(s_bcn2, &s_bh2, 0xDEADBEEFu);
+    bc_init_one(s_bcn3, &s_bh3, 0xCAFEBABEu);
+    bc_init_one(s_bcn4, &s_bh4, 0xFEEDFACEu);
+    bc_init_one(s_bcn5, &s_bh5, 0xC0FFEE00u);
+    bc_init_one(s_bcn6, &s_bh6, 0x0BADF00Du);
+    bc_init_one(s_bcn7, &s_bh7, 0x8BADF00Du);
 }
+
+/* Eight independent traverse functions — each reads its OWN volatile head
+ * and follows its OWN volatile array, giving Loci 8 independent timing credits. */
+__attribute__((noinline))
+void bloat_trav0(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh0, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn0[idx].value;idx=s_bcn0[idx].next_idx;}
+    s_bcn0[s_bh0].pad0^=s; }
+__attribute__((noinline))
+void bloat_trav1(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh1, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn1[idx].value;idx=s_bcn1[idx].next_idx;}
+    s_bcn1[s_bh1].pad0^=s; }
+__attribute__((noinline))
+void bloat_trav2(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh2, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn2[idx].value;idx=s_bcn2[idx].next_idx;}
+    s_bcn2[s_bh2].pad0^=s; }
+__attribute__((noinline))
+void bloat_trav3(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh3, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn3[idx].value;idx=s_bcn3[idx].next_idx;}
+    s_bcn3[s_bh3].pad0^=s; }
+__attribute__((noinline))
+void bloat_trav4(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh4, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn4[idx].value;idx=s_bcn4[idx].next_idx;}
+    s_bcn4[s_bh4].pad0^=s; }
+__attribute__((noinline))
+void bloat_trav5(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh5, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn5[idx].value;idx=s_bcn5[idx].next_idx;}
+    s_bcn5[s_bh5].pad0^=s; }
+__attribute__((noinline))
+void bloat_trav6(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh6, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn6[idx].value;idx=s_bcn6[idx].next_idx;}
+    s_bcn6[s_bh6].pad0^=s; }
+__attribute__((noinline))
+void bloat_trav7(void) {
+    volatile uint32 s=0u; uint32 idx=s_bh7, n;
+    for(n=0u;n<BC_SIZE;n++){s+=s_bcn7[idx].value;idx=s_bcn7[idx].next_idx;}
+    s_bcn7[s_bh7].pad0^=s; }
 
 /* Orchestrator — calls all workloads every iteration. */
 __attribute__((noinline))
@@ -195,5 +237,7 @@ void bloat_run_all(void)
     bloat_memory_thrash();
     bloat_stride_scan();
     bloat_triple_nested_sum();
-    bloat_chase_traverse();    /* pointer-chase: cross-function volatile data → Loci timing */
+    /* Eight independent volatile-chase traversals → ~7200 ns Loci timing */
+    bloat_trav0(); bloat_trav1(); bloat_trav2(); bloat_trav3();
+    bloat_trav4(); bloat_trav5(); bloat_trav6(); bloat_trav7();
 }
