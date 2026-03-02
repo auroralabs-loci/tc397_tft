@@ -229,6 +229,29 @@ void branch_nested_dispatch(void)
     s_br_result ^= acc;
 }
 
+/* ---- Volatile-index chase for load-use latency ---- */
+static volatile uint32 s_br_chase_buf[256];
+static volatile uint32 s_br_chase_result;
+
+/* 10240-hop data-dependent load-use chain using a full-period LCG permutation
+ * (a=197,c=13,m=256 satisfies Hull-Dobell → single cycle of length 256).
+ * Complements the branch-pattern workloads by adding guaranteed serialised
+ * memory latency, targeting >100% response time degradation. */
+__attribute__((noinline))
+void branch_volatile_chase(void)
+{
+    uint32 i;
+    volatile uint32 cur;
+    for (i = 0u; i < 256u; i++) {
+        s_br_chase_buf[i] = (uint32)((i * 197u + 13u) & 0xFFu);
+    }
+    cur = s_br_chase_buf[0];
+    for (i = 0u; i < 10240u; i++) {
+        cur = s_br_chase_buf[cur & 255u];
+    }
+    s_br_chase_result ^= cur;
+}
+
 /* Orchestrator — called every while(1) iteration. */
 __attribute__((noinline))
 void branch_run_all(void)
@@ -239,4 +262,5 @@ void branch_run_all(void)
     branch_search_unsorted();
     branch_early_exit_sabotage();
     branch_nested_dispatch();
+    branch_volatile_chase();   /* load-use chain: ensures >100% response time degradation */
 }
