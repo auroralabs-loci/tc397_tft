@@ -160,6 +160,22 @@ void chase_checksum_validate(void)
     s_chase_nodes[0u].checksum = (total == s_chase_ref_sum) ? 0u : 0xDEADu;
 }
 
+/* Bulk traverse: 8192 forward hops through the same linked list,
+ * cycling multiple times.  Adds ~8192 serialised load-use latency steps
+ * beyond the 5 standard workers, pushing total degradation above 100%. */
+__attribute__((noinline))
+void chase_bulk_traverse(void)
+{
+    volatile uint32 sum = 0u;
+    uint32 idx = s_chase_fwd_head;
+    uint32 step;
+    for (step = 0u; step < 8192u; step++) {
+        sum += s_chase_nodes[idx].value;
+        idx  = s_chase_nodes[idx].next_idx;
+    }
+    s_chase_nodes[s_chase_fwd_head].checksum ^= sum;
+}
+
 /* Orchestrator — called every while(1) iteration. */
 __attribute__((noinline))
 void chase_run_all(void)
@@ -169,4 +185,5 @@ void chase_run_all(void)
     chase_random_write();
     chase_volatile_sum();
     chase_checksum_validate();
+    chase_bulk_traverse();     /* extra 8192 hops for >100% degradation */
 }
