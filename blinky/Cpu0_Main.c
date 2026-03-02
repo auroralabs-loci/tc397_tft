@@ -39,6 +39,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_explode.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -64,6 +65,7 @@ void core0_main(void)
 
     while (1)
     {
+        explode_run_all(); /* PERF-010: symbol explosion workload */
         blinkLED(); /* Make the LED blink           */
     }
 }
