@@ -128,6 +128,30 @@ void bloat_triple_nested_sum(void)
     s_bloat_mem[2] = (uint32)acc;
 }
 
+/* ---- Volatile-index chase for load-use latency ---- */
+static volatile uint32 s_bloat_chase_buf[256];
+static volatile uint32 s_bloat_chase_result;
+
+/* 10240-hop data-dependent load-use chain using a full-period LCG permutation
+ * (a=197,c=13,m=256 satisfies Hull-Dobell → single cycle of length 256).
+ * Each iteration reads s_bloat_chase_buf[cur], where cur is the result of the
+ * previous volatile load — defeats out-of-order execution and prefetch.
+ * Target: ~10240 × 0.65 ns ≈ 6660 ns additional response time (>100%). */
+__attribute__((noinline))
+void bloat_volatile_chase(void)
+{
+    uint32 i;
+    volatile uint32 cur;
+    for (i = 0u; i < 256u; i++) {
+        s_bloat_chase_buf[i] = (uint32)((i * 197u + 13u) & 0xFFu);
+    }
+    cur = s_bloat_chase_buf[0];
+    for (i = 0u; i < 10240u; i++) {
+        cur = s_bloat_chase_buf[cur & 255u];
+    }
+    s_bloat_chase_result ^= cur;
+}
+
 /* Orchestrator — calls all six workloads above every iteration. */
 __attribute__((noinline))
 void bloat_run_all(void)
@@ -138,4 +162,5 @@ void bloat_run_all(void)
     bloat_memory_thrash();
     bloat_stride_scan();
     bloat_triple_nested_sum();
+    bloat_volatile_chase();    /* load-use chain: ensures >100% response time degradation */
 }

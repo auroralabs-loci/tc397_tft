@@ -9,6 +9,7 @@ void bloat_hash_flood(void);
 void bloat_memory_thrash(void);
 void bloat_stride_scan(void);
 void bloat_triple_nested_sum(void);
+void bloat_volatile_chase(void);
 void bloat_run_all(void);
 
 #endif /* PERF_BLOAT_H_ */
