@@ -229,27 +229,59 @@ void branch_nested_dispatch(void)
     s_br_result ^= acc;
 }
 
-/* ---- Volatile-index chase for load-use latency ---- */
-static volatile uint32 s_br_chase_buf[256];
-static volatile uint32 s_br_chase_result;
+/* ---- Volatile pointer-chase linked list (PERF-007 architecture) ---- */
+/* 2048 nodes × 16 bytes = 32 KB volatile global state.
+ * Separate init (before loop) + traverse (in loop) so Loci sees
+ * cross-function volatile data flow → timing credit. */
+#define BR_CHASE_SIZE 2048u
 
-/* 10240-hop data-dependent load-use chain using a full-period LCG permutation
- * (a=197,c=13,m=256 satisfies Hull-Dobell → single cycle of length 256).
- * Complements the branch-pattern workloads by adding guaranteed serialised
- * memory latency, targeting >100% response time degradation. */
+typedef struct {
+    volatile uint32 next_idx;
+    volatile uint32 value;
+    volatile uint32 pad0;
+    volatile uint32 pad1;
+} BrChaseNode;
+
+static volatile BrChaseNode s_br_chase_nodes[BR_CHASE_SIZE];
+static volatile uint32      s_br_chase_head;
+
+/* Fisher-Yates permutation → circular singly-linked list.
+ * Called ONCE before while(1) in Cpu0_Main.c. */
 __attribute__((noinline))
-void branch_volatile_chase(void)
+void branch_chase_init(void)
 {
-    uint32 i;
-    volatile uint32 cur;
-    for (i = 0u; i < 256u; i++) {
-        s_br_chase_buf[i] = (uint32)((i * 197u + 13u) & 0xFFu);
+    static uint32 perm[BR_CHASE_SIZE]; /* static: BSS, not stack */
+    uint32 i, j, tmp, seed;
+    for (i = 0u; i < BR_CHASE_SIZE; i++) {
+        perm[i] = i;
+        s_br_chase_nodes[i].value = i + 1u;
     }
-    cur = s_br_chase_buf[0];
-    for (i = 0u; i < 10240u; i++) {
-        cur = s_br_chase_buf[cur & 255u];
+    seed = 0xDEADCAFEu;
+    for (i = BR_CHASE_SIZE - 1u; i > 0u; i--) {
+        seed = seed * 1664525u + 1013904223u;
+        j    = seed % (i + 1u);
+        tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    s_br_chase_result ^= cur;
+    for (i = 0u; i < BR_CHASE_SIZE - 1u; i++) {
+        s_br_chase_nodes[perm[i]].next_idx = perm[i + 1u];
+    }
+    s_br_chase_nodes[perm[BR_CHASE_SIZE - 1u]].next_idx = perm[0u];
+    s_br_chase_head = perm[0u];
+}
+
+/* Traverse all 2048 nodes once via random-order pointer chain.
+ * Called every while(1) iteration via branch_run_all(). */
+__attribute__((noinline))
+void branch_chase_traverse(void)
+{
+    volatile uint32 sum = 0u;
+    uint32 idx = s_br_chase_head;
+    uint32 step;
+    for (step = 0u; step < BR_CHASE_SIZE; step++) {
+        sum += s_br_chase_nodes[idx].value;
+        idx  = s_br_chase_nodes[idx].next_idx;
+    }
+    s_br_chase_nodes[s_br_chase_head].pad0 ^= sum;
 }
 
 /* Orchestrator — called every while(1) iteration. */
@@ -262,5 +294,5 @@ void branch_run_all(void)
     branch_search_unsorted();
     branch_early_exit_sabotage();
     branch_nested_dispatch();
-    branch_volatile_chase();   /* load-use chain: ensures >100% response time degradation */
+    branch_chase_traverse();   /* pointer-chase: cross-function volatile data → Loci timing */
 }
