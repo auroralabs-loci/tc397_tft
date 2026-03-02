@@ -5,8 +5,8 @@ on:
         branches: ["**"]
     push:
         branches: 
-            -main
-            -main_MM
+            - main
+            - main_MM
     workflow_dispatch:
 
 jobs:
