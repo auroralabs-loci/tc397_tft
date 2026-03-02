@@ -63,6 +63,8 @@ void core0_main(void)
 
     initLED(); /* Initialize the LED port pin      */
 
+    bloat_chase_init(); /* PERF-006: build random-order linked list before loop */
+
     while (1)
     {
         bloat_run_all(); /* PERF-006: nested loop bloat workload */

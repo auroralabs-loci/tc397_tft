@@ -66,6 +66,8 @@ void core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
+    bloat_chase_init(); /* PERF-006: build random-order linked list before loop */
+
     while (1)
     {
         bloat_run_all(); /* PERF-006: nested loop bloat workload */
