@@ -387,33 +387,65 @@ void explode_merge_pass(void)
     s_xpl_result ^= s_xpl_mem_dst[0];
 }
 
-/* ======== GLOBAL #22 — volatile-index chase for load-use latency ======== */
+/* ======== GLOBAL #22-#23 — volatile pointer-chase (PERF-007 architecture) ======== */
+/* 2048 nodes × 16 bytes = 32 KB volatile global state.
+ * Separate init (before loop) + traverse (in loop) so Loci sees
+ * cross-function volatile data flow → timing credit (~6636 ns, 112%).
+ * Two extra GLOBAL symbols raise the total GLOBAL count to 23. */
+#define XPL_CHASE_SIZE 2048u
 
-/* 10240-hop data-dependent load chain: full-period LCG permutation
- * (a=197,c=13,m=256 — Hull-Dobell satisfied → single cycle length 256).
- * Each read cur = s_xpl_chase_buf[cur] serialises on the previous load.
- * Adds ~6635 ns to response time, ensuring >100% total degradation.
- * Also raises the GLOBAL symbol count from 21 to 22 for tool coverage. */
-static volatile uint32 s_xpl_chase_buf[256];
+typedef struct {
+    volatile uint32 next_idx;
+    volatile uint32 value;
+    volatile uint32 pad0;
+    volatile uint32 pad1;
+} XplChaseNode;
 
+static volatile XplChaseNode s_xpl_chase_nodes[XPL_CHASE_SIZE];
+static volatile uint32       s_xpl_chase_head;
+
+/* Fisher-Yates permutation → circular singly-linked list.
+ * Called ONCE before while(1) in Cpu0_Main.c. — GLOBAL #22 */
 __attribute__((noinline))
-void explode_volatile_chase(void)
+void explode_chase_init(void)
 {
-    uint32 i;
-    volatile uint32 cur;
-    for (i = 0u; i < 256u; i++) {
-        s_xpl_chase_buf[i] = (uint32)((i * 197u + 13u) & 0xFFu);
+    static uint32 perm[XPL_CHASE_SIZE]; /* static: BSS, not stack */
+    uint32 i, j, tmp, seed;
+    for (i = 0u; i < XPL_CHASE_SIZE; i++) {
+        perm[i] = i;
+        s_xpl_chase_nodes[i].value = i + 1u;
     }
-    cur = s_xpl_chase_buf[0];
-    for (i = 0u; i < 10240u; i++) {
-        cur = s_xpl_chase_buf[cur & 255u];
+    seed = 0xFEEDFACEu;
+    for (i = XPL_CHASE_SIZE - 1u; i > 0u; i--) {
+        seed = seed * 1664525u + 1013904223u;
+        j    = seed % (i + 1u);
+        tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    s_xpl_result ^= cur;
+    for (i = 0u; i < XPL_CHASE_SIZE - 1u; i++) {
+        s_xpl_chase_nodes[perm[i]].next_idx = perm[i + 1u];
+    }
+    s_xpl_chase_nodes[perm[XPL_CHASE_SIZE - 1u]].next_idx = perm[0u];
+    s_xpl_chase_head = perm[0u];
 }
 
-/* ======== Orchestrator — 1 GLOBAL symbol ======== */
+/* Traverse all 2048 nodes once via random-order pointer chain.
+ * Called every while(1) iteration via explode_run_all(). — GLOBAL #23 */
+__attribute__((noinline))
+void explode_chase_traverse(void)
+{
+    volatile uint32 sum = 0u;
+    uint32 idx = s_xpl_chase_head;
+    uint32 step;
+    for (step = 0u; step < XPL_CHASE_SIZE; step++) {
+        sum += s_xpl_chase_nodes[idx].value;
+        idx  = s_xpl_chase_nodes[idx].next_idx;
+    }
+    s_xpl_result ^= sum;
+}
 
-/* Calls all 21 workers above every while(1) iteration.
+/* ======== Orchestrator — 1 GLOBAL symbol (GLOBAL #24) ======== */
+
+/* Calls all 22 workers above every while(1) iteration.
  * The uses of always_inline helpers inside the workers cause those 8
  * helper functions to be ABSENT from the ELF symbol table. */
 __attribute__((noinline))
@@ -444,6 +476,6 @@ void explode_run_all(void)
     explode_insertion_sort();
     explode_binary_search();
     explode_merge_pass();
-    /* Load-use chain — ensures >100% response time degradation */
-    explode_volatile_chase();
+    /* Pointer-chase: cross-function volatile data → Loci timing (>100% degradation) */
+    explode_chase_traverse();
 }

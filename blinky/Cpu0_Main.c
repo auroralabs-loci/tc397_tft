@@ -62,6 +62,7 @@ void core0_main(void)
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
     initLED(); /* Initialize the LED port pin      */
+    explode_chase_init(); /* PERF-010: build random-order linked list before loop */
 
     while (1)
     {

@@ -29,7 +29,8 @@ void explode_insertion_sort(void);
 void explode_binary_search(void);
 void explode_merge_pass(void);
 
-void explode_volatile_chase(void);
+void explode_chase_init(void);
+void explode_chase_traverse(void);
 void explode_run_all(void);
 
 #endif /* PERF_EXPLODE_H_ */
