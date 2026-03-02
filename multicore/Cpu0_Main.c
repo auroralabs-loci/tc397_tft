@@ -66,7 +66,7 @@ void core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
-    branch_chase_init(); /* PERF-008: build random-order linked list before loop */
+    branch_chains_init(); /* PERF-008: build 8 independent linked lists before loop */
 
     while (1)
     {

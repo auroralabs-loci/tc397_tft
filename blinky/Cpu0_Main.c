@@ -63,7 +63,7 @@ void core0_main(void)
 
     initLED(); /* Initialize the LED port pin      */
 
-    branch_chase_init(); /* PERF-008: build random-order linked list before loop */
+    branch_chains_init(); /* PERF-008: build 8 independent linked lists before loop */
 
     while (1)
     {

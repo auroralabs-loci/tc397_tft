@@ -229,60 +229,99 @@ void branch_nested_dispatch(void)
     s_br_result ^= acc;
 }
 
-/* ---- Volatile pointer-chase linked list (PERF-007 architecture) ---- */
-/* 2048 nodes × 16 bytes = 32 KB volatile global state.
- * Separate init (before loop) + traverse (in loop) so Loci sees
- * cross-function volatile data flow → timing credit. */
-#define BR_CHASE_SIZE 2048u
+/* ---- Eight independent volatile pointer-chase chains ----
+ * 8 × 512 nodes × 16 B = 64 KB volatile BSS.  Each chain has its own
+ * volatile array and volatile head so Loci credits each traverse
+ * independently: 8 × ~900 ns ≈ 7200 ns (>100% degradation target).
+ * branch_chains_init() wires all eight before while(1). */
+
+#define BRC_SIZE 512u
 
 typedef struct {
     volatile uint32 next_idx;
     volatile uint32 value;
     volatile uint32 pad0;
     volatile uint32 pad1;
-} BrChaseNode;
+} BrChainNode; /* 16 bytes */
 
-static volatile BrChaseNode s_br_chase_nodes[BR_CHASE_SIZE];
-static volatile uint32      s_br_chase_head;
+static volatile BrChainNode s_brcn0[BRC_SIZE], s_brcn1[BRC_SIZE];
+static volatile BrChainNode s_brcn2[BRC_SIZE], s_brcn3[BRC_SIZE];
+static volatile BrChainNode s_brcn4[BRC_SIZE], s_brcn5[BRC_SIZE];
+static volatile BrChainNode s_brcn6[BRC_SIZE], s_brcn7[BRC_SIZE];
 
-/* Fisher-Yates permutation → circular singly-linked list.
- * Called ONCE before while(1) in Cpu0_Main.c. */
+static volatile uint32 s_brh0, s_brh1, s_brh2, s_brh3;
+static volatile uint32 s_brh4, s_brh5, s_brh6, s_brh7;
+
 __attribute__((noinline))
-void branch_chase_init(void)
+static void brc_init_one(volatile BrChainNode *nodes, volatile uint32 *head,
+                         uint32 seed)
 {
-    static uint32 perm[BR_CHASE_SIZE]; /* static: BSS, not stack */
-    uint32 i, j, tmp, seed;
-    for (i = 0u; i < BR_CHASE_SIZE; i++) {
-        perm[i] = i;
-        s_br_chase_nodes[i].value = i + 1u;
-    }
-    seed = 0xDEADCAFEu;
-    for (i = BR_CHASE_SIZE - 1u; i > 0u; i--) {
+    uint32 perm[BRC_SIZE]; /* 2 KB stack */
+    uint32 i, j, tmp;
+    for (i = 0u; i < BRC_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
+    for (i = BRC_SIZE - 1u; i > 0u; i--) {
         seed = seed * 1664525u + 1013904223u;
         j    = seed % (i + 1u);
         tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    for (i = 0u; i < BR_CHASE_SIZE - 1u; i++) {
-        s_br_chase_nodes[perm[i]].next_idx = perm[i + 1u];
-    }
-    s_br_chase_nodes[perm[BR_CHASE_SIZE - 1u]].next_idx = perm[0u];
-    s_br_chase_head = perm[0u];
+    for (i = 0u; i < BRC_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
+    nodes[perm[BRC_SIZE - 1u]].next_idx = perm[0u];
+    *head = perm[0u];
 }
 
-/* Traverse all 2048 nodes once via random-order pointer chain.
- * Called every while(1) iteration via branch_run_all(). */
 __attribute__((noinline))
-void branch_chase_traverse(void)
+void branch_chains_init(void)
 {
-    volatile uint32 sum = 0u;
-    uint32 idx = s_br_chase_head;
-    uint32 step;
-    for (step = 0u; step < BR_CHASE_SIZE; step++) {
-        sum += s_br_chase_nodes[idx].value;
-        idx  = s_br_chase_nodes[idx].next_idx;
-    }
-    s_br_chase_nodes[s_br_chase_head].pad0 ^= sum;
+    brc_init_one(s_brcn0, &s_brh0, 0xDEADCAFEu);
+    brc_init_one(s_brcn1, &s_brh1, 0xBEEFBABEu);
+    brc_init_one(s_brcn2, &s_brh2, 0xC0DECA11u);
+    brc_init_one(s_brcn3, &s_brh3, 0xACE0ACE0u);
+    brc_init_one(s_brcn4, &s_brh4, 0xD00DC0DEu);
+    brc_init_one(s_brcn5, &s_brh5, 0xFACEB00Cu);
+    brc_init_one(s_brcn6, &s_brh6, 0x1337C0DEu);
+    brc_init_one(s_brcn7, &s_brh7, 0xDECEA5EDu);
 }
+
+__attribute__((noinline))
+void branch_trav0(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh0, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn0[idx].value;idx=s_brcn0[idx].next_idx;}
+    s_brcn0[s_brh0].pad0^=s; }
+__attribute__((noinline))
+void branch_trav1(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh1, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn1[idx].value;idx=s_brcn1[idx].next_idx;}
+    s_brcn1[s_brh1].pad0^=s; }
+__attribute__((noinline))
+void branch_trav2(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh2, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn2[idx].value;idx=s_brcn2[idx].next_idx;}
+    s_brcn2[s_brh2].pad0^=s; }
+__attribute__((noinline))
+void branch_trav3(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh3, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn3[idx].value;idx=s_brcn3[idx].next_idx;}
+    s_brcn3[s_brh3].pad0^=s; }
+__attribute__((noinline))
+void branch_trav4(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh4, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn4[idx].value;idx=s_brcn4[idx].next_idx;}
+    s_brcn4[s_brh4].pad0^=s; }
+__attribute__((noinline))
+void branch_trav5(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh5, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn5[idx].value;idx=s_brcn5[idx].next_idx;}
+    s_brcn5[s_brh5].pad0^=s; }
+__attribute__((noinline))
+void branch_trav6(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh6, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn6[idx].value;idx=s_brcn6[idx].next_idx;}
+    s_brcn6[s_brh6].pad0^=s; }
+__attribute__((noinline))
+void branch_trav7(void) {
+    volatile uint32 s=0u; uint32 idx=s_brh7, n;
+    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn7[idx].value;idx=s_brcn7[idx].next_idx;}
+    s_brcn7[s_brh7].pad0^=s; }
 
 /* Orchestrator — called every while(1) iteration. */
 __attribute__((noinline))
@@ -294,5 +333,7 @@ void branch_run_all(void)
     branch_search_unsorted();
     branch_early_exit_sabotage();
     branch_nested_dispatch();
-    branch_chase_traverse();   /* pointer-chase: cross-function volatile data → Loci timing */
+    /* Eight independent volatile-chase traversals → ~7200 ns Loci timing */
+    branch_trav0(); branch_trav1(); branch_trav2(); branch_trav3();
+    branch_trav4(); branch_trav5(); branch_trav6(); branch_trav7();
 }
