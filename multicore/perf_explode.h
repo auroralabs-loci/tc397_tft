@@ -3,7 +3,7 @@
 
 #include "Ifx_Types.h"
 
-/* 21 GLOBAL extern noinline functions */
+/* 22 GLOBAL extern noinline functions */
 void explode_poly_eval(void);
 void explode_interp_linear(void);
 void explode_fixed_point_mul(void);
@@ -29,6 +29,7 @@ void explode_insertion_sort(void);
 void explode_binary_search(void);
 void explode_merge_pass(void);
 
+void explode_volatile_chase(void);
 void explode_run_all(void);
 
 #endif /* PERF_EXPLODE_H_ */

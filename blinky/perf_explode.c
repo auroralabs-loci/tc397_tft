@@ -387,9 +387,33 @@ void explode_merge_pass(void)
     s_xpl_result ^= s_xpl_mem_dst[0];
 }
 
+/* ======== GLOBAL #22 — volatile-index chase for load-use latency ======== */
+
+/* 10240-hop data-dependent load chain: full-period LCG permutation
+ * (a=197,c=13,m=256 — Hull-Dobell satisfied → single cycle length 256).
+ * Each read cur = s_xpl_chase_buf[cur] serialises on the previous load.
+ * Adds ~6635 ns to response time, ensuring >100% total degradation.
+ * Also raises the GLOBAL symbol count from 21 to 22 for tool coverage. */
+static volatile uint32 s_xpl_chase_buf[256];
+
+__attribute__((noinline))
+void explode_volatile_chase(void)
+{
+    uint32 i;
+    volatile uint32 cur;
+    for (i = 0u; i < 256u; i++) {
+        s_xpl_chase_buf[i] = (uint32)((i * 197u + 13u) & 0xFFu);
+    }
+    cur = s_xpl_chase_buf[0];
+    for (i = 0u; i < 10240u; i++) {
+        cur = s_xpl_chase_buf[cur & 255u];
+    }
+    s_xpl_result ^= cur;
+}
+
 /* ======== Orchestrator — 1 GLOBAL symbol ======== */
 
-/* Calls all 20 workers above every while(1) iteration.
+/* Calls all 21 workers above every while(1) iteration.
  * The uses of always_inline helpers inside the workers cause those 8
  * helper functions to be ABSENT from the ELF symbol table. */
 __attribute__((noinline))
@@ -420,4 +444,6 @@ void explode_run_all(void)
     explode_insertion_sort();
     explode_binary_search();
     explode_merge_pass();
+    /* Load-use chain — ensures >100% response time degradation */
+    explode_volatile_chase();
 }
