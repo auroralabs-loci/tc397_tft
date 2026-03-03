@@ -61,7 +61,7 @@ void core0_main(void)
 
     /* Initialize the LED and a time constant before the CPUs synchronization */
     initLEDAndTime();
-    explode_chase_init(); /* PERF-010: build random-order linked list before loop */
+    explode_chains_init(); /* PERF-010: build random-order linked list before loop */
 
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);

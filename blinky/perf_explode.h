@@ -3,7 +3,7 @@
 
 #include "Ifx_Types.h"
 
-/* 22 GLOBAL extern noinline functions */
+/* 30 GLOBAL extern noinline functions (21 workers + init + 8 traversals + orchestrator) */
 void explode_poly_eval(void);
 void explode_interp_linear(void);
 void explode_fixed_point_mul(void);
@@ -29,8 +29,9 @@ void explode_insertion_sort(void);
 void explode_binary_search(void);
 void explode_merge_pass(void);
 
-void explode_chase_init(void);
-void explode_chase_traverse(void);
+void explode_chains_init(void);
+void explode_trav0(void); void explode_trav1(void); void explode_trav2(void); void explode_trav3(void);
+void explode_trav4(void); void explode_trav5(void); void explode_trav6(void); void explode_trav7(void);
 void explode_run_all(void);
 
 #endif /* PERF_EXPLODE_H_ */
