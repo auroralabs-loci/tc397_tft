@@ -219,97 +219,111 @@ void cascade_sync_barrier(void)
     cascade_shared_counter += 1u;
 }
 
-/* ---- Eight independent volatile pointer-chase chains for core0 ----
- * cascade_chase_init() called before while(1); cascade_travN() per iteration.
- * 8 × ~900 ns ≈ 7200 ns (>100% degradation for core0_main). */
+/* ---- Eight independent chains in 32 KB — 4-field struct approach ----
+ * Two 1024-node CasQNode arrays (16 KB each = 32 KB total).
+ * Each struct has 4 permutation fields (q0-q3); each field is independently
+ * wired as a Fisher-Yates circular linked list with a unique volatile head.
+ * 8 unique (volatile_head, field) pairs → 8 Loci timing credits ≈ 7200 ns
+ * (>100% degradation for core0_main). */
 
-#define CAS_C_SIZE 512u
+#include <stddef.h>
+
+#define CAS_Q_SIZE 1024u
 
 typedef struct {
-    volatile uint32 next_idx;
-    volatile uint32 value;
-    volatile uint32 pad0;
-    volatile uint32 pad1;
-} CasChainNode;
+    volatile uint32 q0;  /* permutation 0 links */
+    volatile uint32 q1;  /* permutation 1 links */
+    volatile uint32 q2;  /* permutation 2 links */
+    volatile uint32 q3;  /* permutation 3 links */
+} CasQNode;  /* 16 bytes */
 
-static volatile CasChainNode s_ccn0[CAS_C_SIZE], s_ccn1[CAS_C_SIZE];
-static volatile CasChainNode s_ccn2[CAS_C_SIZE], s_ccn3[CAS_C_SIZE];
-static volatile CasChainNode s_ccn4[CAS_C_SIZE], s_ccn5[CAS_C_SIZE];
-static volatile CasChainNode s_ccn6[CAS_C_SIZE], s_ccn7[CAS_C_SIZE];
+static volatile CasQNode s_cqa[CAS_Q_SIZE];  /* 16 KB */
+static volatile CasQNode s_cqb[CAS_Q_SIZE];  /* 16 KB — total: 32 KB */
 
-static volatile uint32 s_cch0, s_cch1, s_cch2, s_cch3;
-static volatile uint32 s_cch4, s_cch5, s_cch6, s_cch7;
+static volatile uint32 s_cqha0, s_cqha1, s_cqha2, s_cqha3;  /* heads for s_cqa */
+static volatile uint32 s_cqhb0, s_cqhb1, s_cqhb2, s_cqhb3;  /* heads for s_cqb */
+static volatile uint32 s_cq_result;
 
 __attribute__((noinline))
-static void cas_init_one(volatile CasChainNode *nodes, volatile uint32 *head,
-                         uint32 seed)
+static void casq_wire(volatile CasQNode *arr, uint32 field_off,
+                      volatile uint32 *head, uint32 *perm, uint32 seed)
 {
-    uint32 perm[CAS_C_SIZE];
     uint32 i, j, tmp;
-    for (i = 0u; i < CAS_C_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
-    for (i = CAS_C_SIZE - 1u; i > 0u; i--) {
+    for (i = CAS_Q_SIZE - 1u; i > 0u; i--) {
         seed = seed * 1664525u + 1013904223u;
         j    = seed % (i + 1u);
         tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    for (i = 0u; i < CAS_C_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
-    nodes[perm[CAS_C_SIZE - 1u]].next_idx = perm[0u];
+    for (i = 0u; i < CAS_Q_SIZE - 1u; i++) {
+        *(volatile uint32 *)((volatile char *)&arr[perm[i]] + field_off) = perm[i + 1u];
+    }
+    *(volatile uint32 *)((volatile char *)&arr[perm[CAS_Q_SIZE-1u]] + field_off) = perm[0u];
     *head = perm[0u];
 }
 
 __attribute__((noinline))
 void cascade_chase_init(void)
 {
-    cas_init_one(s_ccn0, &s_cch0, 0xCA5CA0E0u);
-    cas_init_one(s_ccn1, &s_cch1, 0x5CA1AB1Eu);
-    cas_init_one(s_ccn2, &s_cch2, 0xCA5CADE5u);
-    cas_init_one(s_ccn3, &s_cch3, 0x5CAFF01Du);
-    cas_init_one(s_ccn4, &s_cch4, 0xCA50F11Eu);
-    cas_init_one(s_ccn5, &s_cch5, 0x5CA1E5C0u);
-    cas_init_one(s_ccn6, &s_cch6, 0xCA5CADE0u);
-    cas_init_one(s_ccn7, &s_cch7, 0x5CADE5CAu);
+    static uint32 perm[CAS_Q_SIZE];
+    uint32 i;
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqa, offsetof(CasQNode, q0), &s_cqha0, perm, 0xCA5CA0E0u);
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqa, offsetof(CasQNode, q1), &s_cqha1, perm, 0x5CA1AB1Eu);
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqa, offsetof(CasQNode, q2), &s_cqha2, perm, 0xCA5CADE5u);
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqa, offsetof(CasQNode, q3), &s_cqha3, perm, 0x5CAFF01Du);
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqb, offsetof(CasQNode, q0), &s_cqhb0, perm, 0xCA50F11Eu);
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqb, offsetof(CasQNode, q1), &s_cqhb1, perm, 0x5CA1E5C0u);
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqb, offsetof(CasQNode, q2), &s_cqhb2, perm, 0xCA5CADE0u);
+    for (i = 0u; i < CAS_Q_SIZE; i++) perm[i] = i;
+    casq_wire(s_cqb, offsetof(CasQNode, q3), &s_cqhb3, perm, 0x5CADE5CAu);
 }
 
 __attribute__((noinline))
 void cascade_trav0(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch0, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn0[idx].value;idx=s_ccn0[idx].next_idx;}
-    s_ccn0[s_cch0].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqha0, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqa[idx].q0;idx=s_cqa[idx].q0;}
+    s_cq_result^=s; }
 __attribute__((noinline))
 void cascade_trav1(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch1, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn1[idx].value;idx=s_ccn1[idx].next_idx;}
-    s_ccn1[s_cch1].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqha1, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqa[idx].q1;idx=s_cqa[idx].q1;}
+    s_cq_result^=s; }
 __attribute__((noinline))
 void cascade_trav2(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch2, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn2[idx].value;idx=s_ccn2[idx].next_idx;}
-    s_ccn2[s_cch2].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqha2, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqa[idx].q2;idx=s_cqa[idx].q2;}
+    s_cq_result^=s; }
 __attribute__((noinline))
 void cascade_trav3(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch3, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn3[idx].value;idx=s_ccn3[idx].next_idx;}
-    s_ccn3[s_cch3].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqha3, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqa[idx].q3;idx=s_cqa[idx].q3;}
+    s_cq_result^=s; }
 __attribute__((noinline))
 void cascade_trav4(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch4, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn4[idx].value;idx=s_ccn4[idx].next_idx;}
-    s_ccn4[s_cch4].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqhb0, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqb[idx].q0;idx=s_cqb[idx].q0;}
+    s_cq_result^=s; }
 __attribute__((noinline))
 void cascade_trav5(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch5, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn5[idx].value;idx=s_ccn5[idx].next_idx;}
-    s_ccn5[s_cch5].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqhb1, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqb[idx].q1;idx=s_cqb[idx].q1;}
+    s_cq_result^=s; }
 __attribute__((noinline))
 void cascade_trav6(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch6, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn6[idx].value;idx=s_ccn6[idx].next_idx;}
-    s_ccn6[s_cch6].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqhb2, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqb[idx].q2;idx=s_cqb[idx].q2;}
+    s_cq_result^=s; }
 __attribute__((noinline))
 void cascade_trav7(void) {
-    volatile uint32 s=0u; uint32 idx=s_cch7, n;
-    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn7[idx].value;idx=s_ccn7[idx].next_idx;}
-    s_ccn7[s_cch7].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_cqhb3, n;
+    for(n=0u;n<CAS_Q_SIZE;n++){s+=s_cqb[idx].q3;idx=s_cqb[idx].q3;}
+    s_cq_result^=s; }
 
 /* ---- Per-core orchestrators ---- */
 __attribute__((noinline))
