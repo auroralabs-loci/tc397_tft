@@ -160,13 +160,95 @@ void chase_checksum_validate(void)
     s_chase_nodes[0u].checksum = (total == s_chase_ref_sum) ? 0u : 0xDEADu;
 }
 
+/* ---- Six additional independent chains (targeting >100% total degradation) ----
+ * Existing fwd+rev chains give ~1904 ns. Adding 6 more independent 512-node
+ * chains (6 × ~900 ns ≈ 5400 ns) brings total to ~7300 ns (>100%). */
+
+#define EXTRA_SIZE 512u
+
+typedef struct {
+    volatile uint32 next_idx;
+    volatile uint32 value;
+    volatile uint32 pad0;
+    volatile uint32 pad1;
+} ExtraNode;
+
+static volatile ExtraNode s_ex0[EXTRA_SIZE], s_ex1[EXTRA_SIZE];
+static volatile ExtraNode s_ex2[EXTRA_SIZE], s_ex3[EXTRA_SIZE];
+static volatile ExtraNode s_ex4[EXTRA_SIZE], s_ex5[EXTRA_SIZE];
+
+static volatile uint32 s_eh0, s_eh1, s_eh2, s_eh3, s_eh4, s_eh5;
+
+__attribute__((noinline))
+static void ex_init_one(volatile ExtraNode *nodes, volatile uint32 *head,
+                        uint32 seed)
+{
+    uint32 perm[EXTRA_SIZE]; /* 2 KB stack */
+    uint32 i, j, tmp;
+    for (i = 0u; i < EXTRA_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
+    for (i = EXTRA_SIZE - 1u; i > 0u; i--) {
+        seed = seed * 1664525u + 1013904223u;
+        j    = seed % (i + 1u);
+        tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
+    }
+    for (i = 0u; i < EXTRA_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
+    nodes[perm[EXTRA_SIZE - 1u]].next_idx = perm[0u];
+    *head = perm[0u];
+}
+
+__attribute__((noinline))
+void chase_extra_init(void)
+{
+    ex_init_one(s_ex0, &s_eh0, 0xABCDEF01u);
+    ex_init_one(s_ex1, &s_eh1, 0x13572468u);
+    ex_init_one(s_ex2, &s_eh2, 0xFEDCBA98u);
+    ex_init_one(s_ex3, &s_eh3, 0x76543210u);
+    ex_init_one(s_ex4, &s_eh4, 0x0F0F0F0Fu);
+    ex_init_one(s_ex5, &s_eh5, 0xA5A5A5A5u);
+}
+
+__attribute__((noinline))
+void chase_extra0(void) {
+    volatile uint32 s=0u; uint32 idx=s_eh0, n;
+    for(n=0u;n<EXTRA_SIZE;n++){s+=s_ex0[idx].value;idx=s_ex0[idx].next_idx;}
+    s_ex0[s_eh0].pad0^=s; }
+__attribute__((noinline))
+void chase_extra1(void) {
+    volatile uint32 s=0u; uint32 idx=s_eh1, n;
+    for(n=0u;n<EXTRA_SIZE;n++){s+=s_ex1[idx].value;idx=s_ex1[idx].next_idx;}
+    s_ex1[s_eh1].pad0^=s; }
+__attribute__((noinline))
+void chase_extra2(void) {
+    volatile uint32 s=0u; uint32 idx=s_eh2, n;
+    for(n=0u;n<EXTRA_SIZE;n++){s+=s_ex2[idx].value;idx=s_ex2[idx].next_idx;}
+    s_ex2[s_eh2].pad0^=s; }
+__attribute__((noinline))
+void chase_extra3(void) {
+    volatile uint32 s=0u; uint32 idx=s_eh3, n;
+    for(n=0u;n<EXTRA_SIZE;n++){s+=s_ex3[idx].value;idx=s_ex3[idx].next_idx;}
+    s_ex3[s_eh3].pad0^=s; }
+__attribute__((noinline))
+void chase_extra4(void) {
+    volatile uint32 s=0u; uint32 idx=s_eh4, n;
+    for(n=0u;n<EXTRA_SIZE;n++){s+=s_ex4[idx].value;idx=s_ex4[idx].next_idx;}
+    s_ex4[s_eh4].pad0^=s; }
+__attribute__((noinline))
+void chase_extra5(void) {
+    volatile uint32 s=0u; uint32 idx=s_eh5, n;
+    for(n=0u;n<EXTRA_SIZE;n++){s+=s_ex5[idx].value;idx=s_ex5[idx].next_idx;}
+    s_ex5[s_eh5].pad0^=s; }
+
 /* Orchestrator — called every while(1) iteration. */
 __attribute__((noinline))
 void chase_run_all(void)
 {
+    /* Original fwd+rev chains (~1904 ns) */
     chase_traverse_forward();
     chase_traverse_reverse();
     chase_random_write();
     chase_volatile_sum();
     chase_checksum_validate();
+    /* Six additional independent chains (~5400 ns) → >100% total */
+    chase_extra0(); chase_extra1(); chase_extra2();
+    chase_extra3(); chase_extra4(); chase_extra5();
 }

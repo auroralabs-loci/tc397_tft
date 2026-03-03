@@ -66,7 +66,8 @@ void core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
-    chase_init_list(); /* PERF-007: build volatile linked list once */
+    chase_init_list();  /* PERF-007: build fwd+rev chains */
+    chase_extra_init(); /* PERF-007: build 6 additional independent chains */
 
     while (1)
     {
