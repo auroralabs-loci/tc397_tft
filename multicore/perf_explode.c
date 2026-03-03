@@ -11,6 +11,7 @@
  * Secondary purpose: aggregate of 20 workers causes >100% response time
  * degradation from cumulative per-iteration overhead. */
 
+#include <stddef.h>
 #include "perf_explode.h"
 #include "perf_explode_helpers.h"
 
@@ -388,44 +389,43 @@ void explode_merge_pass(void)
 }
 
 /* ======== GLOBAL #22-#30 — eight independent volatile pointer-chase chains ====== */
-/* 8 × 512 nodes × 16 B = 64 KB volatile BSS. Each chain has its own volatile
- * array and volatile head so Loci credits each traverse independently:
- * 8 × ~900 ns ≈ 7200 ns (>100% degradation).
+/* Two 1024-node XplQNode arrays (16 KB each = 32 KB total).
+ * Each struct has 4 permutation fields (q0-q3); each field is independently
+ * wired as a Fisher-Yates circular linked list with a unique volatile head.
+ * 8 unique (volatile_head, field) pairs → 8 Loci timing credits ≈ 7200 ns.
  * Adds 9 GLOBAL symbols (init + 8 traversals), raising total GLOBAL count to 30.
- * LOCAL helper xpl_init_one adds 1 LOCAL symbol. */
+ * LOCAL helper xpl_wire adds 1 LOCAL symbol. */
 
-#define XPL_C_SIZE 512u
+#define XPL_Q_SIZE 1024u
 
 typedef struct {
-    volatile uint32 next_idx;
-    volatile uint32 value;
-    volatile uint32 pad0;
-    volatile uint32 pad1;
-} XplCNode; /* 16 bytes */
+    volatile uint32 q0;  /* permutation 0 links */
+    volatile uint32 q1;  /* permutation 1 links */
+    volatile uint32 q2;  /* permutation 2 links */
+    volatile uint32 q3;  /* permutation 3 links */
+} XplQNode;  /* 16 bytes */
 
-static volatile XplCNode s_xcn0[XPL_C_SIZE], s_xcn1[XPL_C_SIZE];
-static volatile XplCNode s_xcn2[XPL_C_SIZE], s_xcn3[XPL_C_SIZE];
-static volatile XplCNode s_xcn4[XPL_C_SIZE], s_xcn5[XPL_C_SIZE];
-static volatile XplCNode s_xcn6[XPL_C_SIZE], s_xcn7[XPL_C_SIZE];
+static volatile XplQNode s_xqa[XPL_Q_SIZE];  /* 16 KB */
+static volatile XplQNode s_xqb[XPL_Q_SIZE];  /* 16 KB — total: 32 KB */
 
-static volatile uint32 s_xh0, s_xh1, s_xh2, s_xh3;
-static volatile uint32 s_xh4, s_xh5, s_xh6, s_xh7;
+static volatile uint32 s_xha0, s_xha1, s_xha2, s_xha3;  /* heads for s_xqa */
+static volatile uint32 s_xhb0, s_xhb1, s_xhb2, s_xhb3;  /* heads for s_xqb */
 
 /* LOCAL — one additional LOCAL symbol in ELF */
 __attribute__((noinline))
-static void xpl_init_one(volatile XplCNode *nodes, volatile uint32 *head,
-                         uint32 seed)
+static void xpl_wire(volatile XplQNode *arr, uint32 field_off,
+                     volatile uint32 *head, uint32 *perm, uint32 seed)
 {
-    uint32 perm[XPL_C_SIZE]; /* 2 KB stack */
     uint32 i, j, tmp;
-    for (i = 0u; i < XPL_C_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
-    for (i = XPL_C_SIZE - 1u; i > 0u; i--) {
+    for (i = XPL_Q_SIZE - 1u; i > 0u; i--) {
         seed = seed * 1664525u + 1013904223u;
         j    = seed % (i + 1u);
         tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    for (i = 0u; i < XPL_C_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
-    nodes[perm[XPL_C_SIZE - 1u]].next_idx = perm[0u];
+    for (i = 0u; i < XPL_Q_SIZE - 1u; i++) {
+        *(volatile uint32 *)((volatile char *)&arr[perm[i]] + field_off) = perm[i + 1u];
+    }
+    *(volatile uint32 *)((volatile char *)&arr[perm[XPL_Q_SIZE-1u]] + field_off) = perm[0u];
     *head = perm[0u];
 }
 
@@ -433,56 +433,66 @@ static void xpl_init_one(volatile XplCNode *nodes, volatile uint32 *head,
 __attribute__((noinline))
 void explode_chains_init(void)
 {
-    xpl_init_one(s_xcn0, &s_xh0, 0xFEEDFACEu);
-    xpl_init_one(s_xcn1, &s_xh1, 0xDEADC0DEu);
-    xpl_init_one(s_xcn2, &s_xh2, 0xBAADF00Du);
-    xpl_init_one(s_xcn3, &s_xh3, 0xCAFED00Du);
-    xpl_init_one(s_xcn4, &s_xh4, 0xACCE5500u);
-    xpl_init_one(s_xcn5, &s_xh5, 0xD15EA5EDu);
-    xpl_init_one(s_xcn6, &s_xh6, 0xB16B00B5u);
-    xpl_init_one(s_xcn7, &s_xh7, 0xDEFEC8EDu);
+    static uint32 perm[XPL_Q_SIZE];
+    uint32 i;
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqa, offsetof(XplQNode, q0), &s_xha0, perm, 0xFEEDFACEu);
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqa, offsetof(XplQNode, q1), &s_xha1, perm, 0xDEADC0DEu);
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqa, offsetof(XplQNode, q2), &s_xha2, perm, 0xBAADF00Du);
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqa, offsetof(XplQNode, q3), &s_xha3, perm, 0xCAFED00Du);
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqb, offsetof(XplQNode, q0), &s_xhb0, perm, 0xACCE5500u);
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqb, offsetof(XplQNode, q1), &s_xhb1, perm, 0xD15EA5EDu);
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqb, offsetof(XplQNode, q2), &s_xhb2, perm, 0xB16B00B5u);
+    for (i = 0u; i < XPL_Q_SIZE; i++) perm[i] = i;
+    xpl_wire(s_xqb, offsetof(XplQNode, q3), &s_xhb3, perm, 0xDEFEC8EDu);
 }
 
 /* GLOBAL #23-#30 — eight independent traverse functions */
 __attribute__((noinline))
 void explode_trav0(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh0, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn0[idx].value;idx=s_xcn0[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xha0, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqa[idx].q0;idx=s_xqa[idx].q0;}
     s_xpl_result^=s; }
 __attribute__((noinline))
 void explode_trav1(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh1, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn1[idx].value;idx=s_xcn1[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xha1, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqa[idx].q1;idx=s_xqa[idx].q1;}
     s_xpl_result^=s; }
 __attribute__((noinline))
 void explode_trav2(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh2, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn2[idx].value;idx=s_xcn2[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xha2, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqa[idx].q2;idx=s_xqa[idx].q2;}
     s_xpl_result^=s; }
 __attribute__((noinline))
 void explode_trav3(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh3, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn3[idx].value;idx=s_xcn3[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xha3, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqa[idx].q3;idx=s_xqa[idx].q3;}
     s_xpl_result^=s; }
 __attribute__((noinline))
 void explode_trav4(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh4, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn4[idx].value;idx=s_xcn4[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xhb0, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqb[idx].q0;idx=s_xqb[idx].q0;}
     s_xpl_result^=s; }
 __attribute__((noinline))
 void explode_trav5(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh5, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn5[idx].value;idx=s_xcn5[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xhb1, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqb[idx].q1;idx=s_xqb[idx].q1;}
     s_xpl_result^=s; }
 __attribute__((noinline))
 void explode_trav6(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh6, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn6[idx].value;idx=s_xcn6[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xhb2, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqb[idx].q2;idx=s_xqb[idx].q2;}
     s_xpl_result^=s; }
 __attribute__((noinline))
 void explode_trav7(void) {
-    volatile uint32 s=0u; uint32 idx=s_xh7, n;
-    for(n=0u;n<XPL_C_SIZE;n++){s+=s_xcn7[idx].value;idx=s_xcn7[idx].next_idx;}
+    volatile uint32 s=0u; uint32 idx=s_xhb3, n;
+    for(n=0u;n<XPL_Q_SIZE;n++){s+=s_xqb[idx].q3;idx=s_xqb[idx].q3;}
     s_xpl_result^=s; }
 
 /* ======== Orchestrator — GLOBAL #31 ======== */
