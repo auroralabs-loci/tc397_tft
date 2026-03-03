@@ -229,99 +229,112 @@ void branch_nested_dispatch(void)
     s_br_result ^= acc;
 }
 
-/* ---- Eight independent volatile pointer-chase chains ----
- * 8 × 512 nodes × 16 B = 64 KB volatile BSS.  Each chain has its own
- * volatile array and volatile head so Loci credits each traverse
- * independently: 8 × ~900 ns ≈ 7200 ns (>100% degradation target).
- * branch_chains_init() wires all eight before while(1). */
+/* ---- Eight independent chains in 32 KB — 4-field struct approach ----
+ * Two 1024-node BrQNode arrays (16 KB each = 32 KB total).
+ * Each struct has 4 permutation fields (q0-q3); each field is independently
+ * wired as a Fisher-Yates circular linked list with a unique volatile head.
+ * 8 unique (volatile_head, field) pairs → 8 Loci timing credits ≈ 7200 ns.
+ * Key: PERF-007 confirmed different fields of same volatile struct array
+ * yield independent timing credits in Loci. */
 
-#define BRC_SIZE 512u
+#include <stddef.h>
+
+#define BRQ_SIZE 1024u
 
 typedef struct {
-    volatile uint32 next_idx;
-    volatile uint32 value;
-    volatile uint32 pad0;
-    volatile uint32 pad1;
-} BrChainNode; /* 16 bytes */
+    volatile uint32 q0;  /* permutation 0 links */
+    volatile uint32 q1;  /* permutation 1 links */
+    volatile uint32 q2;  /* permutation 2 links */
+    volatile uint32 q3;  /* permutation 3 links */
+} BrQNode;  /* 16 bytes */
 
-static volatile BrChainNode s_brcn0[BRC_SIZE], s_brcn1[BRC_SIZE];
-static volatile BrChainNode s_brcn2[BRC_SIZE], s_brcn3[BRC_SIZE];
-static volatile BrChainNode s_brcn4[BRC_SIZE], s_brcn5[BRC_SIZE];
-static volatile BrChainNode s_brcn6[BRC_SIZE], s_brcn7[BRC_SIZE];
+static volatile BrQNode s_brqa[BRQ_SIZE];  /* 16 KB */
+static volatile BrQNode s_brqb[BRQ_SIZE];  /* 16 KB — total: 32 KB */
 
-static volatile uint32 s_brh0, s_brh1, s_brh2, s_brh3;
-static volatile uint32 s_brh4, s_brh5, s_brh6, s_brh7;
+static volatile uint32 s_brha0, s_brha1, s_brha2, s_brha3;  /* heads for s_brqa */
+static volatile uint32 s_brhb0, s_brhb1, s_brhb2, s_brhb3;  /* heads for s_brqb */
+static volatile uint32 s_brq_result;
 
 __attribute__((noinline))
-static void brc_init_one(volatile BrChainNode *nodes, volatile uint32 *head,
-                         uint32 seed)
+static void brq_wire(volatile BrQNode *arr, uint32 field_off,
+                     volatile uint32 *head, uint32 *perm, uint32 seed)
 {
-    uint32 perm[BRC_SIZE]; /* 2 KB stack */
     uint32 i, j, tmp;
-    for (i = 0u; i < BRC_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
-    for (i = BRC_SIZE - 1u; i > 0u; i--) {
+    for (i = BRQ_SIZE - 1u; i > 0u; i--) {
         seed = seed * 1664525u + 1013904223u;
         j    = seed % (i + 1u);
         tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    for (i = 0u; i < BRC_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
-    nodes[perm[BRC_SIZE - 1u]].next_idx = perm[0u];
+    for (i = 0u; i < BRQ_SIZE - 1u; i++) {
+        *(volatile uint32 *)((volatile char *)&arr[perm[i]] + field_off) = perm[i + 1u];
+    }
+    *(volatile uint32 *)((volatile char *)&arr[perm[BRQ_SIZE-1u]] + field_off) = perm[0u];
     *head = perm[0u];
 }
 
 __attribute__((noinline))
 void branch_chains_init(void)
 {
-    brc_init_one(s_brcn0, &s_brh0, 0xDEADCAFEu);
-    brc_init_one(s_brcn1, &s_brh1, 0xBEEFBABEu);
-    brc_init_one(s_brcn2, &s_brh2, 0xC0DECA11u);
-    brc_init_one(s_brcn3, &s_brh3, 0xACE0ACE0u);
-    brc_init_one(s_brcn4, &s_brh4, 0xD00DC0DEu);
-    brc_init_one(s_brcn5, &s_brh5, 0xFACEB00Cu);
-    brc_init_one(s_brcn6, &s_brh6, 0x1337C0DEu);
-    brc_init_one(s_brcn7, &s_brh7, 0xDECEA5EDu);
+    static uint32 perm[BRQ_SIZE];
+    uint32 i;
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqa, offsetof(BrQNode, q0), &s_brha0, perm, 0xDEADCAFEu);
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqa, offsetof(BrQNode, q1), &s_brha1, perm, 0xBEEFBABEu);
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqa, offsetof(BrQNode, q2), &s_brha2, perm, 0xC0DECA11u);
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqa, offsetof(BrQNode, q3), &s_brha3, perm, 0xACE0ACE0u);
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqb, offsetof(BrQNode, q0), &s_brhb0, perm, 0xD00DC0DEu);
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqb, offsetof(BrQNode, q1), &s_brhb1, perm, 0xFACEB00Cu);
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqb, offsetof(BrQNode, q2), &s_brhb2, perm, 0x1337C0DEu);
+    for (i = 0u; i < BRQ_SIZE; i++) perm[i] = i;
+    brq_wire(s_brqb, offsetof(BrQNode, q3), &s_brhb3, perm, 0xDECEA5EDu);
 }
 
 __attribute__((noinline))
 void branch_trav0(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh0, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn0[idx].value;idx=s_brcn0[idx].next_idx;}
-    s_brcn0[s_brh0].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brha0, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqa[idx].q0;idx=s_brqa[idx].q0;}
+    s_brq_result^=s; }
 __attribute__((noinline))
 void branch_trav1(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh1, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn1[idx].value;idx=s_brcn1[idx].next_idx;}
-    s_brcn1[s_brh1].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brha1, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqa[idx].q1;idx=s_brqa[idx].q1;}
+    s_brq_result^=s; }
 __attribute__((noinline))
 void branch_trav2(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh2, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn2[idx].value;idx=s_brcn2[idx].next_idx;}
-    s_brcn2[s_brh2].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brha2, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqa[idx].q2;idx=s_brqa[idx].q2;}
+    s_brq_result^=s; }
 __attribute__((noinline))
 void branch_trav3(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh3, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn3[idx].value;idx=s_brcn3[idx].next_idx;}
-    s_brcn3[s_brh3].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brha3, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqa[idx].q3;idx=s_brqa[idx].q3;}
+    s_brq_result^=s; }
 __attribute__((noinline))
 void branch_trav4(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh4, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn4[idx].value;idx=s_brcn4[idx].next_idx;}
-    s_brcn4[s_brh4].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brhb0, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqb[idx].q0;idx=s_brqb[idx].q0;}
+    s_brq_result^=s; }
 __attribute__((noinline))
 void branch_trav5(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh5, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn5[idx].value;idx=s_brcn5[idx].next_idx;}
-    s_brcn5[s_brh5].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brhb1, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqb[idx].q1;idx=s_brqb[idx].q1;}
+    s_brq_result^=s; }
 __attribute__((noinline))
 void branch_trav6(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh6, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn6[idx].value;idx=s_brcn6[idx].next_idx;}
-    s_brcn6[s_brh6].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brhb2, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqb[idx].q2;idx=s_brqb[idx].q2;}
+    s_brq_result^=s; }
 __attribute__((noinline))
 void branch_trav7(void) {
-    volatile uint32 s=0u; uint32 idx=s_brh7, n;
-    for(n=0u;n<BRC_SIZE;n++){s+=s_brcn7[idx].value;idx=s_brcn7[idx].next_idx;}
-    s_brcn7[s_brh7].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_brhb3, n;
+    for(n=0u;n<BRQ_SIZE;n++){s+=s_brqb[idx].q3;idx=s_brqb[idx].q3;}
+    s_brq_result^=s; }
 
 /* Orchestrator — called every while(1) iteration. */
 __attribute__((noinline))
