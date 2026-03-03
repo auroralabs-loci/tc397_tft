@@ -219,6 +219,98 @@ void cascade_sync_barrier(void)
     cascade_shared_counter += 1u;
 }
 
+/* ---- Eight independent volatile pointer-chase chains for core0 ----
+ * cascade_chase_init() called before while(1); cascade_travN() per iteration.
+ * 8 × ~900 ns ≈ 7200 ns (>100% degradation for core0_main). */
+
+#define CAS_C_SIZE 512u
+
+typedef struct {
+    volatile uint32 next_idx;
+    volatile uint32 value;
+    volatile uint32 pad0;
+    volatile uint32 pad1;
+} CasChainNode;
+
+static volatile CasChainNode s_ccn0[CAS_C_SIZE], s_ccn1[CAS_C_SIZE];
+static volatile CasChainNode s_ccn2[CAS_C_SIZE], s_ccn3[CAS_C_SIZE];
+static volatile CasChainNode s_ccn4[CAS_C_SIZE], s_ccn5[CAS_C_SIZE];
+static volatile CasChainNode s_ccn6[CAS_C_SIZE], s_ccn7[CAS_C_SIZE];
+
+static volatile uint32 s_cch0, s_cch1, s_cch2, s_cch3;
+static volatile uint32 s_cch4, s_cch5, s_cch6, s_cch7;
+
+__attribute__((noinline))
+static void cas_init_one(volatile CasChainNode *nodes, volatile uint32 *head,
+                         uint32 seed)
+{
+    uint32 perm[CAS_C_SIZE];
+    uint32 i, j, tmp;
+    for (i = 0u; i < CAS_C_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
+    for (i = CAS_C_SIZE - 1u; i > 0u; i--) {
+        seed = seed * 1664525u + 1013904223u;
+        j    = seed % (i + 1u);
+        tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
+    }
+    for (i = 0u; i < CAS_C_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
+    nodes[perm[CAS_C_SIZE - 1u]].next_idx = perm[0u];
+    *head = perm[0u];
+}
+
+__attribute__((noinline))
+void cascade_chase_init(void)
+{
+    cas_init_one(s_ccn0, &s_cch0, 0xCA5CA0E0u);
+    cas_init_one(s_ccn1, &s_cch1, 0x5CA1AB1Eu);
+    cas_init_one(s_ccn2, &s_cch2, 0xCA5CADE5u);
+    cas_init_one(s_ccn3, &s_cch3, 0x5CAFF01Du);
+    cas_init_one(s_ccn4, &s_cch4, 0xCA50F11Eu);
+    cas_init_one(s_ccn5, &s_cch5, 0x5CA1E5C0u);
+    cas_init_one(s_ccn6, &s_cch6, 0xCA5CADE0u);
+    cas_init_one(s_ccn7, &s_cch7, 0x5CADE5CAu);
+}
+
+__attribute__((noinline))
+void cascade_trav0(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch0, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn0[idx].value;idx=s_ccn0[idx].next_idx;}
+    s_ccn0[s_cch0].pad0^=s; }
+__attribute__((noinline))
+void cascade_trav1(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch1, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn1[idx].value;idx=s_ccn1[idx].next_idx;}
+    s_ccn1[s_cch1].pad0^=s; }
+__attribute__((noinline))
+void cascade_trav2(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch2, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn2[idx].value;idx=s_ccn2[idx].next_idx;}
+    s_ccn2[s_cch2].pad0^=s; }
+__attribute__((noinline))
+void cascade_trav3(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch3, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn3[idx].value;idx=s_ccn3[idx].next_idx;}
+    s_ccn3[s_cch3].pad0^=s; }
+__attribute__((noinline))
+void cascade_trav4(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch4, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn4[idx].value;idx=s_ccn4[idx].next_idx;}
+    s_ccn4[s_cch4].pad0^=s; }
+__attribute__((noinline))
+void cascade_trav5(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch5, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn5[idx].value;idx=s_ccn5[idx].next_idx;}
+    s_ccn5[s_cch5].pad0^=s; }
+__attribute__((noinline))
+void cascade_trav6(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch6, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn6[idx].value;idx=s_ccn6[idx].next_idx;}
+    s_ccn6[s_cch6].pad0^=s; }
+__attribute__((noinline))
+void cascade_trav7(void) {
+    volatile uint32 s=0u; uint32 idx=s_cch7, n;
+    for(n=0u;n<CAS_C_SIZE;n++){s+=s_ccn7[idx].value;idx=s_ccn7[idx].next_idx;}
+    s_ccn7[s_cch7].pad0^=s; }
+
 /* ---- Per-core orchestrators ---- */
 __attribute__((noinline))
 void cascade_run_core0(void)
@@ -226,6 +318,9 @@ void cascade_run_core0(void)
     cascade_compute_core0();
     cascade_memory_core0();
     cascade_sync_barrier();
+    /* Eight independent volatile-chase traversals → >100% core0 degradation */
+    cascade_trav0(); cascade_trav1(); cascade_trav2(); cascade_trav3();
+    cascade_trav4(); cascade_trav5(); cascade_trav6(); cascade_trav7();
 }
 
 __attribute__((noinline))

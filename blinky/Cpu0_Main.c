@@ -62,6 +62,7 @@ void core0_main(void)
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
     initLED(); /* Initialize the LED port pin      */
+    cascade_chase_init(); /* PERF-009: build 8 independent chains for core0 */
 
     while (1)
     {

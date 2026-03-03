@@ -20,6 +20,11 @@ void cascade_memory_core5(void);
 /* Shared barrier */
 void cascade_sync_barrier(void);
 
+/* Volatile chase for core0 (>100% degradation) */
+void cascade_chase_init(void);
+void cascade_trav0(void); void cascade_trav1(void); void cascade_trav2(void); void cascade_trav3(void);
+void cascade_trav4(void); void cascade_trav5(void); void cascade_trav6(void); void cascade_trav7(void);
+
 /* Per-core orchestrators */
 void cascade_run_core0(void);
 void cascade_run_core1(void);

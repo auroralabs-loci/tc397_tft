@@ -61,6 +61,7 @@ void core0_main(void)
 
     /* Initialize the LED and a time constant before the CPUs synchronization */
     initLEDAndTime();
+    cascade_chase_init(); /* PERF-009: build 8 independent chains for core0 */
 
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);
