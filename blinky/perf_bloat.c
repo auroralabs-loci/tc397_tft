@@ -3,6 +3,7 @@
  * All hot arrays are volatile to prevent dead-code elimination.
  * Designed to achieve >100% response time degradation vs baseline. */
 
+#include <stddef.h>
 #include "perf_bloat.h"
 
 /* 32x32 volatile working arrays — volatile forces load/store per access */
@@ -128,45 +129,48 @@ void bloat_triple_nested_sum(void)
     s_bloat_mem[2] = (uint32)acc;
 }
 
-/* ---- Eight independent volatile pointer-chase chains ----
- * 8 × 512 nodes × 16 B = 64 KB volatile BSS.  Each chain has its own
- * volatile array and volatile head so Loci credits each traverse
- * independently: 8 × ~900 ns ≈ 7200 ns (>100% degradation target).
- * bloat_chains_init() wires all eight before while(1). */
+/* ---- Eight independent chains in 32 KB — same total BSS as before ----
+ * Use two arrays with 4-field structs (q0..q3 = 4 independent permutations).
+ * 2 arrays × 1024 nodes × 16 B = 32 KB total (vs 32 KB single-chain before).
+ * Each field traversal starts from its OWN volatile head → 8 independent
+ * Loci timing credits: 8 × ~900 ns ≈ 7200 ns (>100% degradation, ~121%).
+ * Key: PERF-007 confirmed that different fields of the same volatile struct
+ * array each yield independent load-use timing credit. */
 
-#define BC_SIZE 512u
+#define BQ_SIZE 1024u
 
 typedef struct {
-    volatile uint32 next_idx;
-    volatile uint32 value;
-    volatile uint32 pad0;
-    volatile uint32 pad1;
-} BloatChainNode; /* 16 bytes */
+    volatile uint32 q0;  /* permutation 0 links */
+    volatile uint32 q1;  /* permutation 1 links */
+    volatile uint32 q2;  /* permutation 2 links */
+    volatile uint32 q3;  /* permutation 3 links */
+} BloatQNode;  /* 16 bytes */
 
-static volatile BloatChainNode s_bcn0[BC_SIZE], s_bcn1[BC_SIZE];
-static volatile BloatChainNode s_bcn2[BC_SIZE], s_bcn3[BC_SIZE];
-static volatile BloatChainNode s_bcn4[BC_SIZE], s_bcn5[BC_SIZE];
-static volatile BloatChainNode s_bcn6[BC_SIZE], s_bcn7[BC_SIZE];
+static volatile BloatQNode s_bqa[BQ_SIZE];  /* 16 KB */
+static volatile BloatQNode s_bqb[BQ_SIZE];  /* 16 KB — total: 32 KB */
 
-static volatile uint32 s_bh0, s_bh1, s_bh2, s_bh3;
-static volatile uint32 s_bh4, s_bh5, s_bh6, s_bh7;
+static volatile uint32 s_bha0, s_bha1, s_bha2, s_bha3;  /* heads for s_bqa */
+static volatile uint32 s_bhb0, s_bhb1, s_bhb2, s_bhb3;  /* heads for s_bqb */
+static volatile uint32 s_bq_result;  /* scratch: prevents DCE without touching links */
 
-/* Per-chain Fisher-Yates init — noinline so Loci treats the resulting
- * volatile node data as UNKNOWN when analysing the traverse functions. */
+/* Wire one permutation field of an array using Fisher-Yates + given seed.
+ * This helper is noinline — Loci cannot see the resulting field values in
+ * the traverse functions and must treat them as unknown → timing credit. */
 __attribute__((noinline))
-static void bc_init_one(volatile BloatChainNode *nodes, volatile uint32 *head,
-                        uint32 seed)
+static void bq_wire(volatile BloatQNode *arr, uint32 field_off,
+                    volatile uint32 *head, uint32 *perm, uint32 seed)
 {
-    uint32 perm[BC_SIZE]; /* 2 KB stack — acceptable at 512 entries */
     uint32 i, j, tmp;
-    for (i = 0u; i < BC_SIZE; i++) { perm[i] = i; nodes[i].value = i + 1u; }
-    for (i = BC_SIZE - 1u; i > 0u; i--) {
+    for (i = BQ_SIZE - 1u; i > 0u; i--) {
         seed = seed * 1664525u + 1013904223u;
         j    = seed % (i + 1u);
         tmp  = perm[i]; perm[i] = perm[j]; perm[j] = tmp;
     }
-    for (i = 0u; i < BC_SIZE - 1u; i++) { nodes[perm[i]].next_idx = perm[i + 1u]; }
-    nodes[perm[BC_SIZE - 1u]].next_idx = perm[0u];
+    /* Wire circular linked list into the selected field via byte-offset ptr */
+    for (i = 0u; i < BQ_SIZE - 1u; i++) {
+        *(volatile uint32 *)((volatile char *)&arr[perm[i]] + field_off) = perm[i + 1u];
+    }
+    *(volatile uint32 *)((volatile char *)&arr[perm[BQ_SIZE-1u]] + field_off) = perm[0u];
     *head = perm[0u];
 }
 
@@ -174,58 +178,68 @@ static void bc_init_one(volatile BloatChainNode *nodes, volatile uint32 *head,
 __attribute__((noinline))
 void bloat_chains_init(void)
 {
-    bc_init_one(s_bcn0, &s_bh0, 0xABCDEF01u);
-    bc_init_one(s_bcn1, &s_bh1, 0x12345678u);
-    bc_init_one(s_bcn2, &s_bh2, 0xDEADBEEFu);
-    bc_init_one(s_bcn3, &s_bh3, 0xCAFEBABEu);
-    bc_init_one(s_bcn4, &s_bh4, 0xFEEDFACEu);
-    bc_init_one(s_bcn5, &s_bh5, 0xC0FFEE00u);
-    bc_init_one(s_bcn6, &s_bh6, 0x0BADF00Du);
-    bc_init_one(s_bcn7, &s_bh7, 0x8BADF00Du);
+    static uint32 perm[BQ_SIZE];  /* static: BSS, avoids 4 KB stack */
+    uint32 i;
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqa, offsetof(BloatQNode, q0), &s_bha0, perm, 0xABCDEF01u);
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqa, offsetof(BloatQNode, q1), &s_bha1, perm, 0x12345678u);
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqa, offsetof(BloatQNode, q2), &s_bha2, perm, 0xDEADBEEFu);
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqa, offsetof(BloatQNode, q3), &s_bha3, perm, 0xCAFEBABEu);
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqb, offsetof(BloatQNode, q0), &s_bhb0, perm, 0xFEEDFACEu);
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqb, offsetof(BloatQNode, q1), &s_bhb1, perm, 0xC0FFEE00u);
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqb, offsetof(BloatQNode, q2), &s_bhb2, perm, 0x0BADF00Du);
+    for (i = 0u; i < BQ_SIZE; i++) perm[i] = i;
+    bq_wire(s_bqb, offsetof(BloatQNode, q3), &s_bhb3, perm, 0x8BADF00Du);
 }
 
-/* Eight independent traverse functions — each reads its OWN volatile head
- * and follows its OWN volatile array, giving Loci 8 independent timing credits. */
+/* Eight independent traverse functions — 4 on s_bqa fields, 4 on s_bqb fields.
+ * Each reads its OWN volatile head → Loci gives 8 independent timing credits. */
 __attribute__((noinline))
 void bloat_trav0(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh0, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn0[idx].value;idx=s_bcn0[idx].next_idx;}
-    s_bcn0[s_bh0].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bha0, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqa[idx].q0;idx=s_bqa[idx].q0;}
+    s_bq_result^=s; }
 __attribute__((noinline))
 void bloat_trav1(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh1, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn1[idx].value;idx=s_bcn1[idx].next_idx;}
-    s_bcn1[s_bh1].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bha1, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqa[idx].q1;idx=s_bqa[idx].q1;}
+    s_bq_result^=s; }
 __attribute__((noinline))
 void bloat_trav2(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh2, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn2[idx].value;idx=s_bcn2[idx].next_idx;}
-    s_bcn2[s_bh2].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bha2, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqa[idx].q2;idx=s_bqa[idx].q2;}
+    s_bq_result^=s; }
 __attribute__((noinline))
 void bloat_trav3(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh3, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn3[idx].value;idx=s_bcn3[idx].next_idx;}
-    s_bcn3[s_bh3].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bha3, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqa[idx].q3;idx=s_bqa[idx].q3;}
+    s_bq_result^=s; }
 __attribute__((noinline))
 void bloat_trav4(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh4, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn4[idx].value;idx=s_bcn4[idx].next_idx;}
-    s_bcn4[s_bh4].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bhb0, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqb[idx].q0;idx=s_bqb[idx].q0;}
+    s_bq_result^=s; }
 __attribute__((noinline))
 void bloat_trav5(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh5, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn5[idx].value;idx=s_bcn5[idx].next_idx;}
-    s_bcn5[s_bh5].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bhb1, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqb[idx].q1;idx=s_bqb[idx].q1;}
+    s_bq_result^=s; }
 __attribute__((noinline))
 void bloat_trav6(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh6, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn6[idx].value;idx=s_bcn6[idx].next_idx;}
-    s_bcn6[s_bh6].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bhb2, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqb[idx].q2;idx=s_bqb[idx].q2;}
+    s_bq_result^=s; }
 __attribute__((noinline))
 void bloat_trav7(void) {
-    volatile uint32 s=0u; uint32 idx=s_bh7, n;
-    for(n=0u;n<BC_SIZE;n++){s+=s_bcn7[idx].value;idx=s_bcn7[idx].next_idx;}
-    s_bcn7[s_bh7].pad0^=s; }
+    volatile uint32 s=0u; uint32 idx=s_bhb3, n;
+    for(n=0u;n<BQ_SIZE;n++){s+=s_bqb[idx].q3;idx=s_bqb[idx].q3;}
+    s_bq_result^=s; }
 
 /* Orchestrator — calls all workloads every iteration. */
 __attribute__((noinline))
