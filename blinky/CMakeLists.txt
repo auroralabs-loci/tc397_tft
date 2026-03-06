@@ -9,6 +9,7 @@ add_executable(${TARGET}
   Cpu3_Main.c
   Cpu4_Main.c
   Cpu5_Main.c
+  "${PROJECT_SOURCE_DIR}/Libraries/iLLD/TC39B/Tricore/_PinMap/IfxGtm_PinMap.c"
 )
 
 target_compile_features(${TARGET} PRIVATE c_std_99 cxx_std_11)
@@ -19,6 +20,7 @@ target_include_directories(${TARGET}
   PUBLIC
     "${PROJECT_SOURCE_DIR}/Libraries/iLLD/TC39B/Tricore/Port/Std"
     "${PROJECT_SOURCE_DIR}/Libraries/iLLD/TC39B/Tricore/"
+    "${PROJECT_SOURCE_DIR}/Libraries/iLLD/TC39B/Tricore/_PinMap"
     "${PROJECT_SOURCE_DIR}/Libraries/Infra/Platform/"
     "${PROJECT_SOURCE_DIR}/Configurations/"
     "${PROJECT_SOURCE_DIR}/Libraries/Infra/Sfr/TC39B/_Reg/"
