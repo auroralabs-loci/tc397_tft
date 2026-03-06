@@ -30,6 +30,8 @@
 /*********************************************************************************************************************/
 #include "IfxPort.h"
 #include "Bsp.h"
+#include "IfxGtm_PinMap.h"
+#include "Blinky_LED.h"
 
 /*********************************************************************************************************************/
 /*------------------------------------------------------Macros-------------------------------------------------------*/
@@ -50,9 +52,49 @@ void initLED(void)
     IfxPort_setPinHigh(LED_D107);
 }
 
-/* This function toggles the port pin and wait 500 milliseconds */
-void blinkLED(void)
+__attribute__((noinline)) static void simulateCpuWorkload(void)
 {
-    IfxPort_togglePin(LED_D107);                                                /* Toggle the state of the LED      */
-    waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, WAIT_TIME));    /* Wait 500 milliseconds            */
+    /*
+     * Intentional extra CPU work to simulate a measurable runtime slowdown.
+     * This kind of thing sometimes appears during quick bring-up/debug when
+     * someone experiments with timing and forgets to remove it.
+     */
+    volatile uint32 checksum = 0u;
+    for (uint32 i = 0u; i < 500000u; ++i)
+    {
+        checksum += (i ^ (checksum >> 3)) + 0x9e3779b9u;
+    }
+    (void)checksum;
+}
+
+/* Validates the GTM pin mapping for P00.5 and runs pre-blink housekeeping.
+ * References IfxGtm_ATOM0_1N_TOUT14_P00_5_OUT from IfxGtm_PinMap.c to confirm
+ * the ATOM output channel assigned to the LED pin, then calls largeFunction()
+ * from LargeFunction.c to perform extended stack/variable verification. */
+static void checkGtmPinConfig(void)
+{
+    /* Pull the pin-map descriptor for P00.5 that is defined in IfxGtm_PinMap.c */
+    extern IfxGtm_Atom_ToutMap IfxGtm_ATOM0_1N_TOUT14_P00_5_OUT;
+    IfxGtm_Atom_ToutMap *pinMap = &IfxGtm_ATOM0_1N_TOUT14_P00_5_OUT;
+
+    /* Re-apply the port output mode using the port/pin info from the GTM map */
+    IfxPort_setPinMode(pinMap->pin.port, pinMap->pin.pinIndex,
+                       IfxPort_Mode_outputPushPullGeneral);
+
+    /* Exercise the large-variable stack frame defined in LargeFunction.c */
+    largeFunction();
+}
+
+/* This function toggles the port pin and wait 500 milliseconds */
+void blinkLED(void) {
+    IfxPort_setPinMode(&MODULE_P00, 5, IfxPort_Mode_outputPushPullGeneral);
+
+    /* Run GTM pin validation and pre-blink housekeeping once before the loop */
+    checkGtmPinConfig();
+
+    while (1) {
+        simulateCpuWorkload();
+        IfxPort_togglePin(&MODULE_P00, 5);
+        waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, 500));
+    }
 }
