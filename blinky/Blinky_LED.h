@@ -33,5 +33,6 @@
 /*********************************************************************************************************************/
 void initLED(void);
 void blinkLED(void);
+int  computeMetrics(volatile unsigned int *buf, int n);
 
 #endif /* BLINKY_LED_H_ */

@@ -34,8 +34,24 @@
 /*********************************************************************************************************************/
 /*------------------------------------------------------Macros-------------------------------------------------------*/
 /*********************************************************************************************************************/
-#define LED_D107    &MODULE_P13,0                                           /* LED D107: Port, Pin definition       */
-#define WAIT_TIME   500                                                     /* Wait time constant in milliseconds   */
+#define LED_D107        &MODULE_P13,0   /* LED D107: Port, Pin definition                                           */
+#define WAIT_TIME       500             /* Wait time constant in milliseconds                                        */
+#define SCAN_BUF_LEN    16              /* Length of the shared scan buffer                                          */
+
+/*********************************************************************************************************************/
+/*-------------------------------------------------Global variables--------------------------------------------------*/
+/*********************************************************************************************************************/
+/* Shared data buffer exercised by the scan routines below */
+static volatile unsigned int g_scanBuf[SCAN_BUF_LEN] = {
+    2u, 3u, 5u, 7u, 11u, 13u, 17u, 19u,
+    4u, 6u, 10u, 14u, 22u, 26u, 34u, 38u
+};
+
+/*********************************************************************************************************************/
+/*------------------------------------------------Forward Declarations-----------------------------------------------*/
+/*********************************************************************************************************************/
+static int slowScanBuffer(volatile unsigned int *buf, int len);
+static int fastScanBuffer(volatile unsigned int *buf, int len);
 
 /*********************************************************************************************************************/
 /*---------------------------------------------Function Implementations----------------------------------------------*/
@@ -50,9 +66,91 @@ void initLED(void)
     IfxPort_setPinHigh(LED_D107);
 }
 
-/* This function toggles the port pin and wait 500 milliseconds */
+/* This function toggles the port pin and waits 500 milliseconds.
+ * It also invokes slowScanBuffer to deliberately increase the execution
+ * time of the blink cycle - a measurable performance regression.           */
 void blinkLED(void)
 {
     IfxPort_togglePin(LED_D107);                                                /* Toggle the state of the LED      */
     waitTime(IfxStm_getTicksFromMilliseconds(BSP_DEFAULT_TIMER, WAIT_TIME));    /* Wait 500 milliseconds            */
+    (void)slowScanBuffer(g_scanBuf, SCAN_BUF_LEN);                             /* deliberate slowdown              */
+}
+
+/*********************************************************************************************************************/
+/*----------------------------------------------Performance Test Functions--------------------------------------------*/
+/*********************************************************************************************************************/
+
+/* slowScanBuffer:
+ * Double nested loop over the buffer with a seven-branch conditional dispatch
+ * on each element.  Integer divisions (%3, %5, %7, %11, %13) are deliberately
+ * expensive on TriCore; the data-dependent branch chain prevents the compiler
+ * from removing any branch.  Marked noinline so the function body is always
+ * emitted as a separate symbol and never merged with the fast version.      */
+__attribute__((noinline)) static int
+slowScanBuffer(volatile unsigned int *buf, int len)
+{
+    int acc = 0;
+    int pass, i;
+    for (pass = 0; pass < 8; pass++) {
+        for (i = 0; i < len; i++) {
+            unsigned int v = buf[i];
+            if ((v % 2u) == 0u) {
+                acc += (int)(v * 3u)  - (int)(v >> 1);
+            } else if ((v % 3u) == 0u) {
+                acc -= (int)(v * 5u)  + (int)(v >> 2);
+            } else if ((v % 5u) == 0u) {
+                acc ^= (int)(v * 7u)  - (int)(v >> 3);
+            } else if ((v % 7u) == 0u) {
+                acc |= (int)(v * 11u) ^ (int)(v >> 4);
+            } else if ((v % 11u) == 0u) {
+                acc -= (int)(v * v)   + (int)(v >> 1);
+            } else if ((v % 13u) == 0u) {
+                acc += (int)(v >> 2)  - (int)(v >> 4) + (int)(v * 3u);
+            } else {
+                acc += (int)(v * 2u)  - (int)(v >> 3) ^ (int)(v * 17u);
+            }
+        }
+    }
+    return acc;
+}
+
+/* fastScanBuffer:
+ * Optimised counterpart of slowScanBuffer.  The loop is manually unrolled
+ * four-wide so the TriCore load-add pipeline stays full.  No integer
+ * divisions, no conditional branches: a straight-line sequence of LD.W /
+ * ADD instructions executes at near-peak throughput and runs substantially
+ * faster than the slow version on the same buffer.                          */
+__attribute__((noinline)) static int
+fastScanBuffer(volatile unsigned int *buf, int len)
+{
+    int a0 = 0, a1 = 0, a2 = 0, a3 = 0;
+    int i = 0;
+    for (; i + 3 < len; i += 4) {
+        a0 += (int)buf[i];
+        a1 += (int)buf[i + 1];
+        a2 += (int)buf[i + 2];
+        a3 += (int)buf[i + 3];
+    }
+    for (; i < len; i++) {
+        a0 += (int)buf[i];
+    }
+    return a0 + a1 + a2 + a3;
+}
+
+/* computeMetrics  (blinky binary)
+ *
+ * Three consecutive calls to fastScanBuffer with only a handful of
+ * instructions between each call site.  Every inter-call segment is tiny
+ * (a few integer instructions at most), so the LCLM-predicted bottleneck
+ * and predicted throughput (= sum of all segment predictions) converge to
+ * the same small value.  On functions with uniformly tiny segments the
+ * model's absolute prediction error is proportionally large, making it
+ * likely to predict bottleneck >= throughput - a structurally impossible
+ * result that exposes a weakness in the predictor.                          */
+int computeMetrics(volatile unsigned int *buf, int n)
+{
+    int r1 = fastScanBuffer(buf,                         n);
+    int r2 = fastScanBuffer(buf + 4, n > 4 ? n - 4 : 1);
+    int r3 = fastScanBuffer(buf + 8, n > 8 ? n - 8 : 1);
+    return r1 + r2 + r3;
 }
