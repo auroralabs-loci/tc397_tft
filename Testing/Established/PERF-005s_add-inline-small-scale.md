@@ -62,6 +62,51 @@ We want to answer:
   processing time.
 - **Model throughput:** At peak.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 0 | All functions are `static inline always_inline`, header-only |
+| New local/static symbols | 0 | `always_inline` prevents any symbol emission |
+| Inlined-away functions | 3 | All 3 inlined directly into existing `core0_main` |
+| Modified existing functions | 1 | `core0_main` — expanded with inlined code |
+| Total function count delta | 0 | No new function symbols; code folded into `core0_main` |
+
+**Inlined-away functions (all `static inline __attribute__((always_inline))`):**
+- `inl_small_hash` — hash mixing with XOR and multiply
+- `inl_small_rotl` — rotate-left helper
+- `inl_small_mix` — combines hash + rotl with constants `0xDEADBEEF`, `0xCAFEBABE`
+
+**Inline vs Not-Inline:** ALL 3 are `always_inline`, defined in header only
+(`perf_inline_small.h`). No separate `.c` file. Zero new symbols — the most
+extreme inline variant. LOCI must detect changes from `core0_main` body growth.
+
+## Source-to-Binary Function Correlation
+
+```
+Source                              Compilation                 ELF Binary
+─────                               ───────────                 ──────────
+
+perf_inline_small.h (HEADER ONLY)   GCC TriCore -O2
+┌─────────────────────────────┐     ┌────────────────┐
+│ static inline always_inline │     │  Header-only.  │
+│  inl_small_hash()           │────▶│  All expanded  │     NO NEW SYMBOLS
+│  inl_small_rotl()           │────▶│  at #include   │─────────────┐
+│  inl_small_mix()            │────▶│  site.         │             │
+└─────────────────────────────┘     └────────────────┘             ▼
+                                                     ┌──────────────────────────┐
+Cpu0_Main.c                                         │ core0_main         [GLB] │
+┌─────────────────────────────┐                     │   inl_small_mix()        │
+│ core0_main()                │                     │   inlined HERE           │
+│   while(1) {                │──── INLINED ───────▶│   (no CALL, code pasted) │
+│     inl_small_mix(...)      │                     │   CALL blinkLED          │
+│     blinkLED()              │                     └──────────────────────────┘
+│   }                         │
+└─────────────────────────────┘      0 new symbols (all inlined)
+                                     3 INLINED (invisible)
+                                     1 modified (core0_main body grows)
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

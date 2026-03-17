@@ -80,6 +80,57 @@ We want to answer:
 - **Model throughput:** No difference expected from baseline large-delta
   throughput.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 7 | All optimized workload functions, extern |
+| New local/static symbols | 0 | CRC table is `static const` data, not a function |
+| Inlined-away functions | 0 | No inline qualifiers — optimizations are algorithmic |
+| Modified existing functions | 1 | `core0_main` — adds call to `opt_run_all()` in main loop |
+| Total function count delta | +7 | Baseline ~171 → expected ~178 |
+
+**New function symbols (all extern, all GLOBAL):**
+- `opt_matrix_multiply` — cache-friendly transposed 8x8 multiply
+- `opt_crc32_table` — 256-entry lookup table CRC
+- `opt_insertion_sort` — insertion sort (vs bubble sort in PERF-001)
+- `opt_memory_copy_aligned` — 4-element unrolled memcpy
+- `opt_bitfield_fast` — optimized bitfield operations
+- `opt_fibonacci` — iterative fibonacci with early exit
+- `opt_run_all` — orchestrator, calls all above
+
+**Static data:** `crc_table[256]` precomputed CRC32 LUT in `.rodata` (+1KB).
+
+**Inline vs Not-Inline:** None inline. Same 7-function structure as PERF-001
+but with algorithmic optimizations (LUT CRC, insertion sort, loop unrolling).
+
+## Source-to-Binary Function Correlation
+
+```
+Source                         Compilation              ELF Binary
+─────                          ───────────              ──────────
+
+perf_optimized.c                GCC TriCore -O2
+┌───────────────────────┐      ┌──────────────┐    ┌──────────────────────────────┐
+│ opt_matrix_multiply() │─────▶│  All extern  │───▶│ opt_matrix_multiply    [GLB] │
+│ opt_crc32_table()     │─────▶│  discrete    │───▶│ opt_crc32_table        [GLB] │
+│ opt_insertion_sort()  │─────▶│  symbols     │───▶│ opt_insertion_sort     [GLB] │
+│ opt_memory_copy_aln() │─────▶│              │───▶│ opt_memory_copy_aligned[GLB] │
+│ opt_bitfield_fast()   │─────▶│  Optimized   │───▶│ opt_bitfield_fast      [GLB] │
+│ opt_fibonacci()       │─────▶│  algorithms  │───▶│ opt_fibonacci          [GLB] │
+│ opt_run_all()         │─────▶│              │───▶│ opt_run_all            [GLB] │
+└───────────────────────┘      └──────────────┘    │                              │
+                                                    │ crc_table[256] → .rodata     │
+Cpu0_Main.c                                        │                              │
+┌───────────────────────┐                          │ core0_main             [GLB] │
+│ core0_main()          │──── CALL ───────────────▶│   CALL opt_run_all           │
+│   while(1) {          │                          │   CALL blinkLED              │
+│     opt_run_all()     │                          └──────────────────────────────┘
+│     blinkLED()        │
+│   }                   │         7 new GLOBAL symbols + 1KB .rodata
+└───────────────────────┘         1 modified (core0_main)
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

@@ -77,6 +77,55 @@ We want to answer:
 - **Power:** Tighter asm loops may reduce power. More memory accesses
   from poor register allocation would increase it.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 7 | All extern functions containing TriCore inline asm |
+| New local/static symbols | 0 | No static functions |
+| Inlined-away functions | 0 | No inline qualifiers; `asm volatile` blocks prevent optimization |
+| Modified existing functions | 1 | `core0_main` — adds call to `asm_run_all()` in main loop |
+| Total function count delta | +7 | Baseline ~171 → expected ~178 |
+
+**New function symbols (all extern, all contain `__asm__ volatile`, all GLOBAL):**
+- `asm_saturated_add_array` — TriCore `adds.h` packed saturated addition
+- `asm_crc32_byte` — CRC via `xor`, `and`, `rsub`, `sh` instructions
+- `asm_memory_fill` — memory fill via `st.w`
+- `asm_count_leading_zeros` — TriCore `cls` instruction
+- `asm_bit_reverse` — `extr.u` + `insert` bit manipulation
+- `asm_packed_abs` — `abs.h` packed absolute value
+- `asm_run_all` — orchestrator, calls all above
+
+**Inline vs Not-Inline:** None are inline. The `asm volatile` blocks guarantee
+each function appears as a discrete global symbol with assembly embedded in .text.
+
+## Source-to-Binary Function Correlation
+
+```
+Source                       Compilation                  ELF Binary
+─────                        ───────────                  ──────────
+
+perf_asm.c                    GCC TriCore -O2
+┌──────────────────────┐     ┌───────────────┐    ┌─────────────────────────────┐
+│ asm_saturated_add()  │────▶│  asm volatile │───▶│ asm_saturated_add     [GLB] │
+│ asm_crc32_byte()     │────▶│  blocks are   │───▶│ asm_crc32_byte        [GLB] │
+│ asm_memory_fill()    │────▶│  emitted       │───▶│ asm_memory_fill       [GLB] │
+│ asm_count_lead_z()   │────▶│  verbatim.    │───▶│ asm_count_leading_z   [GLB] │
+│ asm_bit_reverse()    │────▶│  Compiler      │───▶│ asm_bit_reverse       [GLB] │
+│ asm_packed_abs()     │────▶│  cannot        │───▶│ asm_packed_abs        [GLB] │
+│ asm_run_all()        │────▶│  optimize asm │───▶│ asm_run_all           [GLB] │
+└──────────────────────┘     └───────────────┘    │                             │
+                                                   │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│
+Cpu0_Main.c                                       │ core0_main            [GLB] │
+┌──────────────────────┐                          │   CALL asm_run_all          │
+│ core0_main()         │──── CALL ───────────────▶│   CALL blinkLED             │
+│   while(1) {         │                          └─────────────────────────────┘
+│     asm_run_all()    │
+│     blinkLED()       │         7 new GLOBAL symbols
+│   }                  │         0 inlined / invisible
+└──────────────────────┘         1 modified (core0_main)
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 
