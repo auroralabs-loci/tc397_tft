@@ -39,6 +39,34 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_workload.h"
+
+static inline __attribute__((always_inline)) uint32 perf_inline_xorshift(uint32 val)
+{
+    val ^= val << 13;
+    val ^= val >> 17;
+    val ^= val << 5;
+    return val;
+}
+
+static inline __attribute__((always_inline)) uint32 perf_inline_hash_mix(uint32 a, uint32 b)
+{
+    a -= b; a ^= (b << 6);
+    b -= a; b ^= (a >> 8);
+    a -= b; a ^= (b << 16);
+    return a ^ b;
+}
+
+static inline __attribute__((always_inline)) uint32 perf_inline_rotate_acc(uint32 val, uint32 rounds)
+{
+    uint32 i;
+    for (i = 0; i < rounds; i++)
+    {
+        val = (val << 7) | (val >> 25);
+        val *= 0x9E3779B9u;
+    }
+    return val;
+}
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -62,8 +90,13 @@ void core0_main(void)
 
     initLED(); /* Initialize the LED port pin      */
 
+    volatile uint32 perf_marker = 0;
     while (1)
     {
-        blinkLED(); /* Make the LED blink           */
+        perf_run_all_workloads();
+        perf_marker = perf_inline_xorshift((uint32)perf_marker + 1u);
+        perf_marker = perf_inline_hash_mix((uint32)perf_marker, 0xDEADBEEFu);
+        perf_marker = perf_inline_rotate_acc((uint32)perf_marker, 10u);
+        blinkLED();
     }
 }
