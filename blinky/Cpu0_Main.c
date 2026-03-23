@@ -39,6 +39,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_branch.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -62,8 +63,11 @@ void core0_main(void)
 
     initLED(); /* Initialize the LED port pin      */
 
+    branch_chains_init(); /* PERF-008: build 8 independent linked lists before loop */
+
     while (1)
     {
+        branch_run_all(); /* PERF-008: branch prediction destroyer per iteration */
         blinkLED(); /* Make the LED blink           */
     }
 }
