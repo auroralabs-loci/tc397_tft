@@ -41,6 +41,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Multicore.h"
+#include "perf_bloat.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -65,8 +66,11 @@ void core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
+    bloat_chains_init(); /* PERF-006: build 8 independent linked lists before loop */
+
     while (1)
     {
+        bloat_run_all(); /* PERF-006: nested loop bloat workload */
         turnLEDon(); /* If the global variable g_turnLEDon is TRUE, turn on the LED */
     }
 }
