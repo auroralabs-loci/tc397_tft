@@ -73,6 +73,57 @@ We want to answer:
 - **Model response time:** Expected to be higher than small-delta tests due
   to the volume of changes to process.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 7 | All workload functions forced as discrete symbols via `__attribute__((noinline))` |
+| New local/static symbols | 0 | No static functions in this variant |
+| Inlined-away functions | 0 | `noinline` attribute prevents all inlining |
+| Modified existing functions | 1 | `core0_main` — adds call to `perf_run_all_workloads()` in main loop |
+| Total function count delta | +7 | Baseline ~171 functions → expected ~178 |
+
+**New function symbols (all `__attribute__((noinline))`, all GLOBAL):**
+- `perf_matrix_multiply` — 8x8 matrix multiply
+- `perf_crc32_compute` — bit-by-bit CRC32
+- `perf_bubble_sort` — bubble sort 256 elements
+- `perf_memory_stress` — volatile memory read/write
+- `perf_bitfield_stress` — shift/rotate/XOR operations
+- `perf_fibonacci_iterative` — iterative fibonacci(40)
+- `perf_run_all_workloads` — orchestrator, calls all above
+
+**Inline vs Not-Inline:** All 7 functions are explicitly `noinline`. The compiler
+MUST emit a separate symbol for each, with full call/return overhead at every call
+site. This is the maximum-overhead variant — paired with PERF-005 which makes the
+same functions `always_inline`.
+
+## Source-to-Binary Function Correlation
+
+```
+Source                          Compilation                    ELF Binary
+─────                          ───────────                    ──────────
+
+perf_workload_noinline.c        GCC TriCore -O2
+┌─────────────────────────┐    ┌──────────────┐    ┌─────────────────────────────┐
+│ perf_matrix_multiply()  │───▶│  noinline    │───▶│ perf_matrix_multiply  [GLB] │
+│ perf_crc32_compute()    │───▶│  Forces       │───▶│ perf_crc32_compute    [GLB] │
+│ perf_bubble_sort()      │───▶│  discrete     │───▶│ perf_bubble_sort      [GLB] │
+│ perf_memory_stress()    │───▶│  symbol       │───▶│ perf_memory_stress    [GLB] │
+│ perf_bitfield_stress()  │───▶│  emission.    │───▶│ perf_bitfield_stress  [GLB] │
+│ perf_fibonacci_iter..() │───▶│  Each gets    │───▶│ perf_fibonacci_iter.. [GLB] │
+│ perf_run_all_workloads()│───▶│  own entry.   │───▶│ perf_run_all_workloads[GLB] │
+└─────────────────────────┘    └──────────────┘    │                             │
+                                                    │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │
+Cpu0_Main.c                                        │ core0_main            [GLB] │
+┌─────────────────────────┐                        │   CALL perf_run_all_wklds   │
+│ core0_main()            │───────── CALL ────────▶│   CALL blinkLED             │
+│   while(1) {            │                        └─────────────────────────────┘
+│     perf_run_all_wklds()│
+│     blinkLED()          │        7 new GLOBAL symbols
+│   }                     │        0 inlined / invisible
+└─────────────────────────┘        1 modified (core0_main)
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

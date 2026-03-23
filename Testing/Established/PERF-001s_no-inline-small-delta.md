@@ -59,6 +59,49 @@ We want to answer:
   complete in the model's minimum processing time.
 - **Model throughput:** At or near peak — small deltas are the easy case.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 3 | Three small workloads, all `__attribute__((noinline))` |
+| New local/static symbols | 0 | No static functions |
+| Inlined-away functions | 0 | `noinline` prevents inlining |
+| Modified existing functions | 1 | `core0_main` — adds 3 direct calls in main loop |
+| Total function count delta | +3 | Baseline ~157 → expected ~160 |
+
+**New function symbols (all `__attribute__((noinline))`, all GLOBAL):**
+- `perf_small_crc` — lightweight CRC on 16-byte buffer
+- `perf_small_fibonacci` — iterative fibonacci(30)
+- `perf_small_bitrotate` — 500 iterations of shift/rotate
+
+**Inline vs Not-Inline:** All 3 are `noinline`, each emitted as a discrete global
+symbol. Called directly from `core0_main` (no orchestrator function).
+
+## Source-to-Binary Function Correlation
+
+```
+Source                            Compilation              ELF Binary
+─────                            ───────────              ──────────
+
+perf_workload_small_noinline.c    GCC TriCore -O2
+┌────────────────────────┐       ┌──────────────┐    ┌──────────────────────────┐
+│ perf_small_crc()       │──────▶│  noinline    │───▶│ perf_small_crc     [GLB] │
+│ perf_small_fibonacci() │──────▶│  3 discrete  │───▶│ perf_small_fibonacci[GLB]│
+│ perf_small_bitrotate() │──────▶│  symbols     │───▶│ perf_small_bitrotate[GLB]│
+└────────────────────────┘       └──────────────┘    │                          │
+                                                      │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │
+Cpu0_Main.c                                          │ core0_main         [GLB] │
+┌────────────────────────┐                           │   CALL perf_small_crc    │
+│ core0_main()           │──── 3 direct CALLs ─────▶│   CALL perf_small_fib    │
+│   while(1) {           │                           │   CALL perf_small_bitrot │
+│     perf_small_crc()   │                           │   CALL blinkLED          │
+│     perf_small_fib()   │                           └──────────────────────────┘
+│     perf_small_bitrot()│
+│     blinkLED()         │         3 new GLOBAL symbols
+│   }                    │         0 inlined / invisible
+└────────────────────────┘         1 modified (core0_main)
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

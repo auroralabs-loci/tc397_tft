@@ -66,6 +66,42 @@ We want to answer:
 - **Error rate:** Zero errors expected for small deltas even under
   volume. If errors appear, the model has a concurrency issue.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 1 | Single extern function: `light_hash` |
+| New local/static symbols | 0 | No static functions |
+| Inlined-away functions | 0 | No inline qualifiers |
+| Modified existing functions | 1 | `core0_main` — adds direct call in main loop |
+| Total function count delta | +1 | Baseline ~157 → expected ~158 |
+
+**New function symbol:**
+- `light_hash` — FNV-1a-like hash. Called as `light_hash(0xDEADu, 100)`.
+
+**Inline vs Not-Inline:** Not inline. Extern with discrete global symbol.
+
+## Source-to-Binary Function Correlation
+
+```
+Source                       Compilation              ELF Binary
+─────                        ───────────              ──────────
+
+perf_light.c                  GCC TriCore -O2
+┌──────────────────────┐     ┌──────────────┐    ┌──────────────────────────┐
+│ light_hash()         │────▶│  extern      │───▶│ light_hash         [GLB] │
+└──────────────────────┘     └──────────────┘    │                          │
+                                                  │ core0_main         [GLB] │
+Cpu0_Main.c                                      │   CALL light_hash        │
+┌──────────────────────┐                         │   CALL blinkLED          │
+│ core0_main()         │──── CALL ──────────────▶└──────────────────────────┘
+│   while(1) {         │
+│     light_hash()     │         1 new GLOBAL symbol
+│     blinkLED()       │         1 modified (core0_main)
+│   }                  │
+└──────────────────────┘
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

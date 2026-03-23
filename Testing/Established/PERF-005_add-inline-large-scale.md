@@ -76,6 +76,52 @@ We want to answer:
 - **Model throughput:** No significant difference from other large-delta
   tests.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 1 | Only `perf_run_all_workloads` is extern |
+| New local/static symbols | 0 | All helpers are `static inline always_inline` |
+| Inlined-away functions | 6 | All helpers forced-inline into `perf_run_all_workloads` |
+| Modified existing functions | 1 | `core0_main` — adds call in main loop |
+| Total function count delta | +1 | 6 functions compiled INTO 1 visible symbol |
+
+**The sole global symbol:**
+- `perf_run_all_workloads` — all 6 helpers inlined into this function body.
+
+**Inlined-away functions (all `static inline __attribute__((always_inline))`):**
+- `perf_matrix_multiply`, `perf_crc32_compute`, `perf_bubble_sort`,
+  `perf_memory_stress`, `perf_bitfield_stress`, `perf_fibonacci_iterative`
+
+**Inline vs Not-Inline:** Maximum inline variant — exact inverse of PERF-001.
+PERF-001 produces 7 global symbols. PERF-005 produces 1 (containing the same code).
+
+## Source-to-Binary Function Correlation
+
+```
+Source                              Compilation                ELF Binary
+─────                               ───────────                ──────────
+
+perf_workload_inline.c               GCC TriCore -O2
+┌─────────────────────────────┐     ┌────────────────┐
+│ static inline always_inline │     │                │
+│  perf_matrix_multiply()     │────▶│  always_inline │
+│  perf_crc32_compute()       │────▶│  expanded at   │
+│  perf_bubble_sort()         │────▶│  call site     │──┐
+│  perf_memory_stress()       │────▶│  inside the    │  │  ┌────────────────────────┐
+│  perf_bitfield_stress()     │────▶│  caller body.  │  └─▶│ perf_run_all_wklds     │
+│  perf_fibonacci_iterative() │────▶│  No symbols.   │     │   [GLB]               │
+│                             │     │                │────▶│   All 6 inlined here   │
+│ void (extern)               │     │  Only the      │     │                        │
+│  perf_run_all_workloads()   │────▶│  orchestrator  │     │ core0_main       [GLB] │
+└─────────────────────────────┘     │  gets a symbol │────▶│   CALL perf_run_all    │
+                                     └────────────────┘     └────────────────────────┘
+
+                                        1 new GLOBAL symbol
+                                        6 INLINED (invisible to nm/objdump)
+                                        1 modified (core0_main)
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

@@ -86,6 +86,54 @@ We want to answer:
   model load (the chip doesn't know or care how busy the CI is). If
   hardware results drift, something else is wrong.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 11 | 5 workload functions + 6 per-core dispatchers |
+| New local/static symbols | 1 | `fib_recursive` — static, recursive (cannot be inlined) |
+| Inlined-away functions | 0 | No inline qualifiers used |
+| Modified existing functions | 6 | `core0_main` through `core5_main` — each adds one-shot call |
+| Total function count delta | +12 | Baseline ~171 → expected ~183 (11 global + 1 local) |
+
+**New global function symbols (all extern):**
+- `heavy_matrix_chain` — 16x16 chained matrix multiply
+- `heavy_sort_and_search` — bubble sort 512 + linear search
+- `heavy_hash_stress` — FNV-1a hash, 5000 iterations
+- `heavy_memory_thrash` — volatile read/write 1024-element buffer
+- `heavy_recursive_fib` — wrapper calling static `fib_recursive(25)`
+- `heavy_run_core0` through `heavy_run_core5` — per-core dispatchers
+
+**New local symbol:** `fib_recursive` — static recursive, emitted as LOCAL symbol.
+
+**Multi-core note:** Only test modifying all 6 `CpuN_Main.c`. Calls are ONE-SHOT
+(before `while(1)`), not per-iteration.
+
+## Source-to-Binary Function Correlation
+
+```
+Source                        Compilation              ELF Binary
+─────                         ───────────              ──────────
+
+perf_heavy.c                   GCC TriCore -O2
+┌────────────────────────┐    ┌──────────────┐    ┌──────────────────────────────┐
+│ heavy_matrix_chain()   │───▶│  All extern  │───▶│ heavy_matrix_chain     [GLB] │
+│ heavy_sort_and_search()│───▶│  discrete    │───▶│ heavy_sort_and_search  [GLB] │
+│ heavy_hash_stress()    │───▶│  symbols     │───▶│ heavy_hash_stress      [GLB] │
+│ heavy_memory_thrash()  │───▶│              │───▶│ heavy_memory_thrash    [GLB] │
+│ heavy_recursive_fib()  │───▶│              │───▶│ heavy_recursive_fib    [GLB] │
+│ static fib_recursive() │───▶│  static+rec  │───▶│ fib_recursive          [LOC] │
+│ heavy_run_core0..5()   │───▶│  per-core    │───▶│ heavy_run_core0..5     [GLB] │
+└────────────────────────┘    └──────────────┘    │                              │
+                                                   │ core0..5_main — modified     │
+Cpu0..5_Main.c                                    │   ONE-SHOT CALL before loop  │
+┌────────────────────────┐                        └──────────────────────────────┘
+│ coreN_main()           │
+│   heavy_run_coreN() ◄──┼── ONE-SHOT          11 GLOBAL + 1 LOCAL = 12 new
+│   while(1) { ... }     │                      6 modified (core0..core5_main)
+└────────────────────────┘
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

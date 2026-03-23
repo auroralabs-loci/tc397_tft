@@ -62,6 +62,43 @@ We want to answer:
   add minimal overhead vs an equivalent C-only small delta.
 - **Model throughput:** At or near peak.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 1 | Single extern function with TriCore `cls` assembly |
+| New local/static symbols | 0 | No static functions |
+| Inlined-away functions | 0 | No inline qualifiers |
+| Modified existing functions | 1 | `core0_main` — adds direct call to `asm_small_clz()` |
+| Total function count delta | +1 | Baseline ~157 → expected ~158 |
+
+**New function symbol:**
+- `asm_small_clz` — TriCore `cls` instruction with `asm volatile` wrapper.
+
+**Inline vs Not-Inline:** Not inline. Extern with discrete global symbol.
+
+## Source-to-Binary Function Correlation
+
+```
+Source                        Compilation              ELF Binary
+─────                         ───────────              ──────────
+
+perf_asm_small.c               GCC TriCore -O2
+┌───────────────────────┐     ┌──────────────┐    ┌──────────────────────────┐
+│ asm_small_clz()       │────▶│  asm volatile│───▶│ asm_small_clz      [GLB] │
+│   __asm__("cls %0,%1")│     │  cls emitted │    │   Machine: cls           │
+└───────────────────────┘     └──────────────┘    │                          │
+                                                   │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
+Cpu0_Main.c                                       │ core0_main         [GLB] │
+┌───────────────────────┐                         │   CALL asm_small_clz     │
+│ core0_main()          │──── CALL ──────────────▶│   CALL blinkLED          │
+│   while(1) {          │                         └──────────────────────────┘
+│     asm_small_clz()   │
+│     blinkLED()        │         1 new GLOBAL symbol
+│   }                   │         0 inlined / invisible
+└───────────────────────┘         1 modified (core0_main)
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 

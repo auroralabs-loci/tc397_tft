@@ -39,6 +39,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_explode.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -61,9 +62,11 @@ void core0_main(void)
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
     initLED(); /* Initialize the LED port pin      */
+    explode_chains_init(); /* PERF-010: build random-order linked list before loop */
 
     while (1)
     {
+        explode_run_all(); /* PERF-010: symbol explosion workload */
         blinkLED(); /* Make the LED blink           */
     }
 }

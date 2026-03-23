@@ -41,6 +41,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Multicore.h"
+#include "perf_explode.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -60,6 +61,7 @@ void core0_main(void)
 
     /* Initialize the LED and a time constant before the CPUs synchronization */
     initLEDAndTime();
+    explode_chains_init(); /* PERF-010: build random-order linked list before loop */
 
     /* Wait for CPU sync event */
     IfxCpu_emitEvent(&g_cpuSyncEvent);
@@ -67,6 +69,7 @@ void core0_main(void)
 
     while (1)
     {
+        explode_run_all(); /* PERF-010: symbol explosion workload */
         turnLEDon(); /* If the global variable g_turnLEDon is TRUE, turn on the LED */
     }
 }

@@ -63,6 +63,45 @@ We want to answer:
   near the model's minimum processing time.
 - **Model throughput:** At peak — this is the easiest case.
 
+## Expected Function Counts
+
+| Category | Count | Details |
+|----------|-------|---------|
+| New global symbols | 1 | Single extern function: `opt_small_crc_table` |
+| New local/static symbols | 0 | Nibble CRC table is `static const` data |
+| Inlined-away functions | 0 | No inline qualifiers |
+| Modified existing functions | 1 | `core0_main` — adds direct call in main loop |
+| Total function count delta | +1 | Baseline ~157 → expected ~158 |
+
+**New function symbol:**
+- `opt_small_crc_table` — 4-bit nibble CRC using 16-entry LUT.
+
+**Static data:** `sc_tbl[16]` nibble CRC table in `.rodata` (~64 bytes).
+
+**Inline vs Not-Inline:** Not inline. Extern with discrete global symbol.
+
+## Source-to-Binary Function Correlation
+
+```
+Source                         Compilation              ELF Binary
+─────                          ───────────              ──────────
+
+perf_opt_small.c                GCC TriCore -O2
+┌───────────────────────┐      ┌──────────────┐    ┌──────────────────────────┐
+│ opt_small_crc_table() │─────▶│  extern      │───▶│ opt_small_crc_table[GLB] │
+│ static const sc_tbl[] │      │              │    │ sc_tbl → .rodata (64B)   │
+└───────────────────────┘      └──────────────┘    │                          │
+                                                    │ core0_main         [GLB] │
+Cpu0_Main.c                                        │   CALL opt_small_crc_tbl │
+┌───────────────────────┐                          │   CALL blinkLED          │
+│ core0_main()          │──── CALL ───────────────▶└──────────────────────────┘
+│   while(1) {          │
+│     opt_small_crc()   │         1 new GLOBAL symbol
+│     blinkLED()        │         1 modified (core0_main)
+│   }                   │
+└───────────────────────┘
+```
+
 ## Actual Results
 <!-- Filled in after execution -->
 
