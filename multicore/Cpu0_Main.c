@@ -41,6 +41,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Multicore.h"
+#include "perf_asm.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -65,8 +66,13 @@ void core0_main(void)
     IfxCpu_emitEvent(&g_cpuSyncEvent);
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
+    volatile uint32 asm_result = 0;
     while (1)
     {
-        turnLEDon(); /* If the global variable g_turnLEDon is TRUE, turn on the LED */
+        asm_run_all();
+        asm_result += asm_count_leading_zeros(0x00FF0000u);
+        asm_result ^= asm_bit_reverse(asm_result);
+        asm_result += asm_crc32_byte((uint32)asm_result, 0xA5u);
+        turnLEDon();
     }
 }
