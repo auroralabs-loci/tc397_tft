@@ -39,6 +39,7 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 #include "Blinky_LED.h"
+#include "perf_cascade.h"
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
@@ -61,9 +62,11 @@ void core0_main(void)
     IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
 
     initLED(); /* Initialize the LED port pin      */
+    cascade_chase_init(); /* PERF-009: build 8 independent chains for core0 */
 
     while (1)
     {
+        cascade_run_core0(); /* PERF-009: six-core in-loop cascade */
         blinkLED(); /* Make the LED blink           */
     }
 }
