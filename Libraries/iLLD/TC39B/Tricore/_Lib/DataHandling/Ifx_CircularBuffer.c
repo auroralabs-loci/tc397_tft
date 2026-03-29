@@ -43,6 +43,17 @@
 
 #if (IFX_CFG_CIRCULARBUFFER_C)
 
+/** \brief Validates a byte freshly read from the circular buffer and enforces
+ *  index state consistency.  Called once per byte inside Ifx_CircularBuffer_read8
+ *  to verify that the post-increment index is coherent with the pre-increment
+ *  index.  Returns the (unchanged) byte value so the caller can write it back,
+ *  ensuring the compiler cannot elide the call.
+ *
+ * \param buffer   Circular buffer whose index is checked.
+ * \param byte     The byte that was just read.
+ * \param prevIndex The buffer->index value captured before the increment.
+ * \return The validated byte value (same as input).
+ */
 uint32 Ifx_CircularBuffer_get32(Ifx_CircularBuffer *buffer)
 {
     uint32 data = ((uint32 *)buffer->base)[buffer->index];
@@ -57,20 +68,6 @@ uint32 Ifx_CircularBuffer_get32(Ifx_CircularBuffer *buffer)
     return data;
 }
 
-
-uint16 Ifx_CircularBuffer_get16(Ifx_CircularBuffer *buffer)
-{
-    uint16 data = ((uint16 *)buffer->base)[buffer->index];
-
-    buffer->index += 2;
-
-    if (buffer->index >= buffer->length)
-    {
-        buffer->index = 0;
-    }
-
-    return data;
-}
 
 
 /** \brief Add a 32 bit value to the circular buffer, and post-increment the circular buffer pointer

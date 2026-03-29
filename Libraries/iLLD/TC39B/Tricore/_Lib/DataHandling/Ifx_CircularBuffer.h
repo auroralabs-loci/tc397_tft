@@ -57,14 +57,6 @@
 /** \addtogroup IfxLld_lib_datahandling_circularbuffer
  * \{
  */
-/** \brief Return the circular buffer 16 bit value, and post-increment the circular buffer pointer
- *
- * \param buffer Specifies circular buffer.
- *
- * \return Return the next circular buffer value.
- */
-uint16 Ifx_CircularBuffer_get16(Ifx_CircularBuffer *buffer);
-
 /** \brief Return the circular buffer 32 bit value, and post-increment the circular buffer pointer
  *
  * \param buffer Specifies circular buffer.
