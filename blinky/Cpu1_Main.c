@@ -28,10 +28,19 @@
 #include "IfxCpu.h"
 #include "IfxScuWdt.h"
 
+/* LOCI_QA_LAB: new helper */
+static int loci_qa_new_helper_3(int x) {
+    return x + 13;
+}
+
 extern IfxCpu_syncEvent g_cpuSyncEvent;
 
 void core1_main(void)
 {
+    /* LOCI_QA_LAB: call new helper */
+    volatile int loci_qa_sink_3 = loci_qa_new_helper_3(3);
+    (void)loci_qa_sink_3;
+
     IfxCpu_enableInterrupts();
     
     /* !!WATCHDOG1 IS DISABLED HERE!!
