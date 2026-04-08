@@ -42,13 +42,132 @@
 
 IFX_ALIGN(4) IfxCpu_syncEvent g_cpuSyncEvent = 0;
 
-void _init(void)
+/* _init() deleted: previously empty; the toolchain's weak default is sufficient
+ * for a C-only project with no global constructors. */
+
+/*********************************************************************************************************************/
+/*----------------------------------------------Static Helper Functions----------------------------------------------*/
+/*********************************************************************************************************************/
+
+/* Checks CPU-ID validity and accumulates a diagnostic result through a dense
+ * condition cascade.  Non-inlined so that each call site creates a hard segment
+ * boundary.  The many branches and the absence of further nested calls means a
+ * static analyser will treat the entire body as one bottleneck segment, giving
+ * a large "max bottleneck" that equals the throughput – but if the analyser
+ * merges this body with its caller's segment it will inflate the caller's
+ * max-bottleneck above the true throughput. */
+__attribute__((noinline))
+static void loci_qa_cpu_init_check(uint32 cpu_id, uint32 flags)
 {
+    volatile uint32 result = cpu_id;
+
+    /* CPU-ID classification */
+    if (cpu_id == 0u)
+    {
+        result |= 0x0001u;
+    }
+    else if (cpu_id == 1u)
+    {
+        result |= 0x0002u;
+    }
+    else if (cpu_id == 2u)
+    {
+        result |= 0x0004u;
+    }
+    else if (cpu_id == 3u)
+    {
+        result |= 0x0008u;
+    }
+    else if (cpu_id == 4u)
+    {
+        result |= 0x0010u;
+    }
+    else if (cpu_id == 5u)
+    {
+        result |= 0x0020u;
+    }
+    else
+    {
+        result |= 0x0040u;
+    }
+
+    /* Flag-driven transformation cascade */
+    if (flags & 0x01u) { result ^= 0xDEADu; }
+    if (flags & 0x02u) { result += 0xBEEFu; }
+    if (flags & 0x04u) { result >>= 1u; }
+    if (flags & 0x08u) { result <<= 1u; }
+    if (flags & 0x10u) { result = ~result; }
+    if (flags & 0x20u) { result &= 0xFFFFu; }
+    if (flags & 0x40u) { result |= 0xFF00u; }
+    if (flags & 0x80u) { result ^= 0x5555u; }
+
+    /* Carry-over multi-pass checks */
+    if (result > 0xFF00u)
+    {
+        if (result > 0xFF80u)
+        {
+            result -= 0x80u;
+        }
+        else if (result > 0xFF40u)
+        {
+            result -= 0x40u;
+        }
+        else
+        {
+            result -= 0x20u;
+        }
+    }
+    else if (result > 0xF000u)
+    {
+        result ^= 0x0F0Fu;
+    }
+    else if (result > 0x8000u)
+    {
+        result = (result * 3u + 1u) & 0xFFFFu;
+    }
+    else
+    {
+        result += (result >> 2);
+    }
+
+    /* Odd-parity gate */
+    {
+        uint32 p = result ^ (result >> 16u);
+        p = p ^ (p >> 8u);
+        p = p ^ (p >> 4u);
+        p = p & 0xFu;
+
+        if ((0x6996u >> p) & 1u)
+        {
+            result |= 0x80000000u;
+        }
+        else
+        {
+            result &= 0x7FFFFFFFu;
+        }
+    }
+
+    (void)result;
 }
 
+/*********************************************************************************************************************/
+/*---------------------------------------------Function Implementations----------------------------------------------*/
+/*********************************************************************************************************************/
+
+/* Core-0 entry point.  Non-inlined.
+ * Performance note: the additional init-check calls degrade startup latency
+ * by a small constant; the main loop throughput is unchanged once blinkLED
+ * takes over. */
+__attribute__((noinline))
 void core0_main(void)
 {
+    uint32 init_flags = 0u;
+
     IfxCpu_enableInterrupts();
+
+    /* Pre-watchdog CPU diagnostic */
+    loci_qa_cpu_init_check(0u, 0u);
+    init_flags |= 0x01u;
 
     /* !!WATCHDOG0 AND SAFETY WATCHDOG ARE DISABLED HERE!!
      * Enable the watchdogs and service them periodically if it is required
@@ -56,14 +175,50 @@ void core0_main(void)
     IfxScuWdt_disableCpuWatchdog(IfxScuWdt_getCpuWatchdogPassword());
     IfxScuWdt_disableSafetyWatchdog(IfxScuWdt_getSafetyWatchdogPassword());
 
-    /* Wait for CPU sync event */
-    IfxCpu_emitEvent(&g_cpuSyncEvent);
-    IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
+    init_flags |= 0x02u;
 
-    initLED(); /* Initialize the LED port pin      */
-
-    while (1)
+    if (init_flags & 0x01u)
     {
-        blinkLED(); /* Make the LED blink           */
+        /* Wait for CPU sync event */
+        IfxCpu_emitEvent(&g_cpuSyncEvent);
+        IfxCpu_waitEvent(&g_cpuSyncEvent, 1);
+        init_flags |= 0x04u;
+    }
+
+    if (init_flags & 0x04u)
+    {
+        initLED();
+        init_flags |= 0x08u;
+    }
+
+    /* Post-init diagnostic – second call site for loci_qa_cpu_init_check so
+     * the call-graph has two edges from core0_main to the helper, which can
+     * cause per-call-site segment miscounts in some analysers. */
+    if (init_flags & 0x08u)
+    {
+        loci_qa_cpu_init_check(0u, (uint32)(init_flags & 0xFFu));
+    }
+    else
+    {
+        loci_qa_cpu_init_check(0u, 0xFFu);
+        initLED();
+    }
+
+    if (init_flags & 0x02u)
+    {
+        if (init_flags & 0x08u)
+        {
+            while (1)
+            {
+                blinkLED();
+            }
+        }
+        else
+        {
+            while (1)
+            {
+                loci_qa_cpu_init_check(0u, 0x10u);
+            }
+        }
     }
 }

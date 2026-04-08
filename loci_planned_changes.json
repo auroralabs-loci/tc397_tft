@@ -1,0 +1,75 @@
+{
+  "touched_files": [
+    "blinky\\Blinky_LED.c",
+    "blinky\\Cpu0_Main.c",
+    "blinky\\Cpu1_Main.c"
+  ],
+  "intent": {
+    "modified": [
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "initLED",
+        "note": "noinline; added pre-init validation and post-init audit calls; more conditional branches; performance degraded ~40% vs baseline"
+      },
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "blinkLED",
+        "note": "noinline; replaced fixed WAIT_TIME with computed period; adds per-call overhead for low counts, faster for high counts"
+      },
+      {
+        "file": "blinky\\Cpu0_Main.c",
+        "function": "core0_main",
+        "note": "noinline; added init_flags state machine, two call sites to loci_qa_cpu_init_check, conditional blink loop"
+      },
+      {
+        "file": "blinky\\Cpu1_Main.c",
+        "function": "core1_main",
+        "note": "noinline; idle loop now calls loci_qa_cpu1_idle_work each iteration; multi-threshold counter branching"
+      }
+    ],
+    "new_helpers": [
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "loci_qa_clamp_period",
+        "note": "noinline; creates hard segment boundaries around its two call sites in loci_qa_blink_period_compute"
+      },
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "loci_qa_period_step_adjust",
+        "note": "noinline; called conditionally inside a loop in loci_qa_blink_period_compute – key confusion point for segment analysis"
+      },
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "loci_qa_led_pin_validate",
+        "note": "noinline; dense condition cascade; called from both initLED and blinkLED"
+      },
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "loci_qa_blink_period_compute",
+        "note": "noinline; contains conditional non-inlined call inside a loop (Segment 2) – static analysers that miss the conditional call inflate throughput above response time"
+      },
+      {
+        "file": "blinky\\Blinky_LED.c",
+        "function": "loci_qa_port_state_audit",
+        "note": "noinline; flag-driven 8-path condition cascade; no nested calls so max-bottleneck == throughput"
+      },
+      {
+        "file": "blinky\\Cpu0_Main.c",
+        "function": "loci_qa_cpu_init_check",
+        "note": "noinline; called from two sites in core0_main; many-branch body makes per-call-site segment-merging likely"
+      },
+      {
+        "file": "blinky\\Cpu1_Main.c",
+        "function": "loci_qa_cpu1_idle_work",
+        "note": "noinline; single dense bottleneck body; reference function for timing tools"
+      }
+    ],
+    "deleted": [
+      {
+        "file": "blinky\\Cpu0_Main.c",
+        "function": "_init",
+        "reason": "Previously empty; the toolchain weak default is sufficient for a C-only project. Removing the override eliminates a dead-weight symbol."
+      }
+    ]
+  }
+}
